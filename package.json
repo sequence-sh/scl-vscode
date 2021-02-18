@@ -1,0 +1,25 @@
+{
+    "name": "reductech-scl",
+    "displayName": "SCL",
+    "description": "Sequence Configuration Language",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.53.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "scl",
+            "aliases": ["SCL", "scl"],
+            "extensions": [".scl"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "scl",
+            "scopeName": "source.scl",
+            "path": "./syntaxes/scl.tmLanguage.json"
+        }]
+    }
+}
