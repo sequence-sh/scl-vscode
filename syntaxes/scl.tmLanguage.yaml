@@ -3,11 +3,12 @@ scopeName: source.scl
 foldingStartMarker: ^\s*-\s.+
 foldingStopMarker: ^\s*$
 patterns:
-    - include: '#expression'
     - include: '#comment'
+    - include: '#expression'
 repository:
     expression:
         patterns:
+        - include: '#date'
         - include: '#boolean-literal'
         - include: '#numeric-literal'
         - include: '#paren-expression'
@@ -16,7 +17,6 @@ repository:
         - include: '#variable-name'
         - include: '#array'
         - include: '#enum'
-        - include: '#date'
         - include: '#command'
         - include: '#pipe'
         - include: '#operator'
@@ -32,7 +32,7 @@ repository:
 
     numeric-literal:
         name: constant.numeric.decimal.scl
-        match: \b([0-9_]+)?\.[0-9_]+\b
+        match: \b[0-9]+(\.[0-9]+)?\b
 
     variable-name:
         name: variable.language.scl
@@ -149,10 +149,10 @@ repository:
     comment:
         patterns:
         -   name: comment.block.scl
-            begin: '/\*'
+            begin: /\*
             beginCaptures: 
                 '0': {name: punctuation.definition.comment.scl}
-            end: '\*/'
+            end: \*/
             endCaptures: 
                 '0': {name: punctuation.definition.comment.scl}
         -   name: comment.line.scl

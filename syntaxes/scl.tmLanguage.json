@@ -5,15 +5,18 @@
 	"foldingStopMarker": "^\\s*$",
 	"patterns": [
 	  {
-		"include": "#expression"
+		"include": "#comment"
 	  },
 	  {
-		"include": "#comment"
+		"include": "#expression"
 	  }
 	],
 	"repository": {
 	  "expression": {
 		"patterns": [
+		  {
+			"include": "#date"
+		  },
 		  {
 			"include": "#boolean-literal"
 		  },
@@ -37,9 +40,6 @@
 		  },
 		  {
 			"include": "#enum"
-		  },
-		  {
-			"include": "#date"
 		  },
 		  {
 			"include": "#command"
@@ -72,7 +72,7 @@
 	  },
 	  "numeric-literal": {
 		"name": "constant.numeric.decimal.scl",
-		"match": "\\b([0-9_]+)?\\.[0-9_]+\\b"
+		"match": "\\b[0-9]+(\\.[0-9]+)?\\b"
 	  },
 	  "variable-name": {
 		"name": "variable.language.scl",
