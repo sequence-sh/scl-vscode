@@ -19,6 +19,14 @@ C
 - <enum> = enum.Value
 - <date> 1990-01-06T01:23:45
 
+#region Regions can be folded
+
+- <Steps> =
+    "Can also be folded"
+
+#endregion
+
+
 # Create a Nuix case. This keeps the connection open for the rest of the Sequence.
 - NuixCreateCase
     CaseName: <CaseName>
