@@ -14,8 +14,8 @@ function activate(context) {
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     let serverOptions = {
-        run: { command: serverExe, args: ['C:\\Users\\wainw\\source\\repos\\Reductech\\random\\LanguageServerExamples\\lsp-example\\Server\\Server\\bin\\Debug\\netcoreapp2.1\\Server.dll'] },
-        debug: { command: serverExe, args: ['C:\\Users\\wainw\\source\\repos\\Reductech\\random\\LanguageServerExamples\\lsp-example\\Server\\Server\\bin\\Debug\\netcoreapp2.1\\Server.dll'] }
+        run: { command: serverExe, args: ['C:\\Users\\wainw\\source\\repos\\Reductech\\scl-vscode\\Server\\Server\\bin\\Debug\\netcoreapp2.1\\Server.dll'] },
+        debug: { command: serverExe, args: ['C:\\Users\\wainw\\source\\repos\\Reductech\\scl-vscode\\Server\\Server\\bin\\Debug\\netcoreapp2.1\\Server.dll'] }
     };
     // Options to control the language client
     let clientOptions = {
