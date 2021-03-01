@@ -3,16 +3,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 
 namespace Server
 {
     internal class CompletionHandler : ICompletionHandler
     {
+        public ILogger<CompletionHandler> Logger { get; }
 
-        private readonly ILanguageServer _router;
-        private readonly BufferManager _bufferManager;
+        private readonly ILanguageServerConfiguration _configuration;
+        private readonly DocumentManager _documentManager;
 
-        private readonly DocumentSelector _documentSelector = new DocumentSelector(
+        private readonly DocumentSelector _documentSelector = new (
             new DocumentFilter()
             {
                 Pattern = "**/*.scl"
@@ -21,10 +24,11 @@ namespace Server
 
         private CompletionCapability _capability;
 
-        public CompletionHandler(ILanguageServer router, BufferManager bufferManager)
+        public CompletionHandler(ILanguageServerConfiguration configuration, ILogger<CompletionHandler> logger, DocumentManager documentManager)
         {
-            _router = router;
-            _bufferManager = bufferManager;
+            Logger = logger;
+            _configuration = configuration;
+            _documentManager = documentManager;
         }
 
         public CompletionRegistrationOptions GetRegistrationOptions()
@@ -38,23 +42,24 @@ namespace Server
 
         public async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
+
             var documentPath = request.TextDocument.Uri.ToString();
-            var buffer = _bufferManager.GetBuffer(documentPath);
+            var buffer = _documentManager.GetBuffer(documentPath);
 
             if (buffer == null)
             {
                 return new CompletionList();
             }
 
-
-            return new CompletionList(false,
+            return new CompletionList(
                 new CompletionItem
                 {
-                    Label = "This is a completion item",
+                    Label = "Mark Is Cool",
                     Kind = CompletionItemKind.Reference,
                     TextEdit = new TextEdit
                     {
-                        NewText = "New Text",
+                        NewText = "Mark Is very Cool",
                         Range = new Range(
                             new Position
                             {
@@ -86,6 +91,15 @@ namespace Server
         public void SetCapability(CompletionCapability capability)
         {
             _capability = capability;
+        }
+
+        public CompletionRegistrationOptions GetRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities)
+        {
+            return new ()
+            {
+                DocumentSelector = _documentSelector,
+
+            };
         }
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
 using System;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Server
 {
@@ -16,11 +18,15 @@ namespace Server
                     .WithOutput(Console.OpenStandardOutput())
                     .WithLoggerFactory(new LoggerFactory())
                     .AddDefaultLoggingProvider()
-                    .WithMinimumLogLevel(LogLevel.Trace)
                     .WithServices(ConfigureServices)
                     .WithHandler<TextDocumentSyncHandler>()
                     .WithHandler<CompletionHandler>()
                     .WithHandler<HoverHandler>()
+                    .OnStarted((x,_) =>
+                    {
+                        x.LogInfo("SCL Language Server Starting");
+                        return Task.CompletedTask;
+                    })
                 );
 
             await server.WaitForExit;
@@ -28,7 +34,7 @@ namespace Server
 
         static void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<BufferManager>();
+            services.AddSingleton<DocumentManager>();
         }
     }
 }

@@ -1,22 +1,35 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Server
 {
     internal class HoverHandler : IHoverHandler
     {
-        private readonly DocumentSelector _documentSelector = new DocumentSelector(
+        private readonly ILanguageServerConfiguration _configuration;
+        private readonly ILogger<HoverHandler> _logger;
+        private readonly DocumentManager _documentManager;
+
+
+        private readonly DocumentSelector _documentSelector = new(
             new DocumentFilter()
             {
                 Pattern = "**/*.scl"
             }
         );
 
-        private HoverCapability _capability;
+        public HoverHandler(ILanguageServerConfiguration configuration, ILogger<HoverHandler> logger,
+            DocumentManager documentManager)
+        {
+            _configuration = configuration;
+            _logger = logger;
+            _documentManager = documentManager;
+        }
 
         /// <inheritdoc />
         public async Task<Hover> Handle(HoverParams request, CancellationToken cancellationToken)
@@ -29,19 +42,15 @@ namespace Server
             };
         }
 
+
         /// <inheritdoc />
-        public TextDocumentRegistrationOptions GetRegistrationOptions()
+        public HoverRegistrationOptions GetRegistrationOptions(HoverCapability capability,
+            ClientCapabilities clientCapabilities)
         {
-            return new ()
+            return new()
             {
                 DocumentSelector = _documentSelector
             };
-        }
-
-        /// <inheritdoc />
-        public void SetCapability(HoverCapability capability)
-        {
-            _capability = capability;
         }
     }
 }
