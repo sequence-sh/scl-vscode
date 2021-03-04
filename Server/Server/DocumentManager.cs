@@ -3,20 +3,18 @@ using System.Collections.Concurrent;
 
 namespace Server
 {
-    internal record SCLDocument(string Text);
-
     internal class DocumentManager
     {
-        private readonly ConcurrentDictionary<string, SCLDocument> _buffers = new();
+        private readonly ConcurrentDictionary<string, SCLDocument> _documents = new();
 
-        public void UpdateBuffer(string documentPath, SCLDocument buffer)
+        public void UpdateDocument(string documentPath, SCLDocument document)
         {
-            _buffers.AddOrUpdate(documentPath, buffer, (k, v) => buffer);
+            _documents.AddOrUpdate(documentPath, document, (_, _) => document);
         }
 
-        public SCLDocument GetBuffer(string documentPath)
+        public SCLDocument GetDocument(string documentPath)
         {
-            return _buffers.TryGetValue(documentPath, out var buffer) ? buffer : null;
+            return _documents.TryGetValue(documentPath, out var document) ? document : null;
         }
     }
 }

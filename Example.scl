@@ -3,10 +3,7 @@
 /* Block Comment */ 
 
 - <string> = 'ABC'
-- <multiline> = "A 
-B
-C
-\r \n \\ \" \a \b \c"
+- <multiline> = "A BC\r \n \\ \""
 
 - Print Value:'Something'
 - <Entity> = 
@@ -17,7 +14,7 @@ C
 - <bools> = [true, TRUE, false, falsE]
 - <numbers> = [1, 23, 45.678]
 - <enum> = enum.Value
-- <date> 1990-01-06T01:23:45
+#- <date> 1990-01-06T01:23:45
 
 #region Regions can be folded
 
@@ -25,8 +22,8 @@ C
     "Can also be folded"
 
 #endregion
-
-
+- Print Value:'Something'
+- NuixCreateCase
 # Create a Nuix case. This keeps the connection open for the rest of the Sequence.
 - NuixCreateCase
     CaseName: <CaseName>

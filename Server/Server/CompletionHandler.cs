@@ -1,19 +1,24 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+﻿using System.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using Reductech.EDR.Core.Internal;
 
 namespace Server
 {
+
+
     internal class CompletionHandler : ICompletionHandler
     {
         public ILogger<CompletionHandler> Logger { get; }
 
         private readonly ILanguageServerConfiguration _configuration;
         private readonly DocumentManager _documentManager;
+        private readonly StepFactoryStore _stepFactoryStore;
 
         private readonly DocumentSelector _documentSelector = new (
             new DocumentFilter()
@@ -24,11 +29,15 @@ namespace Server
 
         private CompletionCapability _capability;
 
-        public CompletionHandler(ILanguageServerConfiguration configuration, ILogger<CompletionHandler> logger, DocumentManager documentManager)
+        public CompletionHandler(ILanguageServerConfiguration configuration,
+            ILogger<CompletionHandler> logger,
+            DocumentManager documentManager,
+            StepFactoryStore stepFactoryStore)
         {
             Logger = logger;
             _configuration = configuration;
             _documentManager = documentManager;
+            _stepFactoryStore = stepFactoryStore;
         }
 
         public CompletionRegistrationOptions GetRegistrationOptions()
@@ -45,48 +54,23 @@ namespace Server
             await Task.CompletedTask;
 
             var documentPath = request.TextDocument.Uri.ToString();
-            var buffer = _documentManager.GetBuffer(documentPath);
+            var document = _documentManager.GetDocument(documentPath);
 
-            if (buffer == null)
+            Logger.LogWarning($"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
+
+            if (document == null)
             {
+                Logger.LogWarning($"Document not found: {request.TextDocument.Uri}");
                 return new CompletionList();
             }
 
-            return new CompletionList(
-                new CompletionItem
-                {
-                    Label = "Mark Is Cool",
-                    Kind = CompletionItemKind.Reference,
-                    TextEdit = new TextEdit
-                    {
-                        NewText = "Mark Is very Cool",
-                        Range = new Range(
-                            new Position
-                            {
-                                Line = request.Position.Line,
-                                Character = request.Position.Character
-                            }, new Position
-                            {
-                                Line = request.Position.Line,
-                                Character = request.Position.Character + 5
-                            })
-                    }
-                });
+            var cl = document.GetCompletionList(request.Position, _stepFactoryStore);
+
+            Logger.LogWarning($"Completion Request returns {cl.Items.Count()} items ");
+
+            return cl;
         }
 
-
-        private static int GetPosition(string buffer, int line, int col)
-        {
-            var position = 0;
-            for (var i = 0;
-                i < line;
-                i++)
-            {
-                position = buffer.IndexOf('\n', position) + 1;
-            }
-
-            return position + col;
-        }
 
         public void SetCapability(CompletionCapability capability)
         {

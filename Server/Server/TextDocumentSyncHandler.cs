@@ -57,15 +57,16 @@ namespace Server
             var documentPath = request.TextDocument.Uri.ToString();
             var text = request.ContentChanges.FirstOrDefault()?.Text;
 
-            _documentManager.UpdateBuffer(documentPath, new SCLDocument(text));
-            Logger.LogInformation($"Updated buffer for document: {documentPath}\n{text}");
+
+            _documentManager.UpdateDocument(documentPath, new SCLDocument(text));
+            Logger.LogWarning($"Updated buffer for document: {documentPath}");
 
             return Unit.Task;
         }
 
         public Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            _documentManager.UpdateBuffer(request.TextDocument.Uri.ToString(), new SCLDocument(request.TextDocument.Text));
+            _documentManager.UpdateDocument(request.TextDocument.Uri.ToString(), new SCLDocument(request.TextDocument.Text));
             return Unit.Task;
         }
 
