@@ -53,8 +53,7 @@ namespace Server
         {
             await Task.CompletedTask;
 
-            var documentPath = request.TextDocument.Uri.ToString();
-            var document = _documentManager.GetDocument(documentPath);
+            var document = _documentManager.GetDocument(request.TextDocument.Uri);
 
             Logger.LogWarning($"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
 

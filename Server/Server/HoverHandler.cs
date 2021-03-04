@@ -1,15 +1,18 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Reductech.EDR.Core.Internal;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Server
 {
+
+
     internal class HoverHandler : IHoverHandler
     {
         private readonly ILanguageServerConfiguration _configuration;
@@ -35,13 +38,12 @@ namespace Server
         }
 
         /// <inheritdoc />
-        public async Task<Hover> Handle(HoverParams request, CancellationToken cancellationToken)
+        public async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
             await Task.CompletedTask;
-            _logger.LogWarning($"Hover Position: {request.Position} Document: {request.TextDocument}");
+            _logger.LogDebug($"Hover Position: {request.Position} Document: {request.TextDocument}");
 
-            var documentPath = request.TextDocument.Uri.ToString();
-            var document = _documentManager.GetDocument(documentPath);
+            var document = _documentManager.GetDocument(request.TextDocument.Uri);
 
             if (document == null)
             {
@@ -50,6 +52,8 @@ namespace Server
             }
 
             var hover = document.GetHover(request.Position, _stepFactoryStore);
+
+            _logger.LogDebug($"Hover: {hover.Contents}");
 
             return hover;
         }

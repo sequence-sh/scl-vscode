@@ -58,6 +58,14 @@ namespace Server
             );
         }
 
+        public static Range GetRange(this TextLocation textLocation)
+        {
+            return new (
+                textLocation.Start.Line -1, textLocation.Start.Column,
+                textLocation.Stop.Line -1, textLocation.Stop.Index + textLocation.Stop.Interval.Length
+            );
+        }
+
         public static T LexParseAndVisit<T>(this SCLBaseVisitor<T> visitor, string text)
         {
             var inputStream = new AntlrInputStream(text);
