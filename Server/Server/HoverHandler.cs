@@ -1,19 +1,24 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using Reductech.EDR.Core.Internal;
 
 namespace Server
 {
+
+
     internal class HoverHandler : IHoverHandler
     {
         private readonly ILanguageServerConfiguration _configuration;
         private readonly ILogger<HoverHandler> _logger;
         private readonly DocumentManager _documentManager;
+        private readonly StepFactoryStore _stepFactoryStore;
 
 
         private readonly DocumentSelector _documentSelector = new(
@@ -24,22 +29,33 @@ namespace Server
         );
 
         public HoverHandler(ILanguageServerConfiguration configuration, ILogger<HoverHandler> logger,
-            DocumentManager documentManager)
+            DocumentManager documentManager, StepFactoryStore stepFactoryStore)
         {
             _configuration = configuration;
             _logger = logger;
             _documentManager = documentManager;
+            _stepFactoryStore = stepFactoryStore;
         }
 
         /// <inheritdoc />
-        public async Task<Hover> Handle(HoverParams request, CancellationToken cancellationToken)
+        public async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
             await Task.CompletedTask;
-            return new Hover()
+            _logger.LogDebug($"Hover Position: {request.Position} Document: {request.TextDocument}");
+
+            var document = _documentManager.GetDocument(request.TextDocument.Uri);
+
+            if (document == null)
             {
-                Range = new Range(request.Position, request.Position),
-                Contents = new MarkedStringsOrMarkupContent(new MarkedString("Hello Hello Hello"))
-            };
+                _logger.LogWarning($"Document not found: {request.TextDocument.Uri}");
+                return new Hover();
+            }
+
+            var hover = document.GetHover(request.Position, _stepFactoryStore);
+
+            _logger.LogDebug($"Hover: {hover.Contents}");
+
+            return hover;
         }
 
 

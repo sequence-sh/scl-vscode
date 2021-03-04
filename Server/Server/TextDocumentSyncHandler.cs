@@ -10,7 +10,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Server
 {
@@ -54,23 +53,26 @@ namespace Server
 
         public Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken)
         {
-            var documentPath = request.TextDocument.Uri.ToString();
-            var text = request.ContentChanges.FirstOrDefault()?.Text;
 
-            _documentManager.UpdateBuffer(documentPath, new SCLDocument(text));
-            Logger.LogInformation($"Updated buffer for document: {documentPath}\n{text}");
+            var uri = request.TextDocument.Uri;
+            var text = request.ContentChanges.FirstOrDefault()?.Text??"";
+
+
+            _documentManager.UpdateDocument(new SCLDocument(text, uri));
+            Logger.LogWarning($"Updated buffer for document: {uri}");
 
             return Unit.Task;
         }
 
         public Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            _documentManager.UpdateBuffer(request.TextDocument.Uri.ToString(), new SCLDocument(request.TextDocument.Text));
+            _documentManager.UpdateDocument(new SCLDocument(request.TextDocument.Text, request.TextDocument.Uri));
             return Unit.Task;
         }
 
         public Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
         {
+            _documentManager.RemoveDocument(request.TextDocument.Uri);
             return Unit.Task;
         }
 

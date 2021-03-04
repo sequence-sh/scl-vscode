@@ -1,13 +1,8 @@
 #Comment
 
 /* Block Comment */ 
-
 - <string> = 'ABC'
-- <multiline> = "A 
-B
-C
-\r \n \\ \" \a \b \c"
-
+- <multiline> = "A BC\r \n \\ \""
 - Print Value:'Something'
 - <Entity> = 
     (key: 123, 
@@ -17,25 +12,27 @@ C
 - <bools> = [true, TRUE, false, falsE]
 - <numbers> = [1, 23, 45.678]
 - <enum> = enum.Value
-- <date> 1990-01-06T01:23:45
+- <date> = 1990-01-06T01:23:45
+- FromJson
+
 
 #region Regions can be folded
 
 - <Steps> =
-    "Can also be folded"
+    "Can also be folded" 
 
 #endregion
+- Print Value:'Something'
+# - NuixCreateCase
+# # Create a Nuix case. This keeps the connection open for the rest of the Sequence.
+# - NuixCreateCase
+#     CaseName: <CaseName>
+#     CasePath: <CasePath>
+#     Investigator: <Investigator>
 
-
-# Create a Nuix case. This keeps the connection open for the rest of the Sequence.
-- NuixCreateCase
-    CaseName: <CaseName>
-    CasePath: <CasePath>
-    Investigator: <Investigator>
-
-# Add EDRM Micro dataset to the case
-- NuixAddItem
-    Custodian: <Custodian>
-    Paths: <Evidence>
-    FolderName: <FolderName>
-    ProcessingProfileName: <ProcessingProfileName>
+# # Add EDRM Micro dataset to the case
+# - NuixAddItem
+#     Custodian: <Custodian>
+#     Paths: <Evidence>
+#     FolderName: <FolderName>
+#     ProcessingProfileName: <ProcessingProfileName>
