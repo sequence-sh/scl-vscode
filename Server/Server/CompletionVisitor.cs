@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
 
-namespace Server
+namespace LanguageServer
 {
     public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
     {
@@ -21,13 +21,60 @@ namespace Server
         public Position Position { get; }
         public StepFactoryStore StepFactoryStore { get; }
 
+
+        /// <inheritdoc />
+        protected override bool ShouldVisitNextChild(IRuleNode node, CompletionList? currentResult)
+        {
+            return currentResult is null;
+        }
+
+        /// <inheritdoc />
+        public override CompletionList? Visit(IParseTree tree)
+        {
+            if (tree is ParserRuleContext context)
+            {
+                if (context.ContainsPosition(Position))
+                {
+                    return base.Visit(tree);
+                }
+                else if (context.EndsBefore(Position) && !HasSiblingContaining(context, Position))
+                {
+                    //This position is at the end of this line - enter anyway
+                    return base.Visit(tree);
+                }
+            }
+
+            return DefaultResult;
+        }
+
+        private static bool HasSiblingContaining(ParserRuleContext ruleContext, Position p)
+        {
+            if (ruleContext.Parent is ParserRuleContext prc)
+            {
+                if (prc.children.Reverse().Any(c => c.ContainsPosition(p)))
+                    return true;
+
+                return HasSiblingContaining(prc, p);
+            }
+
+            return false;
+        }
+
         /// <inheritdoc />
         public override CompletionList? VisitFunction(SCLParser.FunctionContext context)
         {
-            if (!context.ContainsPosition(Position))
-                return null;
-
             var name = context.NAME().GetText();
+
+            if (!context.ContainsPosition(Position))
+            {
+                if(context.EndsBefore(Position)) //This position is on the line after the step definition
+                {
+                    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
+                        return null; //No clue what name to use
+
+                    return ReplaceWithStepParameters(stepFactory, new Range(Position, Position));
+                }
+            }
 
 
             if (context.NAME().Symbol.ContainsPosition(Position))
@@ -155,20 +202,6 @@ namespace Server
             return new();
         }
 
-        /// <inheritdoc />
-        protected override bool ShouldVisitNextChild(IRuleNode node, CompletionList? currentResult)
-        {
-            return currentResult is null;
-        }
 
-        /// <inheritdoc />
-        public override CompletionList? Visit(IParseTree tree)
-        {
-            if (tree is ParserRuleContext context && context.ContainsPosition(Position))
-                return base.Visit(tree);
-
-
-            return DefaultResult;
-        }
     }
 }

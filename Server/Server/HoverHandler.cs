@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Reductech.EDR.Core.Internal;
 
-namespace Server
+namespace LanguageServer
 {
 
 

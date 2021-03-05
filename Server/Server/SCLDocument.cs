@@ -7,7 +7,7 @@ using Reductech.EDR.Core.Internal.Errors;
 using Reductech.EDR.Core.Internal.Parser;
 using Reductech.EDR.Core.Util;
 
-namespace Server
+namespace LanguageServer
 {
     public record SCLDocument(string Text, DocumentUri DocumentUri)
     {

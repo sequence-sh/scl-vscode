@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
 
-namespace Server
+namespace LanguageServer
 {
     public class HoverVisitor : SCLBaseVisitor<Hover?>
     {

@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
-using System;
-using System.Threading.Tasks;
 using Reductech.EDR.Core.Internal;
 
-namespace Server
+namespace LanguageServer
 {
     internal class Program
     {
@@ -30,7 +30,7 @@ namespace Server
             //Log.Logger.Information("This only goes file...");
 
 
-            var server = await LanguageServer.From(
+            var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
                 options =>
                     options
                        .WithInput(Console.OpenStandardInput())

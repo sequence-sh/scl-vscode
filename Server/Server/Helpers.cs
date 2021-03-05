@@ -1,11 +1,12 @@
 ﻿using System.Linq;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Documentation;
 using Reductech.EDR.Core.Internal.Parser;
 
-namespace Server
+namespace LanguageServer
 {
     public static class Helpers
     {
@@ -42,11 +43,25 @@ namespace Server
             return true;
         }
 
+        public static bool ContainsPosition(this IParseTree parseTree, Position position)
+        {
+            if (parseTree is IToken token)
+                return token.ContainsPosition(position);
+            else if (parseTree is ParserRuleContext prc)
+                return prc.ContainsPosition(position);
+
+            return false;
+        }
 
         public static bool ContainsPosition(this ParserRuleContext context, Position position)
         {
             return context.Start.StartsBeforeOrAt(position) && context.Stop.EndsAfterOrAt(position);
         }
+
+        public static bool EndsBefore(this ParserRuleContext context, Position position) => !context.Stop.EndsAfterOrAt(position);
+
+        public static bool StartsAfter(this ParserRuleContext context, Position position) =>
+            !context.Start.StartsBeforeOrAt(position);
 
         public static Range GetRange(this ParserRuleContext context)
         {

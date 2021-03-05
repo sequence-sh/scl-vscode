@@ -4,7 +4,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Xunit;
-using Server;
 
 namespace LanguageServer.Test
 {

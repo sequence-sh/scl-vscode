@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -7,9 +6,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Reductech.EDR.Core.Internal;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace Server
+namespace LanguageServer
 {
     internal class DocumentManager
     {
