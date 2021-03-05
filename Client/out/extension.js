@@ -13,9 +13,10 @@ function activate(context) {
     let serverExe = 'dotnet';
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
+
     let serverOptions = {
-        run: { command: serverExe, args: ['C:\\Users\\wainw\\source\\repos\\Reductech\\scl-vscode\\Server\\Server\\bin\\Debug\\net5.0\\Server.dll'] },
-        debug: { command: serverExe, args: ['C:\\Users\\wainw\\source\\repos\\Reductech\\scl-vscode\\Server\\Server\\bin\\Debug\\net5.0\\Server.dll'] }
+        run: { command: serverExe, args: [context.extensionPath  + '\\..\\Server\\Server\\bin\\Debug\\net5.0\\Server.dll'] },
+        debug: { command: serverExe, args: [context.extensionPath  + '\\..\\Server\\Server\\bin\\Debug\\net5.0\\Server.dll'] }
     };
     // Options to control the language client
     let clientOptions = {
