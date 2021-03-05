@@ -16,7 +16,6 @@ namespace Server
     internal class TextDocumentSyncHandler : ITextDocumentSyncHandler
     {
         public ILogger<TextDocumentSyncHandler> Logger { get; }
-        private readonly ILanguageServerConfiguration _configuration;
         private readonly DocumentManager _documentManager;
 
         private readonly DocumentSelector _documentSelector = new(
@@ -28,11 +27,11 @@ namespace Server
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentSyncHandler(ILanguageServerConfiguration configuration, ILogger<TextDocumentSyncHandler> logger, DocumentManager documentManager)
+        public TextDocumentSyncHandler( ILogger<TextDocumentSyncHandler> logger, DocumentManager documentManager)
         {
             Logger = logger;
-            _configuration = configuration;
             _documentManager = documentManager;
+            _capability = new SynchronizationCapability();
         }
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
@@ -46,10 +45,10 @@ namespace Server
             };
         }
 
-        public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
-        {
-            return new(uri, "scl");
-        }
+        //public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
+        //{
+        //    return new(uri, "scl");
+        //}
 
         public Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken)
         {

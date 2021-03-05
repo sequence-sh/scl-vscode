@@ -40,7 +40,7 @@ namespace Server
 
             var diagnostics =document.GetDiagnostics(_stepFactoryStore);
 
-            var diagnosticCount = diagnostics?.Diagnostics?.Count() ?? 0;
+            var diagnosticCount = diagnostics.Diagnostics?.Count() ?? 0;
 
             _logger.LogDebug($"Publishing {diagnosticCount} diagnostics for {document.DocumentUri}");
 

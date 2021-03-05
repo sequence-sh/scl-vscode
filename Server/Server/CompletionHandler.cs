@@ -38,6 +38,7 @@ namespace Server
             _configuration = configuration;
             _documentManager = documentManager;
             _stepFactoryStore = stepFactoryStore;
+            _capability = new CompletionCapability();
         }
 
         public CompletionRegistrationOptions GetRegistrationOptions()

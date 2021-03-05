@@ -53,7 +53,7 @@ namespace LanguageServer.Test
                 hover.Contents.HasMarkedStrings.Should().BeTrue($"Should have Hover '{expectedHover}'");
             }
 
-            hover.Contents.MarkedStrings.First().Value.Should().Be(expectedHover);
+            hover.Contents.MarkedStrings!.First().Value.Should().Be(expectedHover);
         }
     }
 }
