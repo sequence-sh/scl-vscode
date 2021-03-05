@@ -10,8 +10,8 @@ const vscode_jsonrpc_1 = require("vscode-jsonrpc");
 function activate(context) {
     let serverExe = 'dotnet';
     let serverOptions = {
-        run: { command: serverExe, args: [context.extensionPath  + '\\..\\Server\\Server\\bin\\Debug\\net5.0\\Server.dll'] },
-        debug: { command: serverExe, args: [context.extensionPath  + '\\..\\Server\\Server\\bin\\Debug\\net5.0\\Server.dll'] }
+        run: { command: serverExe, args: [context.extensionPath  + '\\..\\Server\\Server\\bin\\Debug\\net5.0\\LanguageServer.dll'] },
+        debug: { command: serverExe, args: [context.extensionPath  + '\\..\\Server\\Server\\bin\\Debug\\net5.0\\LanguageServer.dll'] }
     };
     let clientOptions = {
         documentSelector: [
