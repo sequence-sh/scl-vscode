@@ -59,7 +59,7 @@ namespace Server
 
 
             _documentManager.UpdateDocument(new SCLDocument(text, uri));
-            Logger.LogWarning($"Updated buffer for document: {uri}");
+            Logger.LogDebug($"Updated buffer for document: {uri}");
 
             return Unit.Task;
         }

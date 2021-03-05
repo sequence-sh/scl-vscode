@@ -55,7 +55,7 @@ namespace Server
 
             var document = _documentManager.GetDocument(request.TextDocument.Uri);
 
-            Logger.LogWarning($"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
+            Logger.LogDebug($"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
 
             if (document == null)
             {
@@ -65,7 +65,7 @@ namespace Server
 
             var cl = document.GetCompletionList(request.Position, _stepFactoryStore);
 
-            Logger.LogWarning($"Completion Request returns {cl.Items.Count()} items ");
+            Logger.LogDebug($"Completion Request returns {cl.Items.Count()} items ");
 
             return cl;
         }

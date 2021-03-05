@@ -1,6 +1,5 @@
 /* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
+Reductech SCL Language Extension
  * ------------------------------------------------------------------------------------------ */
 // tslint:disable
 'use strict';
@@ -9,31 +8,24 @@ const vscode_1 = require("vscode");
 const vscode_languageclient_1 = require("vscode-languageclient");
 const vscode_jsonrpc_1 = require("vscode-jsonrpc");
 function activate(context) {
-    // The server is implemented in node
     let serverExe = 'dotnet';
-    // If the extension is launched in debug mode then the debug server options are used
-    // Otherwise the run options are used
-
     let serverOptions = {
         run: { command: serverExe, args: [context.extensionPath  + '\\..\\Server\\Server\\bin\\Debug\\net5.0\\Server.dll'] },
         debug: { command: serverExe, args: [context.extensionPath  + '\\..\\Server\\Server\\bin\\Debug\\net5.0\\Server.dll'] }
     };
-    // Options to control the language client
     let clientOptions = {
-        // Register the server for plain text documents
         documentSelector: [
             {
                 pattern: '**/*.scl',
             }
         ],
         synchronize: {
-            // Synchronize the setting section 'languageServerExample' to the server
-            configurationSection: 'languageServerExample',
+            configurationSection: 'SCLLanguageServer',
             fileEvents: vscode_1.workspace.createFileSystemWatcher('**/*.scl')
         },
     };
     // Create the language client and start the client.
-    const client = new vscode_languageclient_1.LanguageClient('languageServerExample', 'Language Server Example', serverOptions, clientOptions);
+    const client = new vscode_languageclient_1.LanguageClient('SCLLanguageServer', 'SCL Language Server', serverOptions, clientOptions);
     client.trace = vscode_jsonrpc_1.Trace.Verbose;
     let disposable = client.start();
     // Push the disposable to the context's subscriptions so that the
