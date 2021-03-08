@@ -23,7 +23,7 @@
 
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="del &quot;$(SolutionDir)..\Client\Server&quot;" />
+    <Exec Command="del /s /q &quot;$(SolutionDir)..\Client\Server&quot;" />
     <Exec Command="xcopy &quot;$(SolutionDir)Server\bin\Debug\net5.0\*&quot; &quot;$(SolutionDir)..\Client\Server&quot;/F /R /Y /I /E" />
   </Target>
 
