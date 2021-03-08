@@ -5,5 +5,5 @@ FileRead 'artwork_data.csv'
 | EntityMapProperties (artist: 'Artist Name' artistId: 'ArtistId')
 | ArraySort (from <entity> 'year')
 | ArrayDistinct (from <entity> 'id')
-| ToJsonArray
+| ToJsonArray 
 | FileWrite 'Artwork_Data.json'

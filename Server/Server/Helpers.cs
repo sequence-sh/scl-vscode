@@ -53,6 +53,25 @@ namespace LanguageServer
             return false;
         }
 
+        public static bool StartsAfter(this IParseTree parseTree, Position position)
+        {
+            if (parseTree is IToken token)
+                return !token.StartsBeforeOrAt(position);
+            else if (parseTree is ParserRuleContext prc)
+                return prc.StartsAfter(position);
+
+            return false;
+        }
+        public static bool EndsBefore(this IParseTree parseTree, Position position)
+        {
+            if (parseTree is IToken token)
+                return !token.EndsAfterOrAt(position);
+            else if (parseTree is ParserRuleContext prc)
+                return prc.EndsBefore(position);
+
+            return false;
+        }
+
         public static bool ContainsPosition(this ParserRuleContext context, Position position)
         {
             return context.Start.StartsBeforeOrAt(position) && context.Stop.EndsAfterOrAt(position);

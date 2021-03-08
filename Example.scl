@@ -1,7 +1,6 @@
 #Comment
 
 /* Block Comment */
-- FromCSV
 - <string> = 'ABC'
 - <multiline> = "A BC\r \n \\ \""
 - Print Value:'Something'
@@ -24,16 +23,16 @@
 
 #endregion
 - Print Value:'Something'
-# - NuixCreateCase
-# # Create a Nuix case. This keeps the connection open for the rest of the Sequence.
-# - NuixCreateCase
-#     CaseName: <CaseName>
-#     CasePath: <CasePath>
-#     Investigator: <Investigator>
+- NuixCreateCase
+# Create a Nuix case. This keeps the connection open for the rest of the Sequence.
+- NuixCreateCase
+    CaseName: <CaseName>
+    CasePath: <CasePath>
+    Investigator: <Investigator>
 
-# # Add EDRM Micro dataset to the case
-# - NuixAddItem
-#     Custodian: <Custodian>
-#     Paths: <Evidence>
-#     FolderName: <FolderName>
-#     ProcessingProfileName: <ProcessingProfileName>
+# Add EDRM Micro dataset to the case
+- NuixAddItem
+    Custodian: <Custodian>
+    Paths: <Evidence>
+    FolderName: <FolderName>
+    ProcessingProfileName: <ProcessingProfileName>

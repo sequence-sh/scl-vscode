@@ -37,24 +37,44 @@ namespace LanguageServer
                 {
                     return base.Visit(tree);
                 }
-                else if (context.EndsBefore(Position) && !HasSiblingContaining(context, Position))
-                {
-                    //This position is at the end of this line - enter anyway
-                    return base.Visit(tree);
-                }
+                //else if (context.EndsBefore(Position) && !HasSiblingsAfter(context, Position))
+                //{
+                //    //This position is at the end of this line - enter anyway
+                //    return base.Visit(tree);
+                //}
             }
 
             return DefaultResult;
         }
 
-        private static bool HasSiblingContaining(ParserRuleContext ruleContext, Position p)
+        ///// <inheritdoc />
+        //public override CompletionList? VisitChildren(IRuleNode node)
+        //{
+        //    if (node.ChildCount <= 0)
+        //        return null;
+
+        //    if (node.ContainsPosition(Position))
+        //    {
+        //        return base.VisitChildren(node);
+        //    }
+        //    else if (node.EndsBefore(Position) && !HasSiblingsAfter(node, Position))
+        //    {
+        //        //This position is at the end of this line - enter anyway
+        //        return Visit(node.GetChild(node.ChildCount - 1));
+        //    }
+
+        //    return null;
+        //}
+
+
+        private static bool HasSiblingsAfter(IRuleNode ruleContext, Position p)
         {
             if (ruleContext.Parent is ParserRuleContext prc)
             {
-                if (prc.children.Reverse().Any(c => c.ContainsPosition(p)))
+                if (prc.children.Reverse().Any(c => c.ContainsPosition(p) || c.StartsAfter(p)))
                     return true;
 
-                return HasSiblingContaining(prc, p);
+                return HasSiblingsAfter(prc, p);
             }
 
             return false;
@@ -67,13 +87,14 @@ namespace LanguageServer
 
             if (!context.ContainsPosition(Position))
             {
-                if(context.EndsBefore(Position)) //This position is on the line after the step definition
-                {
-                    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
-                        return null; //No clue what name to use
+                //if(context.EndsBefore(Position)) //This position is on the line after the step definition
+                //{
+                //    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
+                //        return null; //No clue what name to use
 
-                    return ReplaceWithStepParameters(stepFactory, new Range(Position, Position));
-                }
+                //    return ReplaceWithStepParameters(stepFactory, new Range(Position, Position));
+                //}
+                return null;
             }
 
 

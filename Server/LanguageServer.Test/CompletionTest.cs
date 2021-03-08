@@ -32,7 +32,9 @@ namespace LanguageServer.Test
         [InlineData(LongText, 0, 9, "Path")]
         [InlineData("- FileRead  ", 0, 11, "Path")]
         [InlineData("FileRead  ", 0, 9, "Path")]
-        [InlineData("- FileRead  \r\n-Print 'value'", 0, 11, "Path")]
+        [InlineData("FileRead P", 0, 10, "Path")]
+        [InlineData("- FileRead  \r\n- Print 'value'", 0, 11, "Path")]
+        [InlineData("- Print 'value' \r\n- FileRead    ", 1, 11, "Path")]
         [InlineData(LongText, 1, 3,
             "FromCSV")]
         [InlineData(ErrorText, 0, 1, "FileRead")]
