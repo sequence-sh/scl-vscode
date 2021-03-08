@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -22,7 +23,8 @@
 
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(SolutionDir)Server\bin\Debug\net5.0\*.*&quot; &quot;$(SolutionDir)..\Client\Server&quot;/F /R /Y /I" />
+    <Exec Command="del &quot;$(SolutionDir)..\Client\Server&quot;" />
+    <Exec Command="xcopy &quot;$(SolutionDir)Server\bin\Debug\net5.0\*&quot; &quot;$(SolutionDir)..\Client\Server&quot;/F /R /Y /I /E" />
   </Target>
 
 </Project>
