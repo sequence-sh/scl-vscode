@@ -1,8 +1,17 @@
 {
     "name": "reductech-scl",
     "displayName": "SCL",
-    "description": "Sequence Configuration Language",
-    "version": "0.0.1",
+    "repository": "https://gitlab.com/reductech/edr/scl-vscode",
+    "description": "Language Extension for SCL",
+    "keywords" : [
+        "Reductech", "SCL", "Forensics", "eDiscovery"
+    ],
+    "icon": "Reductech-Icon-Small.png",
+    "galleryBanner": {
+        "color": "#244B5C",
+        "theme": "dark"
+      },
+    "version": "0.0.6",
     "engines": {
         "vscode": "^1.53.0"
     },
