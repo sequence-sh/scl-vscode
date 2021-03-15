@@ -2,3 +2,4 @@
 Client/node_modules/*
 Client/Server/*
 *.vsix
+/Client/Example.scl
