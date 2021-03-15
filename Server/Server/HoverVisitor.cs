@@ -55,7 +55,7 @@ namespace Server
                         if (term.ContainsPosition(Position))
                         {
                             if (
-                                stepFactory.PropertyDictionary.TryGetValue(
+                                stepFactory.ParameterDictionary.TryGetValue(
                                     new StepParameterReference(index + 1),
                                     out var pi
                                 ))
@@ -78,7 +78,7 @@ namespace Server
                         {
                             var argumentName = namedArgumentContext.NAME().GetText();
 
-                            if (stepFactory.PropertyDictionary.TryGetValue(
+                            if (stepFactory.ParameterDictionary.TryGetValue(
                                 new StepParameterReference(argumentName),
                                 out var pi
                             ))

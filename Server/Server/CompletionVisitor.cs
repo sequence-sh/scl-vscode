@@ -118,7 +118,7 @@ namespace Server
         {
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
             var options =
-                stepFactory.PropertyDictionary
+                stepFactory.ParameterDictionary
                     .Where(x => x.Key.Value.IsT0)
                     .Select(x => CreateCompletionItem(x.Key, x.Value))
                     .ToList();

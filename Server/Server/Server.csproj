@@ -9,21 +9,16 @@
 
   <ItemGroup>
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.0" />
-    <PackageReference Include="Reductech.EDR.Core" Version="0.5.0-a.dev.2103041742" />
+    <PackageReference Include="Reductech.EDR.Connectors.Nuix" Version="0.6.0" />
+    <PackageReference Include="Reductech.EDR.Connectors.Pwsh" Version="0.6.0" />
+    <PackageReference Include="Reductech.EDR.Connectors.Sql" Version="0.6.0" />
+    <PackageReference Include="Reductech.EDR.Core" Version="0.6.0" />
   </ItemGroup>
 
-  <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml"
-          Condition="$(CopyLocalLockFileAssemblies) == true"
-          AfterTargets="ResolveReferences">
+  <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
     <ItemGroup>
-      <ReferenceCopyLocalPaths
-        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')"
-        Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''
-                    and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
-      <ReferenceCopyLocalPaths
-        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')"
-        Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''
-                    and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''&#xD;&#xA;                    and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
+      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''&#xD;&#xA;                    and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
     </ItemGroup>
   </Target>
 
