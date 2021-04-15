@@ -10,7 +10,10 @@
 
   <ItemGroup>
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.0" />
-    <PackageReference Include="Reductech.EDR.Core" Version="0.5.0-a.master.2103051621" />
+    <PackageReference Include="Reductech.EDR.Connectors.Nuix" Version="0.8.0" />
+    <PackageReference Include="Reductech.EDR.Connectors.Pwsh" Version="0.8.1" />
+    <PackageReference Include="Reductech.EDR.Connectors.Sql" Version="0.8.0" />
+    <PackageReference Include="Reductech.EDR.Core" Version="0.8.0" />
   </ItemGroup>
 
   <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
