@@ -1,36 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-
-    <IsPackable>false</IsPackable>
-
+    <LangVersion>latest</LangVersion>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Server\LanguageServer.csproj" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.0" />
+    <PackageReference Include="Reductech.EDR.Connectors.Nuix" Version="0.8.0" />
+    <PackageReference Include="Reductech.EDR.Connectors.Pwsh" Version="0.8.1" />
+    <PackageReference Include="Reductech.EDR.Connectors.Sql" Version="0.8.0" />
+    <PackageReference Include="Reductech.EDR.Core" Version="0.8.0" />
   </ItemGroup>
 
   <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
+
     <ItemGroup>
       <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''&#xD;&#xA;                    and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
       <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != ''&#xD;&#xA;                    and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
     </ItemGroup>
+  </Target>
+
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="del /s /q &quot;$(SolutionDir)..\Client\Server&quot;" />
+    <Exec Command="xcopy &quot;$(SolutionDir)Server\bin\Debug\net5.0\*&quot; &quot;$(SolutionDir)..\Client\Server&quot;/F /R /Y /I /E" />
   </Target>
 
 </Project>

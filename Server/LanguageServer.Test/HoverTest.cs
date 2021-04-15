@@ -4,7 +4,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Xunit;
-using Server;
 
 namespace LanguageServer.Test
 {
@@ -53,7 +52,7 @@ namespace LanguageServer.Test
                 hover.Contents.HasMarkedStrings.Should().BeTrue($"Should have Hover '{expectedHover}'");
             }
 
-            hover.Contents.MarkedStrings.First().Value.Should().Be(expectedHover);
+            hover.Contents.MarkedStrings!.First().Value.Should().Be(expectedHover);
         }
     }
 }

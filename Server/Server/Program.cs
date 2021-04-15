@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
-using System;
-using System.Threading.Tasks;
-using Reductech.EDR.Connectors.Nuix.Steps.Meta;
 using Reductech.EDR.Core.Internal;
 
-namespace Server
+namespace LanguageServer
 {
     internal class Program
     {
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
         private static void Main(string[] args) => MainAsync(args).Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
         private static async Task MainAsync(string[] args)
         {
@@ -29,7 +30,7 @@ namespace Server
             //Log.Logger.Information("This only goes file...");
 
 
-            var server = await LanguageServer.From(
+            var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
                 options =>
                     options
                        .WithInput(Console.OpenStandardInput())
@@ -41,8 +42,8 @@ namespace Server
                         )
                        .WithServices(x=> x.AddSingleton<DocumentManager>().AddSingleton(
                            _=> StepFactoryStore.CreateUsingReflection(typeof(IStep)
-                               , typeof(IRubyScriptStep)
-                               , typeof(Reductech.EDR.Connectors.Sql.Steps.SqlQuery)
+                               , typeof(Reductech.EDR.Connectors.Nuix.Steps.NuixAddConcordance)
+                               , typeof(Reductech.EDR.Connectors.Sql.Steps.SqlInsert)
                                , typeof(Reductech.EDR.Connectors.Pwsh.PwshRunScript)
                                )))
                        .WithHandler<CompletionHandler>()

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -8,15 +7,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
-namespace Server
+namespace LanguageServer
 {
     internal class TextDocumentSyncHandler : ITextDocumentSyncHandler
     {
         public ILogger<TextDocumentSyncHandler> Logger { get; }
-        private readonly ILanguageServerConfiguration _configuration;
         private readonly DocumentManager _documentManager;
 
         private readonly DocumentSelector _documentSelector = new(
@@ -28,11 +25,11 @@ namespace Server
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentSyncHandler(ILanguageServerConfiguration configuration, ILogger<TextDocumentSyncHandler> logger, DocumentManager documentManager)
+        public TextDocumentSyncHandler( ILogger<TextDocumentSyncHandler> logger, DocumentManager documentManager)
         {
             Logger = logger;
-            _configuration = configuration;
             _documentManager = documentManager;
+            _capability = new SynchronizationCapability();
         }
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
@@ -46,10 +43,10 @@ namespace Server
             };
         }
 
-        public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
-        {
-            return new(uri, "scl");
-        }
+        //public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
+        //{
+        //    return new(uri, "scl");
+        //}
 
         public Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken)
         {
@@ -59,7 +56,7 @@ namespace Server
 
 
             _documentManager.UpdateDocument(new SCLDocument(text, uri));
-            Logger.LogWarning($"Updated buffer for document: {uri}");
+            Logger.LogDebug($"Updated buffer for document: {uri}");
 
             return Unit.Task;
         }
