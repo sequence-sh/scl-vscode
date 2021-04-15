@@ -1,0 +1,15 @@
+- <ProcessingPath> = "abc"
+- <CasePath>      = PathCombine [<ProcessingPath>, 'case']
+- <ExportPath>    = PathCombine [<ProcessingPath>, 'export']
+- <CaseDetails>   = (ProductionSetName: 'a')
+- <ProductionSet> = <CaseDetails>['ProductionSetName']
+- NuixOpenCase <CasePath>
+- NuixExportConcordance
+    ExportPath: <ExportPath>
+    ProductionSet: <CaseDetails>['ProductionSetName']
+    TraversalStrategy: ExportTraversalStrategy.Items
+    #LoadFileOptions: (metadataProfile: <MetadataProfile>)
+    ExportOptions: (
+      native: (path: 'NATIVE' naming: 'document_id')
+      text: (path: 'TEXT' naming: 'document_id')
+    )
