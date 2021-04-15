@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
-//using Reductech.EDR.Connectors.Nuix.Steps.Meta;
-//using Reductech.EDR.Connectors.Pwsh;
-//using Reductech.EDR.Connectors.Sql.Steps;
+using System;
+using System.Threading.Tasks;
+using Reductech.EDR.Connectors.Nuix.Steps.Meta;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
@@ -45,9 +45,7 @@ namespace LanguageServer
                         )
                        .WithServices(x=> x.AddSingleton<DocumentManager>().AddSingleton(
                            _=> StepFactoryStore.CreateUsingReflection(typeof(IStep)
-                               //, typeof(IRubyScriptStep)//,
-                               //typeof(SqlCommand),
-                               //typeof(PwshRunScript)
+                             //  , typeof(IRubyScriptStep)
                                )))
                        .WithHandler<CompletionHandler>()
                        .WithHandler<TextDocumentSyncHandler>()

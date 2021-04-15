@@ -1,5 +1,5 @@
 
 Client/node_modules/*
-Example2.scl
-Client/Server/**
+Client/Server/*
 *.vsix
+/Client/Example.scl

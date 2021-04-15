@@ -27,7 +27,7 @@ namespace LanguageServer
 
         public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)
         {
-            var result = SCLParsing.ParseSequence(Text).Bind(x=>x.TryFreeze(stepFactoryStore));
+            var result = SCLParsing.ParseSequence(Text).Bind(x=>x.TryFreeze(TypeReference.Any.Instance,  stepFactoryStore));
 
             if (result.IsSuccess)
             {

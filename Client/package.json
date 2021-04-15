@@ -1,18 +1,9 @@
 {
     "name": "reductech-scl",
-    "publisher": "Reductech",
+    "publisher": "reductech",
     "displayName": "SCL",
-    "repository": "https://gitlab.com/reductech/edr/scl-vscode",
-    "description": "Language Extension for SCL",
-    "keywords" : [
-        "Reductech", "SCL", "Forensics", "eDiscovery"
-    ],
-    "icon": "Reductech-Icon-Small.png",
-    "galleryBanner": {
-        "color": "#244B5C",
-        "theme": "dark"
-      },
-    "version": "0.0.4",
+    "description": "Sequence Configuration Language",
+    "version": "0.0.1",
     "engines": {
         "vscode": "^1.53.0"
     },
@@ -46,11 +37,6 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "webpack --mode production",
-        "webpack": "webpack --mode development",
-        "webpack-dev": "webpack --mode development --watch",
-        "test-compile": "tsc -p ./",
-        "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
