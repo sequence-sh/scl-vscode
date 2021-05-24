@@ -13,5 +13,6 @@ This will open another editor window with the extension enabled.
 - Check that the output was written to `Client/Server` by the postbuild step
 - `cd` into the Client folder
 - Update version number in package.json
+- Install VSCE `npm install -g vsce` and make sure you npm folder is in your path
 - `vsce package`
 - Upload the file to https://marketplace.visualstudio.com/manage/publishers/reductech
