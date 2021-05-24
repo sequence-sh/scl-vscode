@@ -56,7 +56,7 @@ namespace LanguageServer
                         {
                             if (
                                 stepFactory.ParameterDictionary.TryGetValue(
-                                    new StepParameterReference(index + 1),
+                                    new StepParameterReference.Index(index + 1),
                                     out var pi
                                 ))
                             {
@@ -79,7 +79,7 @@ namespace LanguageServer
                             var argumentName = namedArgumentContext.NAME().GetText();
 
                             if (stepFactory.ParameterDictionary.TryGetValue(
-                                new StepParameterReference(argumentName),
+                                new StepParameterReference.Named(argumentName),
                                 out var pi
                             ))
                             {

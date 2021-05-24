@@ -1,7 +1,10 @@
 using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Reductech.EDR.Connectors.FileSystem;
+using Reductech.EDR.Connectors.StructuredData;
 using Reductech.EDR.Core.Internal;
 using Xunit;
 
@@ -40,7 +43,13 @@ namespace LanguageServer.Test
         [InlineData(ErrorText, 0, 1, "FileRead")]
         public void ShouldGiveCorrectCompletion(string text, int line, int character, string? expectedLabel)
         {
-            var sfs = StepFactoryStore.CreateUsingReflection(typeof(IStep));
+            var fsAssembly = Assembly.GetAssembly(typeof(FileRead))!;
+            var sdAssembly = Assembly.GetAssembly(typeof(ToJson))!;
+
+            var fsConnectorData = new ConnectorData(ConnectorSettings.DefaultForAssembly(fsAssembly), fsAssembly);
+            var sdConnectorData = new ConnectorData(ConnectorSettings.DefaultForAssembly(sdAssembly), sdAssembly);
+
+            var sfs = StepFactoryStore.Create(fsConnectorData, sdConnectorData);
 
             var document = new SCLDocument(text, DefaultURI);
 

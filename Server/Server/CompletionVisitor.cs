@@ -187,7 +187,7 @@ namespace LanguageServer
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
             var options =
                 stepFactory.ParameterDictionary
-                    .Where(x => x.Key.Value.IsT0)
+                    .Where(x => x.Key is StepParameterReference.Named)
                     .Select(x => CreateCompletionItem(x.Key, x.Value))
                     .ToList();
 
@@ -201,10 +201,10 @@ namespace LanguageServer
                     {
                         Replace = range
                     }),
-                    Label = stepParameterReference.Value.AsT0,
+                    Label = stepParameterReference.Name,
                     InsertTextMode = InsertTextMode.AsIs,
                     InsertTextFormat = InsertTextFormat.PlainText,
-                    InsertText = stepParameterReference.Value.AsT0 + ":",
+                    InsertText = stepParameterReference.Name + ":",
                     Detail = propertyInfo.GetXmlDocsSummary(),
                     Documentation = new StringOrMarkupContent(new MarkupContent()
                     {
