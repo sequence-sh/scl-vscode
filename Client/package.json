@@ -1,53 +1,75 @@
 {
-    "name": "reductech-scl",
-    "publisher": "reductech",
-    "displayName": "SCL",
-    "description": "Sequence Configuration Language",
-    "version": "0.9.0",
-    "engines": {
-        "vscode": "^1.53.0"
-    },
-    "categories": [
-        "Programming Languages"
-    ],
-    "activationEvents": [
-        "onLanguage:scl"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "languages": [
-            {
-                "id": "scl",
-                "aliases": [
-                    "SCL",
-                    "scl"
-                ],
-                "extensions": [
-                    ".scl"
-                ],
-                "configuration": "./language-configuration.json"
-            }
+  "name": "reductech-scl",
+  "publisher": "reductech",
+  "displayName": "Reductech SCL",
+  "description": "Sequence Configuration Language extension for syntax highlighting, auto-completion and error diagnostics.",
+  "version": "0.9.0",
+  "preview": true,
+  "license": "Apache-2.0",
+  "homepage": "https://gitlab.com/reductech/edr/scl-vscode",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/reductech/edr/scl-vscode.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/reductech/edr/scl-vscode/-/issues"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "forensics",
+    "ediscovery",
+    "automation",
+    "orchestration",
+    "edrm"
+  ],
+  "icon": "images/reductech-logo.svg",
+  "galleryBanner": {
+    "color": "#383838",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.53.0"
+  },
+  "activationEvents": [
+    "onLanguage:scl"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "scl",
+        "aliases": [
+          "SCL",
+          "scl"
         ],
-        "grammars": [
-            {
-                "language": "scl",
-                "scopeName": "source.scl",
-                "path": "./syntaxes/scl.tmLanguage.json"
-            }
-        ]
-    },
-    "scripts": {
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "devDependencies": {
-        "@types/node": "^8.10.25",
-        "ts-loader": "^8.0.17",
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.21",
-        "vscode-jsonrpc": "^4.0.0",
-        "vscode-languageclient": "^5.1.1",
-        "webpack": "^5.24.3",
-        "webpack-cli": "^4.5.0"
-    }
+        "extensions": [
+          ".scl"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "scl",
+        "scopeName": "source.scl",
+        "path": "./syntaxes/scl.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "@types/node": "^8.10.25",
+    "ts-loader": "^8.0.17",
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.21",
+    "vscode-jsonrpc": "^4.0.0",
+    "vscode-languageclient": "^5.1.1",
+    "webpack": "^5.24.3",
+    "webpack-cli": "^4.5.0"
+  }
 }
