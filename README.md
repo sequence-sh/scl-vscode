@@ -16,3 +16,8 @@ This will open another editor window with the extension enabled.
 - Install VSCE `npm install -g vsce` and make sure you npm folder is in your path
 - `vsce package`
 - Upload the file to https://marketplace.visualstudio.com/manage/publishers/reductech
+
+
+## How to change settings
+
+We hope to add an easier way to change this, but for now connector settings are in `\.vscode\extensions\reductech.reductech-scl-0.9.0\Server\appsettings.json`
