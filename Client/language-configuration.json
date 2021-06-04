@@ -1,36 +1,35 @@
 {
-    "comments": {
-        "lineComment": "#",
-        "blockComment": [ "/*", "*/" ]
-    },
-    // symbols used as brackets
-    "brackets": [
-        ["[", "]"],
-        ["(", ")"]
-    ],
-    // symbols that are auto closed when typing
-    "autoClosingPairs": [
-        ["<", ">"],
-        ["[", "]"],
-        ["(", ")"],
-        ["\"", "\""],
-        ["'", "'"]
-    ],
-    // symbols that can be used to surround a selection
-    "surroundingPairs": [
-        ["<", ">"],
-        ["[", "]"],
-        ["(", ")"],
-        ["\"", "\""],
-        ["'", "'"]
-    ],
-    "wordPattern": "\\<?[a-zA-Z0-9_]+\\>?",
+  "comments": {
+    "lineComment": "#",
+    "blockComment": ["/*", "*/"]
+  },
+  // symbols used as brackets
+  "brackets": [
+    ["[", "]"],
+    ["(", ")"]
+  ],
+  // symbols that are auto closed when typing
+  "autoClosingPairs": [
+    ["<", ">"],
+    ["[", "]"],
+    ["(", ")"],
+    ["\"", "\""],
+    ["'", "'"]
+  ],
+  // symbols that can be used to surround a selection
+  "surroundingPairs": [
+    ["<", ">"],
+    ["[", "]"],
+    ["(", ")"],
+    ["\"", "\""],
+    ["'", "'"]
+  ],
+  "wordPattern": "\\<?[a-zA-Z0-9_]+\\>?",
 
-    "folding": {
-		"markers": {
-			"start": "^\\s*#\\s*[Rr][Ee][Gg][Ii][Oo][Nn]\\b",
-			"end": "^\\s*#\\s*[Ee][Nn][Dd][Rr][Ee][Gg][Ii][Oo][Nn]\\b"
-		}
-	},
-
+  "folding": {
+    "markers": {
+      "start": "^\\s*#\\s*[Rr][Ee][Gg][Ii][Oo][Nn]\\b",
+      "end": "^\\s*#\\s*[Ee][Nn][Dd][Rr][Ee][Gg][Ii][Oo][Nn]\\b"
+    }
+  }
 }
