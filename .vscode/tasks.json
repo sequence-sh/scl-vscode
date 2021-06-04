@@ -3,6 +3,19 @@
   "tasks": [
     {
       "label": "build",
+      "dependsOn": ["build client", "build server"]
+    },
+    {
+      "label": "build client",
+      "command": "npm",
+      "type": "shell",
+      "args": ["run", "compile"],
+      "options": {
+        "cwd": "${workspaceRoot}/Client"
+      }
+    },
+    {
+      "label": "build server",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -14,7 +27,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "publish",
+      "label": "publish server",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -26,7 +39,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "watch",
+      "label": "watch server",
       "command": "dotnet",
       "type": "process",
       "args": [
