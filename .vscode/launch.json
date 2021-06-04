@@ -13,7 +13,18 @@
       "stopOnEntry": false,
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/Client/out/**/*.js"],
-      "preLaunchTask": "build"
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Test Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--extensionTestsPath=${workspaceRoot}/Client/out/test/suite/index"
+      ],
+      "outFiles": ["${workspaceRoot}/Client/out/test/**/*.js"],
+      "preLaunchTask": "${defaultBuildTask}"
     }
   ]
 }

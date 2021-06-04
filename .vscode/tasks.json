@@ -3,7 +3,11 @@
   "tasks": [
     {
       "label": "build",
-      "dependsOn": ["build client", "build server"]
+      "dependsOn": ["build client", "build server"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     },
     {
       "label": "build client",

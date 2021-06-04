@@ -3,3 +3,4 @@ Client/node_modules
 Client/out
 Client/Server
 *.vsix
+.vscode-test
