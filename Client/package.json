@@ -116,6 +116,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish",
     "update-vscode": "node ./node_modules/vscode/bin/install"
   },
   "engines": {
