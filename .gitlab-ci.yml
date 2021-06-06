@@ -73,9 +73,12 @@ test client:
   image: node:latest
   needs:
     - build client
+  before_script:
+    - apt update
+    - apt install -y libasound2 libgbm-dev libgtk-3-0 libnss3 xvfb
   script:
     - cd ./Client
-    - npm run test
+    - xvfb-run -a npm run test
   cache:
     <<: *client_cache
     policy: pull
