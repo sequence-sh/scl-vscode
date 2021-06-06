@@ -33,7 +33,7 @@ build server:
       - 'Server/*/obj'
     expire_in: 2 hours
 
-build server:
+test server:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:5.0
   needs:
