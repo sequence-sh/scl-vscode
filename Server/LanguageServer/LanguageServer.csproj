@@ -34,7 +34,7 @@
     <Exec Command="rmdir /S /Q &quot;$(ProjectDir)..\..\Client\Server&quot;" Condition="'$(OS)'=='Windows_NT'" />
     <Exec Command="xcopy &quot;$(TargetDir)*&quot; &quot;$(ProjectDir)..\..\Client\Server&quot; /Q /R /Y /I /E" Condition="'$(OS)'=='Windows_NT'" />
     <Exec Command="rm -rf $(ProjectDir)../../Client/Server" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
-    <Exec Command="cp -r $(TargetDir)* $(ProjectDir)../../Client/Server" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
+    <Exec Command="cp -r $(TargetDir) $(ProjectDir)../../Client/Server" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
   </Target>
 
 </Project>
