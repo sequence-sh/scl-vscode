@@ -1,0 +1,89 @@
+stages:
+  - build
+  - test
+  - publish
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH !~ /^\d+-/
+    - if: $CI_COMMIT_TAG
+
+.defaults:
+  rules:
+    - &is_master $CI_COMMIT_BRANCH == 'master'
+    - &is_release $CI_COMMIT_TAG =~ /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?$/i
+    - &not_release $CI_COMMIT_TAG !~ /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?$/i
+  client_cache: &client_cache
+    key: client
+    paths:
+      - 'Client/node_modules/'
+
+build server:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:5.0
+  script:
+    - cd ./Server
+    - dotnet build -c Release
+  artifacts:
+    paths:
+      - 'Client/Server'
+      - 'Server/*/bin'
+      - 'Server/*/obj'
+    expire_in: 2 hours
+
+build server:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:5.0
+  needs:
+    - build server
+  script:
+    - cd ./Server
+    - dotnet test --no-build -c Release
+
+build client:
+  stage: build
+  image: node:latest
+  script:
+    - cd ./Client
+    - npm install
+    - npm run compile
+  artifacts:
+    paths:
+      - 'Client/out'
+    expire_in: 2 hours
+  cache: *client_cache
+
+test client:
+  stage: test
+  image: node:latest
+  needs:
+    - build client
+  script:
+    - cd ./Client
+    - npm run test
+  cache:
+    <<: *client_cache
+    policy: pull
+
+release client:
+  stage: publish
+  image: node:latest
+  needs:
+    - build server
+    - test server
+    - build client
+    - test client
+  script:
+    - ls ./Client/node_modules
+    - ls ./Client/Server
+    - ls ./Client/out
+    - cd ./Client
+    - npm install -g vsce
+    - vsce package
+  # rules:
+  #   - if: *is_release
+  cache:
+    <<: *client_cache
+    policy: pull
