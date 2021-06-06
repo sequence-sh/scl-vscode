@@ -94,8 +94,8 @@ release client:
   script:
     - vsce package
     - vsce publish
-  rules:
-    - if: *is_release
+  # rules:
+  #   - if: *is_release
   cache:
     <<: *client_cache
     policy: pull
