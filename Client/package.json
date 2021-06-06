@@ -57,8 +57,26 @@
     "iconThemes": [
       {
         "id": "reductech-scl",
-        "label": "Reductech SCL",
+        "label": "Reductech SCL File Icons",
         "path": "scl-icon-theme.json"
+      }
+    ],
+    "configuration": {
+      "title": "Reductech SCL",
+      "properties": {
+        "reductech-scl.edr.path": {
+          "description": "Path to EDR executable",
+          "type": "string",
+          "format": "path"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "reductech-scl.run",
+        "category": "SCL",
+        "title": "Run Sequence",
+        "enablement": "editorLangId == scl && config.reductech-scl.edr.path"
       }
     ]
   },
