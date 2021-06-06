@@ -92,14 +92,10 @@ release client:
     - build client
     - test client
   script:
-    - ls ./Client/node_modules
-    - ls ./Client/Server
-    - ls ./Client/out
-    - cd ./Client
-    - npm install -g vsce
     - vsce package
-  # rules:
-  #   - if: *is_release
+    - vsce publish
+  rules:
+    - if: *is_release
   cache:
     <<: *client_cache
     policy: pull
