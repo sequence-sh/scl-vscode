@@ -65,10 +65,33 @@
       "title": "Reductech SCL",
       "properties": {
         "reductech-scl.edr.path": {
-          "description": "Path to EDR executable",
+          "description": "Path to EDR executable. Enables running Sequences from file or selection.",
           "type": "string",
           "format": "path"
+        },
+        "reductech-scl.edr.connectors": {
+          "description": "The connector configuration to be used with EDR.",
+          "type": "object",
+          "default": {
+            "Reductech.EDR.Connectors.FileSystem": {
+              "id": "Reductech.EDR.Connectors.FileSystem",
+              "enable": true,
+              "version": "0.9.0"
+            },
+            "Reductech.EDR.Connectors.StructuredData": {
+              "id": "Reductech.EDR.Connectors.StructuredData",
+              "enable": true,
+              "version": "0.9.0"
+            }
+          }
         }
+      }
+    },
+    "configurationDefaults": {
+      "[scl]": {
+        "editor.wordWrap": "off",
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true
       }
     },
     "commands": [
