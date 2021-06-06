@@ -30,7 +30,8 @@
     "theme": "dark"
   },
   "activationEvents": [
-    "onLanguage:scl"
+    "onLanguage:scl",
+    "onCommand:reductech-scl.run"
   ],
   "main": "./out/extension",
   "contributes": {
