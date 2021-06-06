@@ -10,6 +10,10 @@ workflow:
     - if: $CI_COMMIT_BRANCH !~ /^\d+-/
     - if: $CI_COMMIT_TAG
 
+variables:
+  NUGET_PROJECT_ID_DEV: 18697166
+  NUGET_PROJECT_ID_RELEASE: 21286970
+
 .defaults:
   rules:
     - &is_master $CI_COMMIT_BRANCH == 'master'
@@ -19,10 +23,19 @@ workflow:
     key: client
     paths:
       - 'Client/node_modules/'
+  before_script: &before_script
+    - dotnet nuget add source --name reductech --username $NUGET_USERNAME
+      --password $NUGET_TOKEN --store-password-in-clear-text
+      "https://gitlab.com/api/v4/projects/$NUGET_PROJECT_ID/packages/nuget/index.json"
 
 build server:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:5.0
+  variables:
+    NUGET_PROJECT_ID: $NUGET_PROJECT_ID_DEV
+    NUGET_USERNAME: $NUGET_USER_DEV
+    NUGET_TOKEN: $NUGET_TOKEN_DEV
+  before_script: *before_script
   script:
     - cd ./Server
     - dotnet build -c Release
