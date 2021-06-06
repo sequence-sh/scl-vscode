@@ -92,8 +92,8 @@ release client:
     - build client
     - test client
   script:
-    - vsce package
-    - vsce publish
+    - npm run vsce package
+    - npm run vsce publish
   # rules:
   #   - if: *is_release
   cache:
