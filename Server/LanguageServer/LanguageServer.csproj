@@ -31,8 +31,10 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="rmdir /S /Q &quot;$(ProjectDir)..\..\Client\Server&quot;" />
-    <Exec Command="xcopy &quot;$(TargetDir)*&quot; &quot;$(ProjectDir)..\..\Client\Server&quot; /Q /R /Y /I /E" />
+    <Exec Command="rmdir /S /Q &quot;$(ProjectDir)..\..\Client\Server&quot;" Condition="'$(OS)'=='Windows_NT'" />
+    <Exec Command="xcopy &quot;$(TargetDir)*&quot; &quot;$(ProjectDir)..\..\Client\Server&quot; /Q /R /Y /I /E" Condition="'$(OS)'=='Windows_NT'" />
+    <Exec Command="rm -rf &quot;$(ProjectDir)../../Client/Server&quot;" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
+    <Exec Command="cp -r &quot;$(TargetDir)*&quot; &quot;$(ProjectDir)../../Client/Server&quot;" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
   </Target>
 
 </Project>
