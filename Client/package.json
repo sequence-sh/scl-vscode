@@ -102,6 +102,13 @@
         "title": "Run Sequence",
         "enablement": "editorLangId == scl && config.reductech-scl.edr.path"
       }
+    ],
+    "keybindings": [
+      {
+        "command": "reductech-scl.run",
+        "key": "F5",
+        "when": "editorLangId == scl && config.reductech-scl.edr.path"
+      }
     ]
   },
   "scripts": {
