@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - package
   - publish
 
 workflow:
@@ -83,8 +84,8 @@ test client:
     <<: *client_cache
     policy: pull
 
-release client:
-  stage: publish
+package extension:
+  stage: package
   image: node:latest
   needs:
     - build server
@@ -92,10 +93,37 @@ release client:
     - build client
     - test client
   script:
+    - cd ./Client
     - npm run vsce package
+  rules:
+    - if: *is_release
+    - if: *is_master
+    - if: *not_release
+      when: manual
+      allow_failure: true
+  cache:
+    <<: *client_cache
+    policy: pull
+  artifacts:
+    name: 'scl-vscode.vsix'
+    paths:
+      - 'Client/*.vsix'
+    expire_in: 3 months
+
+publish extension:
+  stage: publish
+  image: node:latest
+  needs:
+    - package extension
+  script:
+    - cd ./Client
     - npm run vsce publish
-  # rules:
-  #   - if: *is_release
+  rules:
+    - if: *is_release
+    - if: *is_master
+    - if: *not_release
+      when: manual
+      allow_failure: true
   cache:
     <<: *client_cache
     policy: pull
