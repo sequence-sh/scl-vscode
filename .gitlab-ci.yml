@@ -105,7 +105,7 @@ package extension:
     <<: *client_cache
     policy: pull
   artifacts:
-    name: 'scl-vscode.vsix'
+    name: 'reductech-scl.vsix'
     paths:
       - 'Client/*.vsix'
     expire_in: 3 months
@@ -120,10 +120,6 @@ publish extension:
     - npm run publish
   rules:
     - if: *is_release
-    - if: *is_master
-    - if: *not_release
-      when: manual
-      allow_failure: true
   cache:
     <<: *client_cache
     policy: pull
