@@ -94,7 +94,7 @@ package extension:
     - test client
   script:
     - cd ./Client
-    - npm run vsce package
+    - npm run package
   rules:
     - if: *is_release
     - if: *is_master
@@ -117,7 +117,7 @@ publish extension:
     - package extension
   script:
     - cd ./Client
-    - npm run vsce publish
+    - npm run publish
   rules:
     - if: *is_release
     - if: *is_master
