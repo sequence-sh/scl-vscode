@@ -112,7 +112,6 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "test": "node ./out/test/runTest.js",
