@@ -117,7 +117,7 @@ publish extension:
     - package extension
   script:
     - cd ./Client
-    - npm run publish
+    - npm run publish --no-git-tag-version --packagePath *.vsix
   rules:
     - if: *is_release
   cache:
