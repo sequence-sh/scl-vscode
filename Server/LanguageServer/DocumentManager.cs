@@ -1,10 +1,13 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Reductech.EDR.ConnectorManagement;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
@@ -17,13 +20,16 @@ namespace LanguageServer
 
         private readonly ILanguageServerFacade _facade;
 
-        private readonly StepFactoryStore _stepFactoryStore;
+        private readonly AsyncLazy<StepFactoryStore> _stepFactoryStore;
+        
 
-        public DocumentManager(ILanguageServerFacade facade, ILogger<DocumentManager> logger, StepFactoryStore stepFactoryStore)
+        public DocumentManager(ILanguageServerFacade facade, ILogger<DocumentManager> logger, IConnectorManager connectorManager)
         {
             _facade = facade;
             _logger = logger;
-            _stepFactoryStore = stepFactoryStore;
+            _stepFactoryStore =
+                new AsyncLazy<StepFactoryStore>(() =>
+                    connectorManager.GetStepFactoryStoreAsync(CancellationToken.None));
         }
 
         public void RemoveDocument(DocumentUri documentUri)
@@ -31,12 +37,14 @@ namespace LanguageServer
             _documents.Remove(documentUri.ToString(), out var _);
         }
 
-        public void UpdateDocument( SCLDocument document)
+        public async Task UpdateDocument( SCLDocument document)
         {
             _documents.AddOrUpdate(document.DocumentUri.ToString(), document, (_, _) => document);
 
+            var sfs = await _stepFactoryStore.Value;
 
-            var diagnostics =document.GetDiagnostics(_stepFactoryStore);
+
+            var diagnostics =document.GetDiagnostics(sfs);
 
             var diagnosticCount = diagnostics.Diagnostics?.Count() ?? 0;
 

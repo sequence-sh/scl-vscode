@@ -6,19 +6,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Reductech.EDR.ConnectorManagement;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
 {
-
-
     internal class CompletionHandler : ICompletionHandler
     {
         public ILogger<CompletionHandler> Logger { get; }
 
         private readonly ILanguageServerConfiguration _configuration;
         private readonly DocumentManager _documentManager;
-        private readonly StepFactoryStore _stepFactoryStore;
+
+        private readonly AsyncLazy<StepFactoryStore> _stepFactoryStore;
 
         private readonly DocumentSelector _documentSelector = new (
             new DocumentFilter()
@@ -32,13 +32,16 @@ namespace LanguageServer
         public CompletionHandler(ILanguageServerConfiguration configuration,
             ILogger<CompletionHandler> logger,
             DocumentManager documentManager,
-            StepFactoryStore stepFactoryStore)
+            IConnectorManager connectorManager)
         {
             Logger = logger;
             _configuration = configuration;
             _documentManager = documentManager;
-            _stepFactoryStore = stepFactoryStore;
             _capability = new CompletionCapability();
+
+            _stepFactoryStore =
+                new AsyncLazy<StepFactoryStore>(() =>
+                    connectorManager.GetStepFactoryStoreAsync(CancellationToken.None));
         }
 
         public CompletionRegistrationOptions GetRegistrationOptions()
@@ -64,7 +67,9 @@ namespace LanguageServer
                 return new CompletionList();
             }
 
-            var cl = document.GetCompletionList(request.Position, _stepFactoryStore);
+            var sfs = await _stepFactoryStore;
+
+            var cl = document.GetCompletionList(request.Position, sfs);
 
             Logger.LogDebug($"Completion Request returns {cl.Items.Count()} items ");
 

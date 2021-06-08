@@ -25,7 +25,7 @@ namespace LanguageServer
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentSyncHandler( ILogger<TextDocumentSyncHandler> logger, DocumentManager documentManager)
+        public TextDocumentSyncHandler(ILogger<TextDocumentSyncHandler> logger, DocumentManager documentManager)
         {
             Logger = logger;
             _documentManager = documentManager;
@@ -50,12 +50,11 @@ namespace LanguageServer
 
         public Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken)
         {
-
             var uri = request.TextDocument.Uri;
-            var text = request.ContentChanges.FirstOrDefault()?.Text??"";
+            var text = request.ContentChanges.FirstOrDefault()?.Text ?? "";
 
 
-            _documentManager.UpdateDocument(new SCLDocument(text, uri));
+            _ = _documentManager.UpdateDocument(new SCLDocument(text, uri));
             Logger.LogDebug($"Updated buffer for document: {uri}");
 
             return Unit.Task;
@@ -63,7 +62,7 @@ namespace LanguageServer
 
         public Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            _documentManager.UpdateDocument(new SCLDocument(request.TextDocument.Text, request.TextDocument.Uri));
+            _ = _documentManager.UpdateDocument(new SCLDocument(request.TextDocument.Text, request.TextDocument.Uri));
             return Unit.Task;
         }
 
@@ -96,8 +95,10 @@ namespace LanguageServer
 
 
         /// <inheritdoc />
-        TextDocumentOpenRegistrationOptions IRegistration<TextDocumentOpenRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability,
-            ClientCapabilities clientCapabilities)
+        TextDocumentOpenRegistrationOptions
+            IRegistration<TextDocumentOpenRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(
+                SynchronizationCapability capability,
+                ClientCapabilities clientCapabilities)
         {
             return new()
             {
@@ -106,8 +107,10 @@ namespace LanguageServer
         }
 
         /// <inheritdoc />
-        TextDocumentCloseRegistrationOptions IRegistration<TextDocumentCloseRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability,
-            ClientCapabilities clientCapabilities)
+        TextDocumentCloseRegistrationOptions
+            IRegistration<TextDocumentCloseRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(
+                SynchronizationCapability capability,
+                ClientCapabilities clientCapabilities)
         {
             return new()
             {
@@ -116,8 +119,10 @@ namespace LanguageServer
         }
 
         /// <inheritdoc />
-        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability,
-            ClientCapabilities clientCapabilities)
+        TextDocumentSaveRegistrationOptions
+            IRegistration<TextDocumentSaveRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(
+                SynchronizationCapability capability,
+                ClientCapabilities clientCapabilities)
         {
             return new()
             {
@@ -129,7 +134,7 @@ namespace LanguageServer
         /// <inheritdoc />
         public TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
         {
-            return new (uri, "SCL");
+            return new(uri, "SCL");
         }
     }
 }

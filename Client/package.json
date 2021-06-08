@@ -1,53 +1,140 @@
 {
-    "name": "reductech-scl",
-    "publisher": "reductech",
-    "displayName": "SCL",
-    "description": "Sequence Configuration Language",
-    "version": "0.8.1",
-    "engines": {
-        "vscode": "^1.53.0"
-    },
-    "categories": [
-        "Programming Languages"
-    ],
-    "activationEvents": [
-        "onLanguage:scl"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "languages": [
-            {
-                "id": "scl",
-                "aliases": [
-                    "SCL",
-                    "scl"
-                ],
-                "extensions": [
-                    ".scl"
-                ],
-                "configuration": "./language-configuration.json"
-            }
+  "name": "reductech-scl",
+  "publisher": "reductech",
+  "displayName": "Reductech SCL",
+  "description": "Sequence Configuration Language extension for syntax highlighting, auto-completion and error diagnostics.",
+  "version": "0.9.0",
+  "preview": true,
+  "license": "Apache-2.0",
+  "homepage": "https://gitlab.com/reductech/edr/scl-vscode",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/reductech/edr/scl-vscode.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/reductech/edr/scl-vscode/-/issues"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "forensics",
+    "ediscovery",
+    "automation",
+    "orchestration",
+    "edrm"
+  ],
+  "icon": "images/Reductech-Icon-Small.png",
+  "galleryBanner": {
+    "color": "#383838",
+    "theme": "dark"
+  },
+  "activationEvents": [
+    "onLanguage:scl",
+    "onCommand:reductech-scl.run"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "scl",
+        "aliases": [
+          "SCL",
+          "scl"
         ],
-        "grammars": [
-            {
-                "language": "scl",
-                "scopeName": "source.scl",
-                "path": "./syntaxes/scl.tmLanguage.json"
+        "extensions": [
+          ".scl"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "scl",
+        "scopeName": "source.scl",
+        "path": "./syntaxes/scl.tmLanguage.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "reductech-scl",
+        "label": "Reductech SCL File Icons",
+        "path": "scl-icon-theme.json"
+      }
+    ],
+    "configuration": {
+      "title": "Reductech SCL",
+      "properties": {
+        "reductech-scl.edr.path": {
+          "description": "Path to EDR executable. Enables running Sequences from file or selection.",
+          "type": "string",
+          "format": "path"
+        },
+        "reductech-scl.edr.connectors": {
+          "description": "The connector configuration to be used with EDR.",
+          "type": "object",
+          "default": {
+            "Reductech.EDR.Connectors.FileSystem": {
+              "id": "Reductech.EDR.Connectors.FileSystem",
+              "enable": true,
+              "version": "0.9.0"
+            },
+            "Reductech.EDR.Connectors.StructuredData": {
+              "id": "Reductech.EDR.Connectors.StructuredData",
+              "enable": true,
+              "version": "0.9.0"
             }
-        ]
+          }
+        }
+      }
     },
-    "scripts": {
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+    "configurationDefaults": {
+      "[scl]": {
+        "editor.wordWrap": "off",
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true
+      }
     },
-    "devDependencies": {
-        "@types/node": "^8.10.25",
-        "ts-loader": "^8.0.17",
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.21",
-        "vscode-jsonrpc": "^4.0.0",
-        "vscode-languageclient": "^5.1.1",
-        "webpack": "^5.24.3",
-        "webpack-cli": "^4.5.0"
-    }
+    "commands": [
+      {
+        "command": "reductech-scl.run",
+        "category": "SCL",
+        "title": "Run Sequence",
+        "enablement": "editorLangId == scl && config.reductech-scl.edr.path"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "reductech-scl.run",
+        "key": "F5",
+        "when": "editorLangId == scl && config.reductech-scl.edr.path"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish",
+    "update-vscode": "node ./node_modules/vscode/bin/install"
+  },
+  "engines": {
+    "vscode": "^1.56.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.4",
+    "@types/node": "14.x",
+    "@types/vscode": "^1.56.0",
+    "glob": "^7.1.6",
+    "mocha": "^8.2.1",
+    "typescript": "^4.1.3",
+    "vsce": "^1.92.0",
+    "vscode-test": "^1.5.0"
+  }
 }

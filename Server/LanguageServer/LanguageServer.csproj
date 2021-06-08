@@ -9,11 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.0" />
-    <PackageReference Include="Reductech.EDR.Connectors.Nuix" Version="0.8.0" />
-    <PackageReference Include="Reductech.EDR.Connectors.Pwsh" Version="0.8.1" />
-    <PackageReference Include="Reductech.EDR.Connectors.Sql" Version="0.8.0" />
-    <PackageReference Include="Reductech.EDR.Core" Version="0.8.0" />
+    <PackageReference Include="Reductech.EDR.ConnectorManager" Version="0.2.1" />
+    <PackageReference Include="Reductech.EDR.Core" Version="0.10.0-a.master.2106031156" />
+    <PackageReference Include="system.io.abstractions" Version="13.2.33" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
@@ -24,10 +30,11 @@
     </ItemGroup>
   </Target>
 
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="del /s /q &quot;$(SolutionDir)..\Client\Server&quot;" />
-    <Exec Command="xcopy &quot;$(SolutionDir)Server\bin\Debug\net5.0\*&quot; &quot;$(SolutionDir)..\Client\Server&quot;/F /R /Y /I /E" />
+    <Exec Command="rmdir /S /Q &quot;$(ProjectDir)..\..\Client\Server&quot;" Condition="'$(OS)'=='Windows_NT'" />
+    <Exec Command="xcopy &quot;$(TargetDir)*&quot; &quot;$(ProjectDir)..\..\Client\Server&quot; /Q /R /Y /I /E" Condition="'$(OS)'=='Windows_NT'" />
+    <Exec Command="rm -rf $(ProjectDir)../../Client/Server" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
+    <Exec Command="cp -r $(TargetDir) $(ProjectDir)../../Client/Server" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
   </Target>
 
 </Project>

@@ -5,6 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Reductech.EDR.ConnectorManagement;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
@@ -16,7 +17,7 @@ namespace LanguageServer
         private readonly ILanguageServerConfiguration _configuration;
         private readonly ILogger<HoverHandler> _logger;
         private readonly DocumentManager _documentManager;
-        private readonly StepFactoryStore _stepFactoryStore;
+        private readonly AsyncLazy<StepFactoryStore>  _stepFactoryStore;
 
 
         private readonly DocumentSelector _documentSelector = new(
@@ -27,12 +28,14 @@ namespace LanguageServer
         );
 
         public HoverHandler(ILanguageServerConfiguration configuration, ILogger<HoverHandler> logger,
-            DocumentManager documentManager, StepFactoryStore stepFactoryStore)
+            DocumentManager documentManager, IConnectorManager connectorManager)
         {
             _configuration = configuration;
             _logger = logger;
             _documentManager = documentManager;
-            _stepFactoryStore = stepFactoryStore;
+            _stepFactoryStore =
+                new AsyncLazy<StepFactoryStore>(() =>
+                    connectorManager.GetStepFactoryStoreAsync(CancellationToken.None));
         }
 
         /// <inheritdoc />
@@ -49,7 +52,9 @@ namespace LanguageServer
                 return new Hover();
             }
 
-            var hover = document.GetHover(request.Position, _stepFactoryStore);
+            var sfs = await _stepFactoryStore.Value;
+
+            var hover = document.GetHover(request.Position, sfs);
 
             _logger.LogDebug($"Hover: {hover.Contents}");
 
