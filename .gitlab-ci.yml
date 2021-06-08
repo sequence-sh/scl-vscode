@@ -94,7 +94,7 @@ package extension:
     - test client
   script:
     - cd ./Client
-    - npm run package
+    - npm run package-ci
   rules:
     - if: *is_release
     - if: *is_master
@@ -117,7 +117,7 @@ publish extension:
     - package extension
   script:
     - cd ./Client
-    - npm run publish --no-git-tag-version --packagePath *.vsix
+    - npm run publish-ci
   rules:
     - if: *is_release
   cache:

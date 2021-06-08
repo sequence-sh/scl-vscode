@@ -116,7 +116,9 @@
     "watch": "tsc -watch -p ./",
     "test": "node ./out/test/runTest.js",
     "package": "vsce package",
+    "package-ci": "vsce package --out ./reductech-scl.vsix",
     "publish": "vsce publish",
+    "publish-ci": "vsce publish --packagePath ./reductech-scl.vsix",
     "update-vscode": "node ./node_modules/vscode/bin/install"
   },
   "engines": {
