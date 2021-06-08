@@ -1,22 +1,16 @@
-## SCL vsCode
+## SCL VS Code
 
-This is the VS Code extension for SCL
+This is the VS Code extension for SCL.
 
-To use, open the folder containing this file in vsCode and press F5 (Start Debugging)
+## To Build and Run
 
-This will open another editor window with the extension enabled.
+First, run `npm install` in the `.\Client` directory.
 
-## How to Publish
+There are VS Code tasks defined to build both the client
+and server. To use open the command palette (`F1`) then
+go to `Tasks: Run Task`.
 
-- Make desired changes to LanguageServer solution
-- `dotnet build`
-- Check that the output was written to `Client/Server` by the postbuild step
-- `cd` into the Client folder
-- Update version number in package.json
-- Install VSCE `npm install -g vsce` and make sure you npm folder is in your path
-- `vsce package`
-- Upload the file to https://marketplace.visualstudio.com/manage/publishers/reductech
-
+To start in debug mode, press `F5`.
 
 ## How to change settings
 
