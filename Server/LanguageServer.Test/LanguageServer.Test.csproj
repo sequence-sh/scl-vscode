@@ -2,10 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-
+    <IsPublishable>false</IsPublishable>
     <IsPackable>false</IsPackable>
-
+    <IsTestProject>true</IsTestProject>
     <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RepositoryUrl>https://gitlab.com/reductech/edr/scl-vscode.git</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Authors>Reductech</Authors>
+    <Company>Reductech</Company>
+    <Copyright>Copyright (c) 2021 Reductech Ltd</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

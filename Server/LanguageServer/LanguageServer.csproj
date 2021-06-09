@@ -6,6 +6,23 @@
     <LangVersion>latest</LangVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Nullable>enable</Nullable>
+    <Version>0.9.1$(VersionSuffix)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Reductech.EDR.LanguageServer</PackageId>
+    <Title>SCL Language Server</Title>
+    <Product>EDR</Product>
+    <PackageTags>ediscovery;forensics;automation;orchestration;edrm;scl</PackageTags>
+
+    <PackageProjectUrl>https://gitlab.com/reductech/edr/scl-vscode</PackageProjectUrl>
+    <RepositoryUrl>https://gitlab.com/reductech/edr/scl-vscode.git</RepositoryUrl>
+    <PackageReleaseNotes>https://gitlab.com/reductech/edr/scl-vscode/-/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+
+    <Authors>Reductech</Authors>
+    <Company>Reductech</Company>
+    <Copyright>Copyright (c) 2021 Reductech Ltd</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
