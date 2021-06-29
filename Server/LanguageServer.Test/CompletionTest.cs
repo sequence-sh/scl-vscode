@@ -3,6 +3,7 @@ using System.Reflection;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Reductech.EDR.ConnectorManagement.Base;
 using Reductech.EDR.Connectors.FileSystem;
 using Reductech.EDR.Connectors.StructuredData;
 using Reductech.EDR.Core.Internal;

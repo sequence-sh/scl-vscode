@@ -6,6 +6,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Reductech.EDR.ConnectorManagement;
+using Reductech.EDR.ConnectorManagement.Base;
+using Reductech.EDR.Core.Connectors;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
