@@ -42,6 +42,15 @@ namespace LanguageServer
                 return (token.Column + token.Text.Length) >= position.Character;
             return true;
         }
+        
+        public static bool EndsAt(this IToken token, Position position)
+        {
+            if (token.Line - 1 < position.Line)
+                return false;
+            else if (token.Line - 1 == position.Line)
+                return (token.Column + token.Text.Length) == position.Character;
+            return true;
+        }
 
         public static bool ContainsPosition(this IParseTree parseTree, Position position)
         {
@@ -74,7 +83,17 @@ namespace LanguageServer
 
         public static bool ContainsPosition(this ParserRuleContext context, Position position)
         {
-            return context.Start.StartsBeforeOrAt(position) && context.Stop.EndsAfterOrAt(position);
+            if (!context.Start.StartsBeforeOrAt(position))
+                return false;
+            if (!context.Stop.EndsAfterOrAt(position))
+                return false;
+            return  true;
+        }
+
+        public static bool IsSameLineAs(this IToken token, Position position)
+        {
+            var sameLine = token.Line - 1 == position.Line;
+            return sameLine;
         }
 
         public static bool EndsBefore(this ParserRuleContext context, Position position) => !context.Stop.EndsAfterOrAt(position);
@@ -128,9 +147,11 @@ namespace LanguageServer
 
         public static string GetMarkDownDocumentation(IGrouping<IStepFactory, string> stepFactoryGroup)
         {
-            var text = DocumentationCreator.GetPageText(new StepWrapper(stepFactoryGroup));
+            var stepWrapper = new StepWrapper(stepFactoryGroup);
 
-            return text;
+            var text = DocumentationCreator.GetStepPage(stepWrapper);
+
+            return text.FileText;
         }
     }
 }

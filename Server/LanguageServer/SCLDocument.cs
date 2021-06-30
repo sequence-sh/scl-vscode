@@ -5,6 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Errors;
 using Reductech.EDR.Core.Internal.Parser;
+using Reductech.EDR.Core.Internal.Serialization;
 using Reductech.EDR.Core.Util;
 
 namespace LanguageServer
@@ -27,11 +28,11 @@ namespace LanguageServer
 
         public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)
         {
-            var result = SCLParsing.TryParseStep(Text).Bind(x=>x.TryFreeze(TypeReference.Any.Instance,  stepFactoryStore));
+            var result = SCLParsing.TryParseStep(Text).Bind(x=>x.TryFreeze(SCLRunner.RootCallerMetadata,  stepFactoryStore));
 
             if (result.IsSuccess)
             {
-                return new PublishDiagnosticsParams()
+                return new PublishDiagnosticsParams
                 {
                     Diagnostics = new Container<Diagnostic>(),
                     Uri = DocumentUri

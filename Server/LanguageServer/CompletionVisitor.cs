@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Antlr4.Runtime;
@@ -7,6 +8,7 @@ using Namotion.Reflection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
@@ -37,11 +39,11 @@ namespace LanguageServer
                 {
                     return base.Visit(tree);
                 }
-                //else if (context.EndsBefore(Position) && !HasSiblingsAfter(context, Position))
-                //{
-                //    //This position is at the end of this line - enter anyway
-                //    return base.Visit(tree);
-                //}
+                else if (context.EndsBefore(Position) && !HasSiblingsAfter(context, Position))
+                {
+                    //This position is at the end of this line - enter anyway
+                    return base.Visit(tree);
+                }
             }
 
             return DefaultResult;
@@ -87,24 +89,27 @@ namespace LanguageServer
 
             if (!context.ContainsPosition(Position))
             {
-                //if(context.EndsBefore(Position)) //This position is on the line after the step definition
-                //{
-                //    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
-                //        return null; //No clue what name to use
+                if (context.EndsBefore(Position) &&
+                    context.Stop.IsSameLineAs(Position)) //This position is on the line after the step definition
+                {
+                    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
+                        return null; //No clue what name to use
 
-                //    return ReplaceWithStepParameters(stepFactory, new Range(Position, Position));
-                //}
+                    return StepParametersCompletionList(stepFactory, new Range(Position, Position));
+                }
+
                 return null;
             }
 
 
             if (context.NAME().Symbol.ContainsPosition(Position))
             {
+                var nameText = context.NAME().GetText();
+
                 var options =
-                        StepFactoryStore.Dictionary
-                            .Where(x => x.Key.Contains(context.NAME().GetText()))
-                            .GroupBy(x => x.Value, x => x.Key)
-                    ;
+                    StepFactoryStore.Dictionary
+                        .Where(x => x.Key.Contains(nameText, StringComparison.OrdinalIgnoreCase))
+                        .GroupBy(x => x.Value, x => x.Key).ToList();
 
 
                 return ReplaceWithSteps(options, context.NAME().Symbol.GetRange());
@@ -129,9 +134,11 @@ namespace LanguageServer
                     if (namedArgumentContext.NAME().Symbol.ContainsPosition(Position))
                     {
                         if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
-                            return null; //No clue what name to use
+                            return null; //Don't know what step factory to use
 
-                        return ReplaceWithStepParameters(stepFactory, namedArgumentContext.NAME().Symbol.GetRange());
+                        var range = namedArgumentContext.NAME().Symbol.GetRange();
+
+                        return StepParametersCompletionList(stepFactory, range);
                     }
 
 
@@ -143,7 +150,8 @@ namespace LanguageServer
                 if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                     return null; //No clue what name to use
 
-                return ReplaceWithStepParameters(stepFactory, new Range(Position, Position));
+
+                return StepParametersCompletionList(stepFactory, new Range(Position, Position));
             }
         }
 
@@ -182,7 +190,7 @@ namespace LanguageServer
             }
         }
 
-        public static CompletionList ReplaceWithStepParameters(IStepFactory stepFactory, Range range)
+        public static CompletionList StepParametersCompletionList(IStepFactory stepFactory, Range range)
         {
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
             var options =
@@ -197,14 +205,14 @@ namespace LanguageServer
             {
                 return new()
                 {
-                    TextEdit = TextEditOrInsertReplaceEdit.From(new InsertReplaceEdit()
-                    {
-                        Replace = range
-                    }),
+                    TextEdit =
+                        new InsertReplaceEdit()
+                        {
+                            Replace = range, NewText = stepParameterReference.Name + ":"
+                        },
                     Label = stepParameterReference.Name,
                     InsertTextMode = InsertTextMode.AsIs,
                     InsertTextFormat = InsertTextFormat.PlainText,
-                    InsertText = stepParameterReference.Name + ":",
                     Detail = propertyInfo.GetXmlDocsSummary(),
                     Documentation = new StringOrMarkupContent(new MarkupContent()
                     {
@@ -222,7 +230,5 @@ namespace LanguageServer
         {
             return new();
         }
-
-
     }
 }

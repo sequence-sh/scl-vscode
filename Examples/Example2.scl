@@ -6,4 +6,4 @@ FileRead 'artwork_data.csv'
 | ArraySort (from <entity> 'year')
 | ArrayDistinct (from <entity> 'id')
 | ToJsonArray 
-| FileWrite 'Artwork_Data.json'
+| FileWrite 'Artwork_Data.json' Path

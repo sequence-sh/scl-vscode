@@ -1,16 +1,12 @@
 ﻿using System;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Reductech.EDR.ConnectorManagement;
-using Reductech.EDR.Core;
-using Reductech.EDR.Core.Internal;
+using Reductech.EDR.ConnectorManagement.Base;
 
 namespace LanguageServer
 {
@@ -46,7 +42,7 @@ namespace LanguageServer
                         )
                         .WithServices(x =>
                             x.AddSingleton<IFileSystem>(new FileSystem())
-                                .AddSingleton(SCLSettings.CreateFromIConfiguration(configuration))
+                                //.AddSingleton(SCLSettings.CreateFromIConfiguration(configuration))
                                 .AddSingleton<DocumentManager>()
                                 .AddInMemoryConnectorManager(configuration)
                         )
@@ -100,17 +96,17 @@ namespace LanguageServer
 
             services.AddSingleton<IConnectorRegistry, ConnectorRegistry>();
 
+            services.AddSingleton<IConnectorConfiguration>(_=> new ConnectorConfiguration());
 
-            services.AddSingleton<IConnectorConfiguration>(serviceProvider =>
-            {
-                var sclSettings = serviceProvider.GetRequiredService<SCLSettings>();
+            //services.AddSingleton<IConnectorConfiguration>(serviceProvider =>
+            //{
+            //    //var sclSettings = serviceProvider.GetRequiredService<SCLSettings>();
 
-                var settings = ConnectorSettings.CreateFromSCLSettings(sclSettings)
-                    .ToDictionary(x => x.Key, x => x.Settings);
-                var connectorConfiguration = new ConnectorConfiguration(settings);
+            //    //var settings = ConnectorSettings.CreateFromSCLSettings(sclSettings).ToDictionary(x => x.Key, x => x.Settings);
+            //    var connectorConfiguration = new ConnectorConfiguration();
 
-                return connectorConfiguration;
-            });
+            //    return connectorConfiguration;
+            //});
 
             services.AddSingleton<IConnectorManager, ConnectorManager>();
 
