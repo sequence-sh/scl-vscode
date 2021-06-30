@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -60,6 +61,8 @@ namespace LanguageServer
             await Task.CompletedTask;
 
             var document = _documentManager.GetDocument(request.TextDocument.Uri);
+
+            Debugger.Launch();
 
             Logger.LogDebug($"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
 

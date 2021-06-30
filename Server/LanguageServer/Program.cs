@@ -96,7 +96,7 @@ namespace LanguageServer
 
             services.AddSingleton<IConnectorRegistry, ConnectorRegistry>();
 
-            services.AddSingleton<ConnectorConfiguration>();
+            services.AddSingleton<IConnectorConfiguration>(_=> new ConnectorConfiguration());
 
             //services.AddSingleton<IConnectorConfiguration>(serviceProvider =>
             //{

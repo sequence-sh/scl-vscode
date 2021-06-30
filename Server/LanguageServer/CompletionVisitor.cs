@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Antlr4.Runtime;
@@ -7,6 +8,7 @@ using Namotion.Reflection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
@@ -104,9 +106,9 @@ namespace LanguageServer
                     if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                         return null; //No clue what name to use
 
-                    var range = new Range(Position, Position);
+                    var replace = new InsertReplaceEdit() {Replace = new Range(Position, Position)};
 
-                    return ReplaceWithStepParameters(stepFactory, range);
+                    return StepParametersCompletionList(stepFactory, replace);
                 }
                 return null;
             }
@@ -114,11 +116,32 @@ namespace LanguageServer
 
             if (context.NAME().Symbol.ContainsPosition(Position))
             {
+                var nameText = context.NAME().GetText();
+
                 var options =
                         StepFactoryStore.Dictionary
-                            .Where(x => x.Key.Contains(context.NAME().GetText()))
-                            .GroupBy(x => x.Value, x => x.Key)
-                    ;
+                            .Where(x => x.Key.Contains(nameText, StringComparison.OrdinalIgnoreCase))
+                            .GroupBy(x => x.Value, x => x.Key).ToList();
+
+                if (options.Count() == 1)
+                {
+                    if (options.Single().Any(k => k.Equals(nameText, StringComparison.OrdinalIgnoreCase))) //The text is exactly the step
+                    {
+                        if (context.Stop.IsSameLineAs(Position) && context.Stop.EndsAt(Position))
+                        {
+                            // Insert option straight after
+                            var range = new Range(Position, Position);
+                            var sfs = options.Single().Key;
+
+                            var insert = new InsertReplaceEdit()
+                            {
+                                Insert = new Range(Position, Position)
+                            };
+
+                            return StepParametersCompletionList(sfs, insert);
+                        }
+                    }
+                }
 
 
                 return ReplaceWithSteps(options, context.NAME().Symbol.GetRange());
@@ -145,7 +168,9 @@ namespace LanguageServer
                         if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                             return null; //No clue what name to use
 
-                        return ReplaceWithStepParameters(stepFactory, namedArgumentContext.NAME().Symbol.GetRange());
+                        var replace = new InsertReplaceEdit() {Replace = namedArgumentContext.NAME().Symbol.GetRange()};
+
+                        return StepParametersCompletionList(stepFactory, replace);
                     }
 
 
@@ -157,7 +182,9 @@ namespace LanguageServer
                 if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                     return null; //No clue what name to use
 
-                return ReplaceWithStepParameters(stepFactory, new Range(Position, Position));
+                var replace = new InsertReplaceEdit() {Replace = new Range(Position, Position)};
+
+                return StepParametersCompletionList(stepFactory,replace);
             }
         }
 
@@ -196,7 +223,7 @@ namespace LanguageServer
             }
         }
 
-        public static CompletionList ReplaceWithStepParameters(IStepFactory stepFactory, Range range)
+        public static CompletionList StepParametersCompletionList(IStepFactory stepFactory, InsertReplaceEdit insertReplaceEdit)
         {
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
             var options =
@@ -211,10 +238,9 @@ namespace LanguageServer
             {
                 return new()
                 {
-                    TextEdit = TextEditOrInsertReplaceEdit.From(new InsertReplaceEdit()
-                    {
-                        Replace = range
-                    }),
+                    TextEdit = TextEditOrInsertReplaceEdit.From(
+                        
+                        insertReplaceEdit),
                     Label = stepParameterReference.Name,
                     InsertTextMode = InsertTextMode.AsIs,
                     InsertTextFormat = InsertTextFormat.PlainText,

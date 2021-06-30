@@ -31,6 +31,7 @@ namespace LanguageServer.Test
 
         [Theory]
         [InlineData("Print 123", 0, 1, "Print")]
+        [InlineData("print", 0, 5, "Value")]
         //[InlineData("Print 123", 0, 10, "Print")]
         //[InlineData(LongText, 0, 1, "FileRead")]
         [InlineData(LongText, 0, 9, "Path")]

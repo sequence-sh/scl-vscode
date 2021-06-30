@@ -42,6 +42,15 @@ namespace LanguageServer
                 return (token.Column + token.Text.Length) >= position.Character;
             return true;
         }
+        
+        public static bool EndsAt(this IToken token, Position position)
+        {
+            if (token.Line - 1 < position.Line)
+                return false;
+            else if (token.Line - 1 == position.Line)
+                return (token.Column + token.Text.Length) == position.Character;
+            return true;
+        }
 
         public static bool ContainsPosition(this IParseTree parseTree, Position position)
         {
