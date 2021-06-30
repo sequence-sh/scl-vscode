@@ -147,7 +147,9 @@ namespace LanguageServer
 
         public static string GetMarkDownDocumentation(IGrouping<IStepFactory, string> stepFactoryGroup)
         {
-            var text = DocumentationCreator.GetStepPage(new StepWrapper(stepFactoryGroup));
+            var stepWrapper = new StepWrapper(stepFactoryGroup);
+
+            var text = DocumentationCreator.GetStepPage(stepWrapper);
 
             return text.FileText;
         }

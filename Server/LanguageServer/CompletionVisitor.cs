@@ -49,18 +49,6 @@ namespace LanguageServer
             return DefaultResult;
         }
 
-        /// <inheritdoc />
-        public override CompletionList? VisitTerminal(ITerminalNode node)
-        {
-            return base.VisitTerminal(node);
-        }
-
-        /// <inheritdoc />
-        public override CompletionList? VisitTerm1(SCLParser.Term1Context context)
-        {
-            return base.VisitTerm1(context);
-        }
-
         ///// <inheritdoc />
         //public override CompletionList? VisitChildren(IRuleNode node)
         //{
@@ -101,15 +89,15 @@ namespace LanguageServer
 
             if (!context.ContainsPosition(Position))
             {
-                if (context.EndsBefore(Position) && context.Stop.IsSameLineAs(Position)) //This position is on the line after the step definition
+                if (context.EndsBefore(Position) &&
+                    context.Stop.IsSameLineAs(Position)) //This position is on the line after the step definition
                 {
                     if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                         return null; //No clue what name to use
 
-                    var replace = new InsertReplaceEdit() {Replace = new Range(Position, Position)};
-
-                    return StepParametersCompletionList(stepFactory, replace);
+                    return StepParametersCompletionList(stepFactory, new Range(Position, Position));
                 }
+
                 return null;
             }
 
@@ -119,29 +107,9 @@ namespace LanguageServer
                 var nameText = context.NAME().GetText();
 
                 var options =
-                        StepFactoryStore.Dictionary
-                            .Where(x => x.Key.Contains(nameText, StringComparison.OrdinalIgnoreCase))
-                            .GroupBy(x => x.Value, x => x.Key).ToList();
-
-                if (options.Count() == 1)
-                {
-                    if (options.Single().Any(k => k.Equals(nameText, StringComparison.OrdinalIgnoreCase))) //The text is exactly the step
-                    {
-                        if (context.Stop.IsSameLineAs(Position) && context.Stop.EndsAt(Position))
-                        {
-                            // Insert option straight after
-                            var range = new Range(Position, Position);
-                            var sfs = options.Single().Key;
-
-                            var insert = new InsertReplaceEdit()
-                            {
-                                Insert = new Range(Position, Position)
-                            };
-
-                            return StepParametersCompletionList(sfs, insert);
-                        }
-                    }
-                }
+                    StepFactoryStore.Dictionary
+                        .Where(x => x.Key.Contains(nameText, StringComparison.OrdinalIgnoreCase))
+                        .GroupBy(x => x.Value, x => x.Key).ToList();
 
 
                 return ReplaceWithSteps(options, context.NAME().Symbol.GetRange());
@@ -166,11 +134,11 @@ namespace LanguageServer
                     if (namedArgumentContext.NAME().Symbol.ContainsPosition(Position))
                     {
                         if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
-                            return null; //No clue what name to use
+                            return null; //Don't know what step factory to use
 
-                        var replace = new InsertReplaceEdit() {Replace = namedArgumentContext.NAME().Symbol.GetRange()};
+                        var range = namedArgumentContext.NAME().Symbol.GetRange();
 
-                        return StepParametersCompletionList(stepFactory, replace);
+                        return StepParametersCompletionList(stepFactory, range);
                     }
 
 
@@ -182,9 +150,8 @@ namespace LanguageServer
                 if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                     return null; //No clue what name to use
 
-                var replace = new InsertReplaceEdit() {Replace = new Range(Position, Position)};
 
-                return StepParametersCompletionList(stepFactory,replace);
+                return StepParametersCompletionList(stepFactory, new Range(Position, Position));
             }
         }
 
@@ -223,7 +190,7 @@ namespace LanguageServer
             }
         }
 
-        public static CompletionList StepParametersCompletionList(IStepFactory stepFactory, InsertReplaceEdit insertReplaceEdit)
+        public static CompletionList StepParametersCompletionList(IStepFactory stepFactory, Range range)
         {
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
             var options =
@@ -238,13 +205,14 @@ namespace LanguageServer
             {
                 return new()
                 {
-                    TextEdit = TextEditOrInsertReplaceEdit.From(
-                        
-                        insertReplaceEdit),
+                    TextEdit =
+                        new InsertReplaceEdit()
+                        {
+                            Replace = range, NewText = stepParameterReference.Name + ":"
+                        },
                     Label = stepParameterReference.Name,
                     InsertTextMode = InsertTextMode.AsIs,
                     InsertTextFormat = InsertTextFormat.PlainText,
-                    InsertText = stepParameterReference.Name + ":",
                     Detail = propertyInfo.GetXmlDocsSummary(),
                     Documentation = new StringOrMarkupContent(new MarkupContent()
                     {
@@ -262,7 +230,5 @@ namespace LanguageServer
         {
             return new();
         }
-
-
     }
 }

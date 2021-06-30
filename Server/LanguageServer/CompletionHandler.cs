@@ -7,7 +7,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Reductech.EDR.ConnectorManagement;
 using Reductech.EDR.ConnectorManagement.Base;
 using Reductech.EDR.Core.Connectors;
 using Reductech.EDR.Core.Internal;
@@ -62,9 +61,9 @@ namespace LanguageServer
 
             var document = _documentManager.GetDocument(request.TextDocument.Uri);
 
-            Debugger.Launch();
+            //Debugger.Launch();
 
-            Logger.LogDebug($"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
+            Logger.LogInformation($"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
 
             if (document == null)
             {
@@ -76,7 +75,7 @@ namespace LanguageServer
 
             var cl = document.GetCompletionList(request.Position, sfs);
 
-            Logger.LogDebug($"Completion Request returns {cl.Items.Count()} items ");
+            Logger.LogInformation($"Completion Request returns {cl.Items.Count()} items ");
 
             return cl;
         }
