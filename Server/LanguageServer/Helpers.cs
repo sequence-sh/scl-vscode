@@ -74,7 +74,17 @@ namespace LanguageServer
 
         public static bool ContainsPosition(this ParserRuleContext context, Position position)
         {
-            return context.Start.StartsBeforeOrAt(position) && context.Stop.EndsAfterOrAt(position);
+            if (!context.Start.StartsBeforeOrAt(position))
+                return false;
+            if (!context.Stop.EndsAfterOrAt(position))
+                return false;
+            return  true;
+        }
+
+        public static bool IsSameLineAs(this IToken token, Position position)
+        {
+            var sameLine = token.Line - 1 == position.Line;
+            return sameLine;
         }
 
         public static bool EndsBefore(this ParserRuleContext context, Position position) => !context.Stop.EndsAfterOrAt(position);

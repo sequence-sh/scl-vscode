@@ -37,14 +37,26 @@ namespace LanguageServer
                 {
                     return base.Visit(tree);
                 }
-                //else if (context.EndsBefore(Position) && !HasSiblingsAfter(context, Position))
-                //{
-                //    //This position is at the end of this line - enter anyway
-                //    return base.Visit(tree);
-                //}
+                else if (context.EndsBefore(Position) && !HasSiblingsAfter(context, Position))
+                {
+                    //This position is at the end of this line - enter anyway
+                    return base.Visit(tree);
+                }
             }
 
             return DefaultResult;
+        }
+
+        /// <inheritdoc />
+        public override CompletionList? VisitTerminal(ITerminalNode node)
+        {
+            return base.VisitTerminal(node);
+        }
+
+        /// <inheritdoc />
+        public override CompletionList? VisitTerm1(SCLParser.Term1Context context)
+        {
+            return base.VisitTerm1(context);
         }
 
         ///// <inheritdoc />
@@ -87,13 +99,15 @@ namespace LanguageServer
 
             if (!context.ContainsPosition(Position))
             {
-                //if(context.EndsBefore(Position)) //This position is on the line after the step definition
-                //{
-                //    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
-                //        return null; //No clue what name to use
+                if (context.EndsBefore(Position) && context.Stop.IsSameLineAs(Position)) //This position is on the line after the step definition
+                {
+                    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
+                        return null; //No clue what name to use
 
-                //    return ReplaceWithStepParameters(stepFactory, new Range(Position, Position));
-                //}
+                    var range = new Range(Position, Position);
+
+                    return ReplaceWithStepParameters(stepFactory, range);
+                }
                 return null;
             }
 
