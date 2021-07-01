@@ -51,26 +51,18 @@ namespace LanguageServer
             await Task.CompletedTask;
 
             var document = _documentManager.GetDocument(request.TextDocument.Uri);
-
-            //Debugger.Launch();
-
             Logger.LogInformation(
                 $"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
 
             if (document == null)
             {
-                Logger.LogWarning($"Document not found: {request.TextDocument.Uri}");
                 return new CompletionList();
             }
 
             var sfs = await _stepFactoryStore.GetValueAsync();
-
             var cl = document.GetCompletionList(request.Position, sfs);
 
             Logger.LogInformation($"Completion Request returns {cl.Items.Count()} items ");
-
-            ConfigurationManager.RefreshSection("appSettings");
-
 
             return cl;
         }

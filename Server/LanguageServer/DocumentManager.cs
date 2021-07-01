@@ -56,7 +56,11 @@ namespace LanguageServer
 
         public SCLDocument? GetDocument(DocumentUri documentPath)
         {
-            return _documents.TryGetValue(documentPath.ToString(), out var document) ? document : null;
+            var result =  _documents.TryGetValue(documentPath.ToString(), out var document) ? document : null;
+
+            if (result is null) _logger.LogWarning($"Document not found: {documentPath}");
+
+            return result;
         }
     }
 }

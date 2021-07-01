@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Antlr4.Runtime;
 using CSharpFunctionalExtensions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -19,6 +22,40 @@ namespace LanguageServer
             return hover ?? new Hover();
         }
 
+        public List<TextEdit> RenameVariable(Position position, string newName)
+        {
+            var inputStream = new AntlrInputStream(Text);
+            var lexer = new SCLLexer(inputStream);
+
+            var tokenAtPosition = lexer.GetAllTokens().FirstOrDefault(x => x.ContainsPosition(position));
+
+            var edits = new List<TextEdit>();
+
+            if (tokenAtPosition is null)
+                return edits;
+
+            var newText = $"<{newName.TrimStart('<').TrimEnd('>')}>";
+
+            var variableNameTokenType = lexer.TokenTypeMap["VARIABLENAME"];
+
+            if (tokenAtPosition.Type == variableNameTokenType)
+            {
+                lexer.Reset(); //back to the start
+
+                foreach (var matchingToken in lexer.GetAllTokens().Where(x =>
+                    string.Equals(x.Text, tokenAtPosition.Text, StringComparison.OrdinalIgnoreCase)))
+                {
+                    edits.Add(new TextEdit()
+                    {
+                        Range = matchingToken.GetRange(),
+                        NewText = newText
+                    });
+                }
+            }
+
+            return edits;
+        }
+
         public CompletionList GetCompletionList(Position position, StepFactoryStore stepFactoryStore)
         {
             var completionList = new CompletionVisitor(position, stepFactoryStore).LexParseAndVisit(Text);
@@ -28,7 +65,8 @@ namespace LanguageServer
 
         public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)
         {
-            var result = SCLParsing.TryParseStep(Text).Bind(x=>x.TryFreeze(SCLRunner.RootCallerMetadata,  stepFactoryStore));
+            var result = SCLParsing.TryParseStep(Text)
+                .Bind(x => x.TryFreeze(SCLRunner.RootCallerMetadata, stepFactoryStore));
 
             if (result.IsSuccess)
             {
