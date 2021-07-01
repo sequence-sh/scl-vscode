@@ -1,117 +1,117 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Server;
-using Reductech.EDR.ConnectorManagement;
-using Reductech.EDR.ConnectorManagement.Base;
+using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
 {
+    /// <summary>
+    /// Basically an OptionsMonitor, but working I hope
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class EntityChangeSync<T> where T : class
+    {
+        public EntityChangeSync(IConfiguration configuration)
+        {
+            Latest = configuration.Get<T>();
+        }
+
+        public T Latest { get; private set; }
+
+        // Declare the delegate (if using non-generic pattern).
+        public delegate void ChangeEventHandler(object sender, T entity);
+
+        // Declare the event.
+        public event ChangeEventHandler OnChange;
+
+        // Wrap the event in a protected virtual method
+        // to enable derived classes to raise the event.
+        public virtual void EntityHasChanged(T entity)
+        {
+            Latest = entity;
+            // Raise the event in a thread-safe manner using the ?. operator.
+            OnChange?.Invoke(this, entity);
+        }
+
+        /// <summary>
+        /// Returns whether the entity has changed
+        /// </summary>
+        public bool TryUpdate(T newEntity)
+        {
+            if (newEntity.Equals(Latest))
+                return false;
+            EntityHasChanged(newEntity);
+            return true;
+        }
+    }
+
+
     internal class Program
     {
+        public const string AppSettingsPath = "appsettings.json";
+
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
         private static void Main(string[] args) => MainAsync(args).Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
         private static async Task MainAsync(string[] args)
         {
-            // Debugger.Launch();
-            // while (!Debugger.IsAttached)
-            // {
-            //     await Task.Delay(100);
-            // }
-
-            //Log.Logger.Information("This only goes file...");
-
-
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
-
             var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
                 options =>
+                {
+                    options.ConfigurationBuilder.AddJsonFile(AppSettingsPath, true, true);
+
+
                     options
                         .WithInput(Console.OpenStandardInput())
                         .WithOutput(Console.OpenStandardOutput())
-                        .ConfigureLogging(
-                            x => x
-                                .AddLanguageProtocolLogging()
-                                .SetMinimumLevel(LogLevel.Debug)
-                        )
+                        .ConfigureLogging(x => x.AddLanguageProtocolLogging().SetMinimumLevel(LogLevel.Debug))
                         .WithServices(x =>
                             x.AddSingleton<IFileSystem>(new FileSystem())
-                                //.AddSingleton(SCLSettings.CreateFromIConfiguration(configuration))
                                 .AddSingleton<DocumentManager>()
-                                .AddInMemoryConnectorManager(configuration)
+                                //.AddSingleton(typeof(IOptionsMonitor<>), typeof(OptionsMonitor<>))
+                                .AddSingleton<IAsyncFactory<StepFactoryStore>, StepFactoryStoreFactory>()
+                                .AddSingleton(typeof(EntityChangeSync<>))
                         )
+                        .WithHandler<DidChangeConfigurationHandler>()
                         .WithHandler<CompletionHandler>()
                         .WithHandler<TextDocumentSyncHandler>()
                         .WithHandler<HoverHandler>()
-                        .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
-            );
+                        .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Debug)))
+                        .OnStarted((ls, token) =>
+                        {
+                            //Debugger.Launch();
+
+                            var logger = ls.GetRequiredService<ILogger<Program>>();
+
+                            logger.LogInformation("Language Server started");
+                            var changeSync = ls.GetRequiredService<EntityChangeSync<SCLLanguageServerConfiguration>>();
+
+                            if (changeSync.Latest.LaunchDebugger)
+                            {
+                                Debugger.Launch();
+                            }
+
+                            
+                            changeSync.OnChange += (_, x) =>
+                            {
+                                if (x.LaunchDebugger)
+                                {
+                                    Debugger.Launch();
+                                }
+                            };
+                            return Task.CompletedTask;
+                        })
+                        ;
+                });
 
             await server.WaitForExit;
-        }
-    }
-
-    /// <summary>
-    /// Extension methods for dependency injection using IServiceCollection.
-    /// </summary>
-    public static class ServiceCollectionExtensions
-    {
-        /// <summary>
-        /// Create all the required services to set up a ConnectorManager using
-        /// a JSON configuration file.
-        /// 
-        ///   - ConnectorManagerSettings
-        ///   - ConnectorRegistrySettings
-        ///   - IConnectorRegistry
-        ///   - IConnectorConfiguration (FileConnectorConfiguration)
-        ///   - IConnectorManager
-        ///
-        /// Additional services required for the connector manager are:
-        ///
-        ///    - System.IO.Abstractions.IFileSystem
-        ///    - Microsoft.Extensions.Logging.ILogger
-        /// 
-        /// </summary>
-        /// <param name="services">IServiceCollection</param>
-        /// <param name="configuration">The application Configuration.</param>
-        /// <returns>IServiceCollection</returns>
-        public static IServiceCollection AddInMemoryConnectorManager(
-            this IServiceCollection services,
-            IConfiguration configuration)
-        {
-            var managerSettings = configuration.GetSection(ConnectorManagerSettings.Key)
-                .Get<ConnectorManagerSettings>() ?? ConnectorManagerSettings.Default;
-
-            services.AddSingleton(managerSettings);
-
-            var registrySettings = configuration.GetSection(ConnectorRegistrySettings.Key)
-                .Get<ConnectorRegistrySettings>() ?? ConnectorRegistrySettings.Reductech;
-
-            services.AddSingleton(registrySettings);
-
-            services.AddSingleton<IConnectorRegistry, ConnectorRegistry>();
-
-            services.AddSingleton<IConnectorConfiguration>(_=> new ConnectorConfiguration());
-
-            //services.AddSingleton<IConnectorConfiguration>(serviceProvider =>
-            //{
-            //    //var sclSettings = serviceProvider.GetRequiredService<SCLSettings>();
-
-            //    //var settings = ConnectorSettings.CreateFromSCLSettings(sclSettings).ToDictionary(x => x.Key, x => x.Settings);
-            //    var connectorConfiguration = new ConnectorConfiguration();
-
-            //    return connectorConfiguration;
-            //});
-
-            services.AddSingleton<IConnectorManager, ConnectorManager>();
-
-
-            return services;
         }
     }
 }
