@@ -83,6 +83,7 @@ namespace LanguageServer
                         .WithHandler<CompletionHandler>()
                         .WithHandler<TextDocumentSyncHandler>()
                         .WithHandler<HoverHandler>()
+                        .WithHandler<RenameHandler>()
                         .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Debug)))
                         .OnStarted((ls, token) =>
                         {
