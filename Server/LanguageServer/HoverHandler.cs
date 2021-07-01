@@ -4,10 +4,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Reductech.EDR.ConnectorManagement;
 using Reductech.EDR.ConnectorManagement.Base;
-using Reductech.EDR.Core.Connectors;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
@@ -16,10 +13,9 @@ namespace LanguageServer
 
     internal class HoverHandler : IHoverHandler
     {
-        private readonly ILanguageServerConfiguration _configuration;
         private readonly ILogger<HoverHandler> _logger;
         private readonly DocumentManager _documentManager;
-        private readonly AsyncLazy<StepFactoryStore>  _stepFactoryStore;
+        private readonly IAsyncFactory<StepFactoryStore>  _stepFactoryStore;
 
 
         private readonly DocumentSelector _documentSelector = new(
@@ -29,15 +25,12 @@ namespace LanguageServer
             }
         );
 
-        public HoverHandler(ILanguageServerConfiguration configuration, ILogger<HoverHandler> logger,
-            DocumentManager documentManager, IConnectorManager connectorManager)
+        public HoverHandler(ILogger<HoverHandler> logger,
+            DocumentManager documentManager, IAsyncFactory<StepFactoryStore> stepFactoryStore)
         {
-            _configuration = configuration;
             _logger = logger;
             _documentManager = documentManager;
-            _stepFactoryStore =
-                new AsyncLazy<StepFactoryStore>(() =>
-                    connectorManager.GetStepFactoryStoreAsync(CancellationToken.None));
+            _stepFactoryStore = stepFactoryStore;
         }
 
         /// <inheritdoc />
@@ -54,7 +47,7 @@ namespace LanguageServer
                 return new Hover();
             }
 
-            var sfs = await _stepFactoryStore.Value;
+            var sfs = await _stepFactoryStore.GetValueAsync();
 
             var hover = document.GetHover(request.Position, sfs);
 

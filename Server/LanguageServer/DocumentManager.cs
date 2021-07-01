@@ -1,15 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Reductech.EDR.ConnectorManagement;
 using Reductech.EDR.ConnectorManagement.Base;
-using Reductech.EDR.Core.Connectors;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
@@ -22,16 +19,16 @@ namespace LanguageServer
 
         private readonly ILanguageServerFacade _facade;
 
-        private readonly AsyncLazy<StepFactoryStore> _stepFactoryStore;
+        private readonly IAsyncFactory<StepFactoryStore> _stepFactoryStore;
         
 
-        public DocumentManager(ILanguageServerFacade facade, ILogger<DocumentManager> logger, IConnectorManager connectorManager)
+        public DocumentManager(ILanguageServerFacade facade,
+            ILogger<DocumentManager> logger,
+            IAsyncFactory<StepFactoryStore> stepFactoryStore)
         {
             _facade = facade;
             _logger = logger;
-            _stepFactoryStore =
-                new AsyncLazy<StepFactoryStore>(() =>
-                    connectorManager.GetStepFactoryStoreAsync(CancellationToken.None));
+            _stepFactoryStore = stepFactoryStore;
         }
 
         public void RemoveDocument(DocumentUri documentUri)
@@ -39,11 +36,11 @@ namespace LanguageServer
             _documents.Remove(documentUri.ToString(), out var _);
         }
 
-        public async Task UpdateDocument( SCLDocument document)
+        public async Task UpdateDocumentAsync( SCLDocument document)
         {
             _documents.AddOrUpdate(document.DocumentUri.ToString(), document, (_, _) => document);
 
-            var sfs = await _stepFactoryStore.Value;
+            var sfs = await _stepFactoryStore.GetValueAsync();
 
 
             var diagnostics =document.GetDiagnostics(sfs);

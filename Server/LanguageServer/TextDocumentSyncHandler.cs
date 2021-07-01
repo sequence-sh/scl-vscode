@@ -54,7 +54,7 @@ namespace LanguageServer
             var text = request.ContentChanges.FirstOrDefault()?.Text ?? "";
 
 
-            _ = _documentManager.UpdateDocument(new SCLDocument(text, uri));
+            _ = _documentManager.UpdateDocumentAsync(new SCLDocument(text, uri));
             Logger.LogDebug($"Updated buffer for document: {uri}");
 
             return Unit.Task;
@@ -62,7 +62,7 @@ namespace LanguageServer
 
         public Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            _ = _documentManager.UpdateDocument(new SCLDocument(request.TextDocument.Text, request.TextDocument.Uri));
+            _ = _documentManager.UpdateDocumentAsync(new SCLDocument(request.TextDocument.Text, request.TextDocument.Uri));
             return Unit.Task;
         }
 

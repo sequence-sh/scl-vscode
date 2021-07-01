@@ -41,7 +41,7 @@ export function activate(context: ExtensionContext) {
     ],
     progressOnInitialization: true,
     synchronize: {
-      configurationSection: 'sclLanguageServer',
+      configurationSection: 'reductech-scl.edr',
       fileEvents: workspace.createFileSystemWatcher('**/*.scl'),
     },
   };
