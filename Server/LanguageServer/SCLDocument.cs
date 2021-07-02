@@ -17,7 +17,7 @@ namespace LanguageServer
     {
         public Hover GetHover(Position position, StepFactoryStore stepFactoryStore)
         {
-            var hover = new HoverVisitor(position, stepFactoryStore).LexParseAndVisit(Text);
+            var hover = new HoverVisitor(position, stepFactoryStore, Text).LexParseAndVisit(Text);
 
             return hover ?? new Hover();
         }

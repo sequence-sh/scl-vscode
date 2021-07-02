@@ -30,14 +30,14 @@ namespace LanguageServer.Test
         public static readonly DocumentUri DefaultURI = new(null, null, null, null, null, null);
 
         [Theory]
-        [InlineData("Print 123", 0, 1, "Prints a value to the console.")]
-        [InlineData("Print 123", 0, 8, "The Value to Print.")]
+        [InlineData("Print 123", 0, 1, "`Print`", "`Unit`", "Prints a value to the console.")]
+        [InlineData("Print 123", 0, 8, "`123`",  "`Integer`")]
         //[InlineData(LongText, 0, 1, "Reads text from a file.")] //doesn't work
-        [InlineData(LongText, 0, 12, "The name of the file to read.")]
+        [InlineData(LongText, 0, 12, "`'artwork_data.csv'`", "`String`")]
         [InlineData(LongText, 1, 3,
-            "Extracts entities from a CSV file.\nThe same as FromConcordance but with different default values.")]
+            "`FromCSV`", "`Array<T>`", "Extracts entities from a CSV file.\nThe same as FromConcordance but with different default values.")]
         //[InlineData(ErrorText, 0, 1, "Reads text from a file.")]
-        public void ShouldGiveCorrectHover(string text, int line, int character, string expectedHover)
+        public void ShouldGiveCorrectHover(string text, int line, int character, params string[] expectedHovers)
         {
             var fsAssembly = Assembly.GetAssembly(typeof(FileRead))!;
             var sdAssembly = Assembly.GetAssembly(typeof(ToJson))!;
@@ -53,16 +53,18 @@ namespace LanguageServer.Test
 
             var hover = document.GetHover(position, sfs);
 
-            if (string.IsNullOrWhiteSpace(expectedHover))
+            if (!expectedHovers.Any())
                 hover.Contents.Should().BeNull();
 
             else
             {
-                hover.Contents.Should().NotBeNull($"Should have Hover '{expectedHover}'");
-                hover.Contents.HasMarkedStrings.Should().BeTrue($"Should have Hover '{expectedHover}'");
-            }
+                hover.Contents.Should().NotBeNull($"Should have Hover");
+                hover.Contents.HasMarkedStrings.Should().BeTrue($"Should have Hover");
 
-            hover.Contents.MarkedStrings!.First().Value.Should().Be(expectedHover);
+                var actualHovers = hover.Contents.MarkedStrings!.Select(x => x.Value).ToList();
+
+                actualHovers.Should().BeEquivalentTo(expectedHovers);
+            }
         }
     }
 }
