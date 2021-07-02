@@ -1,24 +1,21 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.EDR.ConnectorManagement.Base;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
 {
-    internal class HoverHandler : IHoverHandler
+    internal class SignatureHelpHandler : ISignatureHelpHandler
     {
-        private readonly ILogger<HoverHandler> _logger;
+
+        private readonly ILogger<SignatureHelpHandler> _logger;
         private readonly DocumentManager _documentManager;
         private readonly IAsyncFactory<StepFactoryStore>  _stepFactoryStore;
-        
 
-        public HoverHandler(ILogger<HoverHandler> logger,
-            DocumentManager documentManager, IAsyncFactory<StepFactoryStore> stepFactoryStore)
+        public SignatureHelpHandler(ILogger<SignatureHelpHandler> logger, DocumentManager documentManager, IAsyncFactory<StepFactoryStore> stepFactoryStore)
         {
             _logger = logger;
             _documentManager = documentManager;
@@ -26,33 +23,35 @@ namespace LanguageServer
         }
 
         /// <inheritdoc />
-        public async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
+        public async Task<SignatureHelp?> Handle(SignatureHelpParams request, CancellationToken cancellationToken)
         {
-            _logger.LogDebug($"Hover Position: {request.Position} Document: {request.TextDocument}");
+
+            _logger.LogDebug($"Signature Help Position: {request.Position} Document: {request.TextDocument}");
 
             var document = _documentManager.GetDocument(request.TextDocument.Uri);
 
             if (document == null)
             {
-                return new Hover();
+                return null;
             }
 
             var sfs = await _stepFactoryStore.GetValueAsync();
 
-            var hover = document.GetHover(request.Position, sfs);
+            var signatureHelp = document.GetSignatureHelp(request.Position, sfs);
 
-            _logger.LogDebug($"Hover: {hover.Contents}");
+            _logger.LogDebug($"Signature Help: {signatureHelp}");
 
-            return hover;
+            return signatureHelp;
         }
 
-
         /// <inheritdoc />
-        public HoverRegistrationOptions GetRegistrationOptions(HoverCapability capability,
+        public SignatureHelpRegistrationOptions GetRegistrationOptions(SignatureHelpCapability capability,
             ClientCapabilities clientCapabilities)
         {
-            return new()
+            return new ()
             {
+                WorkDoneProgress = false,
+                TriggerCharacters = new Container<string>(" "),
                 DocumentSelector = TextDocumentSyncHandler.DocumentSelector
             };
         }

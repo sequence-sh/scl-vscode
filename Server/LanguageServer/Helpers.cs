@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Documentation;
@@ -26,6 +27,20 @@ namespace LanguageServer
             );
         }
 
+        public static bool HasSiblingsAfter(this IRuleNode ruleContext, Position p)
+        {
+            if (ruleContext.Parent is ParserRuleContext prc)
+            {
+                if (prc.children.Reverse().OfType<ParserRuleContext>()
+                    .Any(c => c.ContainsPosition(p) || c.StartsAfter(p)))
+                    return true;
+
+                return HasSiblingsAfter(prc, p);
+            }
+
+            return false;
+        }
+
         public static bool StartsBeforeOrAt(this IToken token, Position position)
         {
             if (token.Line - 1 < position.Line)
@@ -43,7 +58,7 @@ namespace LanguageServer
                 return (token.Column + token.Text.Length) >= position.Character;
             return true;
         }
-        
+
         public static bool EndsAt(this IToken token, Position position)
         {
             if (token.Line - 1 < position.Line)
@@ -86,7 +101,7 @@ namespace LanguageServer
                 return false;
             if (!context.Stop.EndsAfterOrAt(position))
                 return false;
-            return  true;
+            return true;
         }
 
         public static bool IsSameLineAs(this IToken token, Position position)
@@ -95,7 +110,8 @@ namespace LanguageServer
             return sameLine;
         }
 
-        public static bool EndsBefore(this ParserRuleContext context, Position position) => !context.Stop.EndsAfterOrAt(position);
+        public static bool EndsBefore(this ParserRuleContext context, Position position) =>
+            !context.Stop.EndsAfterOrAt(position);
 
         public static bool StartsAfter(this ParserRuleContext context, Position position) =>
             !context.Start.StartsBeforeOrAt(position);
@@ -112,9 +128,9 @@ namespace LanguageServer
 
         public static Range GetRange(this TextLocation textLocation)
         {
-            return new (
-                textLocation.Start.Line -1, textLocation.Start.Column,
-                textLocation.Stop.Line -1, textLocation.Stop.Index + textLocation.Stop.Interval.Length
+            return new(
+                textLocation.Start.Line - 1, textLocation.Start.Column,
+                textLocation.Stop.Line - 1, textLocation.Stop.Index + textLocation.Stop.Interval.Length
             );
         }
 
@@ -158,9 +174,6 @@ namespace LanguageServer
             {
                 return e.Message;
             }
-            
-
-            
         }
     }
 }

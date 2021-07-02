@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -18,15 +17,6 @@ namespace LanguageServer
 
         private readonly IAsyncFactory<StepFactoryStore> _stepFactoryStore;
 
-        private readonly DocumentSelector _documentSelector = new(
-            new DocumentFilter()
-            {
-                Pattern = "**/*.scl"
-            }
-        );
-
-        private CompletionCapability _capability;
-
         public CompletionHandler(
             ILogger<CompletionHandler> logger,
             DocumentManager documentManager, IAsyncFactory<StepFactoryStore> stepFactoryStore)
@@ -34,16 +24,6 @@ namespace LanguageServer
             Logger = logger;
             _documentManager = documentManager;
             _stepFactoryStore = stepFactoryStore;
-            _capability = new CompletionCapability();
-        }
-
-        public CompletionRegistrationOptions GetRegistrationOptions()
-        {
-            return new CompletionRegistrationOptions
-            {
-                DocumentSelector = _documentSelector,
-                ResolveProvider = false
-            };
         }
 
         public async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
@@ -68,17 +48,12 @@ namespace LanguageServer
         }
 
 
-        public void SetCapability(CompletionCapability capability)
-        {
-            _capability = capability;
-        }
-
         public CompletionRegistrationOptions GetRegistrationOptions(CompletionCapability capability,
             ClientCapabilities clientCapabilities)
         {
             return new()
             {
-                DocumentSelector = _documentSelector,
+                DocumentSelector = TextDocumentSyncHandler.DocumentSelector,
             };
         }
     }
