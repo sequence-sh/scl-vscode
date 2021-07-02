@@ -48,7 +48,9 @@ namespace LanguageServer
                     var connectorManagerLogger = loggerFactory.CreateLogger<ConnectorManager>();
                     var settings = config.ConnectorManagerSettings ?? ConnectorManagerSettings.Default;
 
-                    var connectorConfigurationDict = config.ConnectorSettingsDictionary;
+                    var connectorConfigurationDict = config.ConnectorSettingsDictionary?
+                        .Where(x=>!string.IsNullOrWhiteSpace(x.Value.Id))
+                        .ToDictionary(x=>x.Key, x=>x.Value);
                     if (connectorConfigurationDict is null)
                     {
                         //load latest connectors from repository

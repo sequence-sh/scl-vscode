@@ -43,7 +43,6 @@ namespace LanguageServer
 
             if (document == null)
             {
-                _logger.LogWarning($"Document not found: {request.TextDocument.Uri}");
                 return new Hover();
             }
 
