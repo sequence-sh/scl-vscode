@@ -73,7 +73,7 @@ namespace LanguageServer
         {
             if (ruleContext.Parent is ParserRuleContext prc)
             {
-                if (prc.children.Reverse().Any(c => c.ContainsPosition(p) || c.StartsAfter(p)))
+                if (prc.children.Reverse().OfType<ParserRuleContext>().Any(c => c.ContainsPosition(p) || c.StartsAfter(p)))
                     return true;
 
                 return HasSiblingsAfter(prc, p);

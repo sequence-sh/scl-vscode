@@ -1,10 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Documentation;
 using Reductech.EDR.Core.Internal.Parser;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
@@ -52,34 +53,32 @@ namespace LanguageServer
             return true;
         }
 
-        public static bool ContainsPosition(this IParseTree parseTree, Position position)
-        {
-            if (parseTree is IToken token)
-                return token.ContainsPosition(position);
-            else if (parseTree is ParserRuleContext prc)
-                return prc.ContainsPosition(position);
+        //public static bool ContainsPosition(this IParseTree parseTree, Position position)
+        //{
+        //    if (parseTree is ParserRuleContext prc)
+        //        return prc.ContainsPosition(position);
 
-            return false;
-        }
+        //    return false;
+        //}
 
-        public static bool StartsAfter(this IParseTree parseTree, Position position)
-        {
-            if (parseTree is IToken token)
-                return !token.StartsBeforeOrAt(position);
-            else if (parseTree is ParserRuleContext prc)
-                return prc.StartsAfter(position);
+        //public static bool StartsAfter(this IParseTree parseTree, Position position)
+        //{
+        //    if (parseTree is IToken token)
+        //        return !token.StartsBeforeOrAt(position);
+        //    else if (parseTree is ParserRuleContext prc)
+        //        return prc.StartsAfter(position);
 
-            return false;
-        }
-        public static bool EndsBefore(this IParseTree parseTree, Position position)
-        {
-            if (parseTree is IToken token)
-                return !token.EndsAfterOrAt(position);
-            else if (parseTree is ParserRuleContext prc)
-                return prc.EndsBefore(position);
+        //    return false;
+        //}
+        //public static bool EndsBefore(this IParseTree parseTree, Position position)
+        //{
+        //    if (parseTree is IToken token)
+        //        return !token.EndsAfterOrAt(position);
+        //    else if (parseTree is ParserRuleContext prc)
+        //        return prc.EndsBefore(position);
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public static bool ContainsPosition(this ParserRuleContext context, Position position)
         {
@@ -149,9 +148,19 @@ namespace LanguageServer
         {
             var stepWrapper = new StepWrapper(stepFactoryGroup);
 
-            var text = DocumentationCreator.GetStepPage(stepWrapper);
+            try
+            {
+                var text = DocumentationCreator.GetStepPage(stepWrapper);
 
-            return text.FileText;
+                return text.FileText;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            
+
+            
         }
     }
 }
