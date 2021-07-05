@@ -16,7 +16,7 @@ namespace LanguageServer
         public ILogger<TextDocumentSyncHandler> Logger { get; }
         private readonly DocumentManager _documentManager;
 
-        private readonly DocumentSelector _documentSelector = new(
+        public static readonly DocumentSelector DocumentSelector = new(
             new DocumentFilter()
             {
                 Pattern = "**/*.scl"
@@ -38,7 +38,7 @@ namespace LanguageServer
         {
             return new()
             {
-                DocumentSelector = _documentSelector,
+                DocumentSelector = DocumentSelector,
                 SyncKind = Change
             };
         }
@@ -88,7 +88,7 @@ namespace LanguageServer
         {
             return new()
             {
-                DocumentSelector = _documentSelector,
+                DocumentSelector = DocumentSelector,
                 SyncKind = TextDocumentSyncKind.Full
             };
         }
@@ -102,7 +102,7 @@ namespace LanguageServer
         {
             return new()
             {
-                DocumentSelector = _documentSelector,
+                DocumentSelector = DocumentSelector,
             };
         }
 
@@ -114,7 +114,7 @@ namespace LanguageServer
         {
             return new()
             {
-                DocumentSelector = _documentSelector
+                DocumentSelector = DocumentSelector
             };
         }
 
@@ -126,7 +126,7 @@ namespace LanguageServer
         {
             return new()
             {
-                DocumentSelector = _documentSelector,
+                DocumentSelector = DocumentSelector,
                 IncludeText = true
             };
         }

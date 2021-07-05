@@ -14,4 +14,4 @@ To start in debug mode, press `F5`.
 
 ## How to change settings
 
-We hope to add an easier way to change this, but for now connector settings are in `\.vscode\extensions\reductech.reductech-scl-0.9.0\Server\appsettings.json`
+File > Preferences > Settings > Reductech-SCL

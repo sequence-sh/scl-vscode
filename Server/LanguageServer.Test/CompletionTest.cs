@@ -1,13 +1,13 @@
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.ConnectorManagement.Base;
 using Reductech.EDR.Connectors.FileSystem;
 using Reductech.EDR.Connectors.StructuredData;
 using Reductech.EDR.Core.Internal;
 using Xunit;
+using static LanguageServer.Test.TestHelpers;
 
 namespace LanguageServer.Test
 {
@@ -27,14 +27,13 @@ namespace LanguageServer.Test
         public const string ErrorText = @"- FileRead 'artwork_data.csv'
 - 0.1.2.3";
 
-        public static readonly DocumentUri DefaultURI = new (null, null, null, null, null, null);
-
         [Theory]
         [InlineData("Print 123", 0, 1, "Print")]
         [InlineData(LongText, 0, 9, "Path")]
         [InlineData("- FileRead  ", 0, 11, "Path")]
         [InlineData("FileRead  ", 0, 9, "Path")]
         [InlineData("FileRead P", 0, 10, "Path")]
+        [InlineData("- FileRead P", 0, 12, "Path")]
         [InlineData(LongText, 1, 3,
             "FromCSV")]
         public void ShouldGiveCorrectCompletion(string text, int line, int character, string? expectedLabel)
@@ -47,7 +46,7 @@ namespace LanguageServer.Test
 
             var sfs = StepFactoryStore.Create(fsConnectorData, sdConnectorData);
 
-            var document = new SCLDocument(text, DefaultURI);
+            var document = new SCLDocument(text, DefaultUri);
 
             var position = new Position(line, character);
 

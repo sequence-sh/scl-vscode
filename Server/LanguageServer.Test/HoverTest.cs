@@ -1,13 +1,13 @@
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.ConnectorManagement.Base;
 using Reductech.EDR.Connectors.FileSystem;
 using Reductech.EDR.Connectors.StructuredData;
 using Reductech.EDR.Core.Internal;
 using Xunit;
+using static LanguageServer.Test.TestHelpers;
 
 namespace LanguageServer.Test
 {
@@ -27,8 +27,6 @@ namespace LanguageServer.Test
         public const string ErrorText = @"- FileRead 'artwork_data.csv'
 - 0.1.2.3";
 
-        public static readonly DocumentUri DefaultURI = new(null, null, null, null, null, null);
-
         [Theory]
         [InlineData("Print 123", 0, 1, "`Print`", "`Unit`", "Prints a value to the console.")]
         [InlineData("Print 123", 0, 8, "`123`",  "`Integer`")]
@@ -47,7 +45,7 @@ namespace LanguageServer.Test
 
             var sfs = StepFactoryStore.Create(fsConnectorData, sdConnectorData);
 
-            var document = new SCLDocument(text, DefaultURI);
+            var document = new SCLDocument(text, DefaultUri);
 
             var position = new Position(line, character);
 

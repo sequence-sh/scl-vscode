@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Documentation;
@@ -9,6 +11,8 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
+
+
     public static class Helpers
     {
         public static bool ContainsPosition(this IToken token, Position position)
@@ -24,6 +28,20 @@ namespace LanguageServer
                 token.Line - 1,
                 token.Column + token.Text.Length
             );
+        }
+
+        public static bool HasSiblingsAfter(this IRuleNode ruleContext, Position p)
+        {
+            if (ruleContext.Parent is ParserRuleContext prc)
+            {
+                if (prc.children.Reverse().OfType<ParserRuleContext>()
+                    .Any(c => c.ContainsPosition(p) || c.StartsAfter(p)))
+                    return true;
+
+                return HasSiblingsAfter(prc, p);
+            }
+
+            return false;
         }
 
         public static bool StartsBeforeOrAt(this IToken token, Position position)
@@ -43,7 +61,7 @@ namespace LanguageServer
                 return (token.Column + token.Text.Length) >= position.Character;
             return true;
         }
-        
+
         public static bool EndsAt(this IToken token, Position position)
         {
             if (token.Line - 1 < position.Line)
@@ -53,32 +71,42 @@ namespace LanguageServer
             return true;
         }
 
-        //public static bool ContainsPosition(this IParseTree parseTree, Position position)
-        //{
-        //    if (parseTree is ParserRuleContext prc)
-        //        return prc.ContainsPosition(position);
+        public static (string line, Position newPosition) GetLine(string text, Position originalPosition)
+        {
+            var newPosition = new Position(0, originalPosition.Character);
+            var lines = text.Split('\n');
 
-        //    return false;
-        //}
+            if (originalPosition.Line >= lines.Length)
+                return ("", newPosition);
 
-        //public static bool StartsAfter(this IParseTree parseTree, Position position)
-        //{
-        //    if (parseTree is IToken token)
-        //        return !token.StartsBeforeOrAt(position);
-        //    else if (parseTree is ParserRuleContext prc)
-        //        return prc.StartsAfter(position);
+            var line = lines[originalPosition.Line];
 
-        //    return false;
-        //}
-        //public static bool EndsBefore(this IParseTree parseTree, Position position)
-        //{
-        //    if (parseTree is IToken token)
-        //        return !token.EndsAfterOrAt(position);
-        //    else if (parseTree is ParserRuleContext prc)
-        //        return prc.EndsBefore(position);
+            return (line, newPosition);
+        }
 
-        //    return false;
-        //}
+        public static string RemoveToken(string text, Position tokenPosition)
+        {
+            var inputStream = new AntlrInputStream(text);
+            var lexer = new SCLLexer(inputStream);
+
+            StringBuilder sb = new();
+            foreach (var token in lexer.GetAllTokens())
+            {
+                if (token.ContainsPosition(tokenPosition))
+                {
+                    var length = token.StopIndex - token.StartIndex;
+
+                    var ws = new string(' ', length);
+                    sb.Append(ws);
+                }
+                else
+                {
+                    sb.Append(token.Text);
+                }
+            }
+
+            return sb.ToString();
+        }
 
         public static bool ContainsPosition(this ParserRuleContext context, Position position)
         {
@@ -86,7 +114,7 @@ namespace LanguageServer
                 return false;
             if (!context.Stop.EndsAfterOrAt(position))
                 return false;
-            return  true;
+            return true;
         }
 
         public static bool IsSameLineAs(this IToken token, Position position)
@@ -95,7 +123,8 @@ namespace LanguageServer
             return sameLine;
         }
 
-        public static bool EndsBefore(this ParserRuleContext context, Position position) => !context.Stop.EndsAfterOrAt(position);
+        public static bool EndsBefore(this ParserRuleContext context, Position position) =>
+            !context.Stop.EndsAfterOrAt(position);
 
         public static bool StartsAfter(this ParserRuleContext context, Position position) =>
             !context.Start.StartsBeforeOrAt(position);
@@ -112,9 +141,9 @@ namespace LanguageServer
 
         public static Range GetRange(this TextLocation textLocation)
         {
-            return new (
-                textLocation.Start.Line -1, textLocation.Start.Column,
-                textLocation.Stop.Line -1, textLocation.Stop.Index + textLocation.Stop.Interval.Length
+            return new(
+                textLocation.Start.Line - 1, textLocation.Start.Column,
+                textLocation.Stop.Line - 1, textLocation.Stop.Index + textLocation.Stop.Interval.Length
             );
         }
 
@@ -158,9 +187,6 @@ namespace LanguageServer
             {
                 return e.Message;
             }
-            
-
-            
         }
     }
 }

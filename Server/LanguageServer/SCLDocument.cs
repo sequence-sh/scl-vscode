@@ -17,9 +17,18 @@ namespace LanguageServer
     {
         public Hover GetHover(Position position, StepFactoryStore stepFactoryStore)
         {
-            var hover = new HoverVisitor(position, stepFactoryStore, Text).LexParseAndVisit(Text);
+            var visitor = new HoverVisitor(position, stepFactoryStore, Text);
+            var hover = visitor.LexParseAndVisit(Text);
 
             return hover ?? new Hover();
+        }
+
+        public SignatureHelp? GetSignatureHelp(Position position, StepFactoryStore stepFactoryStore)
+        {
+            var visitor = new SignatureHelpVisitor(position, stepFactoryStore);
+            var signatureHelp = visitor.LexParseAndVisit(Text);
+
+            return signatureHelp;
         }
 
         public List<TextEdit> RenameVariable(Position position, string newName)
@@ -58,9 +67,30 @@ namespace LanguageServer
 
         public CompletionList GetCompletionList(Position position, StepFactoryStore stepFactoryStore)
         {
-            var completionList = new CompletionVisitor(position, stepFactoryStore).LexParseAndVisit(Text);
+            var visitor = new CompletionVisitor(position, stepFactoryStore);
 
-            return completionList ?? new CompletionList();
+            var completionList = visitor.LexParseAndVisit(Text);
+
+            if (completionList is not null)
+                return completionList;
+
+            var (line, linePosition) = Helpers.GetLine(Text, position);
+
+            visitor = new CompletionVisitor(linePosition, stepFactoryStore);
+            
+            var lineCompletionList = visitor.LexParseAndVisit(line);
+
+            if (lineCompletionList is not null)
+                return lineCompletionList;
+
+            var textWithoutToken = Helpers.RemoveToken(line, linePosition);
+
+            var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken);
+
+            if (withoutTokenCompletionList is not null)
+                return withoutTokenCompletionList;
+
+            return new CompletionList(); //Give up
         }
 
         public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)

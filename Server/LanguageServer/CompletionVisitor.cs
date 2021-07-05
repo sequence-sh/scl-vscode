@@ -27,7 +27,9 @@ namespace LanguageServer
         /// <inheritdoc />
         protected override bool ShouldVisitNextChild(IRuleNode node, CompletionList? currentResult)
         {
-            return currentResult is null;
+            if (currentResult is null)
+                return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -39,7 +41,7 @@ namespace LanguageServer
                 {
                     return base.Visit(tree);
                 }
-                else if (context.EndsBefore(Position) && !HasSiblingsAfter(context, Position))
+                else if (context.EndsBefore(Position) && !context.HasSiblingsAfter(Position))
                 {
                     //This position is at the end of this line - enter anyway
                     return base.Visit(tree);
@@ -49,37 +51,28 @@ namespace LanguageServer
             return DefaultResult;
         }
 
-        ///// <inheritdoc />
-        //public override CompletionList? VisitChildren(IRuleNode node)
-        //{
-        //    if (node.ChildCount <= 0)
-        //        return null;
-
-        //    if (node.ContainsPosition(Position))
-        //    {
-        //        return base.VisitChildren(node);
-        //    }
-        //    else if (node.EndsBefore(Position) && !HasSiblingsAfter(node, Position))
-        //    {
-        //        //This position is at the end of this line - enter anyway
-        //        return Visit(node.GetChild(node.ChildCount - 1));
-        //    }
-
-        //    return null;
-        //}
-
-
-        private static bool HasSiblingsAfter(IRuleNode ruleContext, Position p)
+        /// <inheritdoc />
+        public override CompletionList? VisitChildren(IRuleNode node)
         {
-            if (ruleContext.Parent is ParserRuleContext prc)
+            var result = this.DefaultResult;
+            int childCount = node.ChildCount;
+            for (int i = 0; i < childCount && this.ShouldVisitNextChild(node, result); ++i)
             {
-                if (prc.children.Reverse().OfType<ParserRuleContext>().Any(c => c.ContainsPosition(p) || c.StartsAfter(p)))
-                    return true;
+                var nextResult = node.GetChild(i).Accept(this);
+                result = this.AggregateResult(result, nextResult);
+            }
+            return result;
+        }
 
-                return HasSiblingsAfter(prc, p);
+        /// <inheritdoc />
+        public override CompletionList? VisitErrorNode(IErrorNode node)
+        {
+            if(node.Symbol.ContainsPosition(Position))
+            {
+                return base.VisitErrorNode(node);
             }
 
-            return false;
+            return base.VisitErrorNode(node);
         }
 
         /// <inheritdoc />
