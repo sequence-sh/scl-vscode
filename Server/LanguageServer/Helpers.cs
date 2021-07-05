@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -10,6 +11,8 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
+
+
     public static class Helpers
     {
         public static bool ContainsPosition(this IToken token, Position position)
@@ -68,32 +71,42 @@ namespace LanguageServer
             return true;
         }
 
-        //public static bool ContainsPosition(this IParseTree parseTree, Position position)
-        //{
-        //    if (parseTree is ParserRuleContext prc)
-        //        return prc.ContainsPosition(position);
+        public static (string line, Position newPosition) GetLine(string text, Position originalPosition)
+        {
+            var newPosition = new Position(0, originalPosition.Character);
+            var lines = text.Split('\n');
 
-        //    return false;
-        //}
+            if (originalPosition.Line >= lines.Length)
+                return ("", newPosition);
 
-        //public static bool StartsAfter(this IParseTree parseTree, Position position)
-        //{
-        //    if (parseTree is IToken token)
-        //        return !token.StartsBeforeOrAt(position);
-        //    else if (parseTree is ParserRuleContext prc)
-        //        return prc.StartsAfter(position);
+            var line = lines[originalPosition.Line];
 
-        //    return false;
-        //}
-        //public static bool EndsBefore(this IParseTree parseTree, Position position)
-        //{
-        //    if (parseTree is IToken token)
-        //        return !token.EndsAfterOrAt(position);
-        //    else if (parseTree is ParserRuleContext prc)
-        //        return prc.EndsBefore(position);
+            return (line, newPosition);
+        }
 
-        //    return false;
-        //}
+        public static string RemoveToken(string text, Position tokenPosition)
+        {
+            var inputStream = new AntlrInputStream(text);
+            var lexer = new SCLLexer(inputStream);
+
+            StringBuilder sb = new();
+            foreach (var token in lexer.GetAllTokens())
+            {
+                if (token.ContainsPosition(tokenPosition))
+                {
+                    var length = token.StopIndex - token.StartIndex;
+
+                    var ws = new string(' ', length);
+                    sb.Append(ws);
+                }
+                else
+                {
+                    sb.Append(token.Text);
+                }
+            }
+
+            return sb.ToString();
+        }
 
         public static bool ContainsPosition(this ParserRuleContext context, Position position)
         {

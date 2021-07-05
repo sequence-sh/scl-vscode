@@ -35,6 +35,7 @@ namespace LanguageServer.Test
         [InlineData("- FileRead  ", 0, 11, "Path")]
         [InlineData("FileRead  ", 0, 9, "Path")]
         [InlineData("FileRead P", 0, 10, "Path")]
+        [InlineData("- FileRead P", 0, 12, "Path")]
         [InlineData(LongText, 1, 3,
             "FromCSV")]
         public void ShouldGiveCorrectCompletion(string text, int line, int character, string? expectedLabel)

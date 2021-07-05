@@ -71,7 +71,26 @@ namespace LanguageServer
 
             var completionList = visitor.LexParseAndVisit(Text);
 
-            return completionList ?? new CompletionList();
+            if (completionList is not null)
+                return completionList;
+
+            var (line, linePosition) = Helpers.GetLine(Text, position);
+
+            visitor = new CompletionVisitor(linePosition, stepFactoryStore);
+            
+            var lineCompletionList = visitor.LexParseAndVisit(line);
+
+            if (lineCompletionList is not null)
+                return lineCompletionList;
+
+            var textWithoutToken = Helpers.RemoveToken(line, linePosition);
+
+            var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken);
+
+            if (withoutTokenCompletionList is not null)
+                return withoutTokenCompletionList;
+
+            return new CompletionList(); //Give up
         }
 
         public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)
