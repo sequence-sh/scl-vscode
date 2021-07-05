@@ -33,11 +33,20 @@ namespace LanguageServer
                 else if (context.EndsBefore(Position) && !context.HasSiblingsAfter(Position))
                 {
                     //This position is at the end of this line - enter anyway
-                    return base.Visit(tree);
+                    var result = base.Visit(tree);
+                    return result;
                 }
             }
 
             return DefaultResult;
+        }
+
+        /// <inheritdoc />
+        protected override bool ShouldVisitNextChild(IRuleNode node, SignatureHelp? currentResult)
+        {
+            if (currentResult is not null) return false;
+
+            return true;
         }
 
 
@@ -54,7 +63,8 @@ namespace LanguageServer
                     if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                         return null; //No clue what name to use
 
-                    return StepParametersSignatureHelp(stepFactory, new Range(Position, Position));
+                    var result = StepParametersSignatureHelp(stepFactory, new Range(Position, Position));
+                    return result;
                 }
 
                 return null;
@@ -111,14 +121,13 @@ namespace LanguageServer
         {
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
             var options =
-                stepFactory.ParameterDictionary
-                    .Where(x => x.Key is StepParameterReference.Named)
-                    .Select(x => CreateCompletionItem(x.Key, x.Value))
+                stepFactory.ParameterDictionary.Keys
+                    .OfType<StepParameterReference.Named>()
+                    .Select( CreateCompletionItem)
                     .ToList();
 
 
-            ParameterInformation CreateCompletionItem(StepParameterReference stepParameterReference,
-                PropertyInfo propertyInfo)
+            ParameterInformation CreateCompletionItem(StepParameterReference.Named stepParameterReference)
             {
                 return new()
                 {
@@ -131,7 +140,7 @@ namespace LanguageServer
                 };
             }
 
-            return new SignatureHelp()
+            var signatureHelp = new SignatureHelp()
             {
                 Signatures = new Container<SignatureInformation>(new SignatureInformation
                 {
@@ -140,6 +149,8 @@ namespace LanguageServer
                     Parameters = new Container<ParameterInformation>(options)
                 })
             };
+
+            return signatureHelp;
         }
 
     }
