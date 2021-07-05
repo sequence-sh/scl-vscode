@@ -1,14 +1,12 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.EDR.ConnectorManagement.Base;
 using Reductech.EDR.Core.Internal;
 
-namespace LanguageServer
+namespace LanguageServer.Services
 {
     internal class HoverHandler : IHoverHandler
     {

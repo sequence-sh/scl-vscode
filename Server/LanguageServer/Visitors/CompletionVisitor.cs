@@ -10,7 +10,7 @@ using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace LanguageServer
+namespace LanguageServer.Visitors
 {
     public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
     {

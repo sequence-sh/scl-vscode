@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace LanguageServer
+namespace LanguageServer.Services
 {
     /// <summary>
     /// Basically an OptionsMonitor, but working I hope

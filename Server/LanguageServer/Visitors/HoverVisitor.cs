@@ -17,7 +17,7 @@ using Reductech.EDR.Core.Util;
 using Entity = CSharpFunctionalExtensions.Entity;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace LanguageServer
+namespace LanguageServer.Visitors
 {
     public class HoverVisitor : SCLBaseVisitor<Hover?>
     {
