@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
@@ -11,8 +12,6 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
-
-
     public static class Helpers
     {
         public static bool ContainsPosition(this IToken token, Position position)
@@ -70,6 +69,67 @@ namespace LanguageServer
                 return (token.Column + token.Text.Length) == position.Character;
             return true;
         }
+
+
+        public static IReadOnlyList<(string text, int line, int column)> SplitIntoCommands(string text)
+        {
+            var inputStream = new AntlrInputStream(text);
+            var lexer = new SCLLexer(inputStream);
+
+            var tokens = lexer.GetAllTokens();
+
+            var newCommandTokenType = lexer.GetTokenType("NEWCOMMAND");
+
+            List<(string text, int line, int column)> results = new();
+
+            StringBuilder sb = new();
+            (int index, int line, int column)? start = null;
+
+            foreach (var token in tokens)
+            {
+                if (token.Type == newCommandTokenType)
+                {
+                    if (start is not null)
+                    {
+                        results.Add((sb.ToString(), start.Value.line, start.Value.column));
+                    }
+
+                    sb = new StringBuilder();
+                    start = null;
+                }
+
+                if (start == null)
+                {
+                    var trimmedText = token.Text;
+                    var lineOffset = 0;
+
+                    while (true)
+                    {
+                        if (trimmedText.StartsWith('\n'))
+                            trimmedText = trimmedText[1..];
+                        else if (trimmedText.StartsWith("\r\n"))
+                            trimmedText = trimmedText[2..];
+                        else
+                            break;
+
+                        lineOffset++;
+                    }
+
+                    start = new(token.StartIndex, token.Line + lineOffset - 1, lineOffset > 0 ? 0 : token.Column);
+                    sb.Append(trimmedText);
+                }
+                else
+                {
+                    sb.Append(token.Text);
+                }
+            }
+
+            if (start is not null)
+                results.Add((sb.ToString(), start.Value.line, start.Value.column));
+
+            return results;
+        }
+
 
         public static (string line, Position newPosition) GetLine(string text, Position originalPosition)
         {
@@ -139,26 +199,41 @@ namespace LanguageServer
             );
         }
 
-        public static Range GetRange(this TextLocation textLocation)
+        //public static Range GetRange(this TextLocation textLocation)
+        //{
+        //    return new(
+        //        textLocation.Start.Line - 1, textLocation.Start.Column,
+        //        textLocation.Stop.Line - 1, textLocation.Stop.Index + textLocation.Stop.Interval.Length
+        //    );
+        //}
+
+        public static Range GetRange(this TextLocation textLocation, int lineOffset, int charOffSet)
         {
-            return new(
-                textLocation.Start.Line - 1, textLocation.Start.Column,
-                textLocation.Stop.Line - 1, textLocation.Stop.Index + textLocation.Stop.Interval.Length
+            return new(textLocation.Start.GetFromOffset(lineOffset, charOffSet),
+                textLocation.Stop.GetFromOffset(lineOffset, charOffSet)
             );
         }
 
-        public static T LexParseAndVisit<T>(this SCLBaseVisitor<T> visitor, string text)
+        public static Position GetFromOffset(this TextPosition position, int lineOffset, int charOffSet)
+        {
+            if (position.Line == 1)
+                //same line, add columns
+                return new Position(lineOffset, position.Column + charOffSet);
+            else //add lines
+                return new Position(position.Line - 1 + lineOffset, position.Column);
+        }
+
+
+        public static T LexParseAndVisit<T>(this SCLBaseVisitor<T> visitor, string text, Action<SCLLexer> setupLexer,
+            Action<SCLParser> setupParser)
         {
             var inputStream = new AntlrInputStream(text);
             var lexer = new SCLLexer(inputStream);
             var commonTokenStream = new CommonTokenStream(lexer);
             var parser = new SCLParser(commonTokenStream);
 
-            //Todo error strategy
-
-            lexer.RemoveErrorListeners();
-            parser.RemoveErrorListeners();
-
+            setupLexer(lexer);
+            setupParser(parser);
 
             var result = visitor.Visit(parser.fullSequence());
 
@@ -167,7 +242,7 @@ namespace LanguageServer
 
         public static string GetMarkDownDocumentation(IStepFactory stepFactory)
         {
-            var grouping = new[] {stepFactory}
+            var grouping = new[] { stepFactory }
                 .GroupBy(x => x, x => x.TypeName).Single();
 
             return GetMarkDownDocumentation(grouping);

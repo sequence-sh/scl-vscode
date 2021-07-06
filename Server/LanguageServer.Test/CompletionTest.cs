@@ -45,7 +45,6 @@ namespace LanguageServer.Test
             var sdConnectorData = new ConnectorData(ConnectorSettings.DefaultForAssembly(sdAssembly), sdAssembly);
 
             var sfs = StepFactoryStore.Create(fsConnectorData, sdConnectorData);
-
             var document = new SCLDocument(text, DefaultUri);
 
             var position = new Position(line, character);
