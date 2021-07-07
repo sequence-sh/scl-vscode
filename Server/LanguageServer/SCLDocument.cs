@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Antlr4.Runtime;
+using CSharpFunctionalExtensions;
 using LanguageServer.Visitors;
 using NuGet.Packaging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -12,6 +13,7 @@ using Reductech.EDR.Core.Internal.Errors;
 using Reductech.EDR.Core.Internal.Parser;
 using Reductech.EDR.Core.Internal.Serialization;
 using Reductech.EDR.Core.Util;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
@@ -42,7 +44,8 @@ namespace LanguageServer
                 var error = errorListener.Errors.First();
                 var errorHover = new Hover()
                 {
-                    Range = error.Location.TextLocation?.GetRange(command.Value.newPosition.Line, command.Value.newPosition.Character),
+                    Range = error.Location.TextLocation?.GetRange(command.Value.newPosition.Line,
+                        command.Value.newPosition.Character),
                     Contents = new MarkedStringsOrMarkupContent(error.Message)
                 };
                 return errorHover;
@@ -58,6 +61,52 @@ namespace LanguageServer
                 x => { x.RemoveErrorListeners(); });
 
             return signatureHelp;
+        }
+
+        public List<TextEdit> FormatDocument(StepFactoryStore stepFactoryStore)
+        {
+            var commands = Helpers.SplitIntoCommands(Text);
+
+            var typeResolver = HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore).Value;
+
+            var textEdits = new List<TextEdit>();
+
+            var commandCallerMetadata = new CallerMetadata("Command", "", TypeReference.Any.Instance);
+
+            foreach (var (command, offset) in commands)
+            {
+                var stepParseResult = SCLParsing.TryParseStep(command);
+
+                if (stepParseResult.IsSuccess)
+                {
+                    Result<IStep, IError> freezeResult;
+
+                    if (typeResolver.IsSuccess)
+                    {
+                        freezeResult = stepParseResult.Value.TryFreeze(commandCallerMetadata, typeResolver.Value);
+                    }
+                    else
+                    {
+                        freezeResult = stepParseResult.Value.TryFreeze(commandCallerMetadata, stepFactoryStore);
+                    }
+
+                    if (freezeResult.IsSuccess)
+                    {
+                        var text = freezeResult.Value.Serialize().Trim();
+
+                        var range = freezeResult.Value.TextLocation?.GetRange(offset.Line, offset.Character)!;
+                        var realRange = new Range(offset, new Position(range.End.Line, range.End.Character + 1)); //Need to end one character later
+
+                        textEdits.Add(new TextEdit()
+                        {
+                            NewText = text,
+                            Range = realRange
+                        });
+                    }
+                }
+            }
+
+            return textEdits;
         }
 
         public List<TextEdit> RenameVariable(Position position, string newName)
