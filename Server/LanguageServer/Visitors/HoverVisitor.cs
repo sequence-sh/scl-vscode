@@ -75,9 +75,22 @@ namespace LanguageServer.Visitors
 
                         if (term.ContainsPosition(Position))
                         {
+                            int trueIndex;
+                            if (context.Parent is SCLParser.PipeFunctionContext pipeFunctionContext &&
+                                pipeFunctionContext.children.Last() == context)
+                            {
+                                trueIndex = index + 2;
+                            }
+                            else
+                            {
+                                trueIndex = index + 1;
+                            }
+
+                            var indexReference = new StepParameterReference.Index(trueIndex);
+
                             if (
                                 stepFactory.ParameterDictionary.TryGetValue(
-                                    new StepParameterReference.Index(index + 1),
+                                    indexReference,
                                     out var pi
                                 ))
                             {
@@ -389,7 +402,7 @@ namespace LanguageServer.Visitors
 
         public static Hover Description(string? name, string? type, string? summary, Range range)
         {
-            var markedStrings = new[] {$"`{name}`", $"`{type}`", summary}
+            var markedStrings = new[] { $"`{name}`", $"`{type}`", summary }
                 .WhereNotNull()
                 .Select(x => new MarkedString(x)).ToList();
 
@@ -446,25 +459,25 @@ namespace LanguageServer.Visitors
         private static readonly Dictionary<Type, string> TypeAliases =
             new()
             {
-                {typeof(byte), "byte"},
-                {typeof(sbyte), "sbyte"},
-                {typeof(short), "short"},
-                {typeof(ushort), "ushort"},
-                {typeof(int), "int"},
-                {typeof(uint), "uint"},
-                {typeof(long), "long"},
-                {typeof(ulong), "ulong"},
-                {typeof(float), "float"},
-                {typeof(double), "double"},
-                {typeof(decimal), "decimal"},
-                {typeof(object), "object"},
-                {typeof(bool), "bool"},
-                {typeof(char), "char"},
-                {typeof(string), "string"},
-                {typeof(StringStream), "string"},
-                {typeof(Entity), "entity"},
-                {typeof(DateTime), "dateTime"},
-                {typeof(void), "void"}
+                { typeof(byte), "byte" },
+                { typeof(sbyte), "sbyte" },
+                { typeof(short), "short" },
+                { typeof(ushort), "ushort" },
+                { typeof(int), "int" },
+                { typeof(uint), "uint" },
+                { typeof(long), "long" },
+                { typeof(ulong), "ulong" },
+                { typeof(float), "float" },
+                { typeof(double), "double" },
+                { typeof(decimal), "decimal" },
+                { typeof(object), "object" },
+                { typeof(bool), "bool" },
+                { typeof(char), "char" },
+                { typeof(string), "string" },
+                { typeof(StringStream), "string" },
+                { typeof(Entity), "entity" },
+                { typeof(DateTime), "dateTime" },
+                { typeof(void), "void" }
             };
     }
 }

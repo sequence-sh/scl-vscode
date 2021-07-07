@@ -1,8 +1,6 @@
 using System.Linq;
-using System.Reflection;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.EDR.ConnectorManagement.Base;
 using Reductech.EDR.Core.Internal;
 using Xunit;
 using static LanguageServer.Test.TestHelpers;

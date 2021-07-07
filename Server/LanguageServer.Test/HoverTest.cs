@@ -19,6 +19,7 @@ namespace LanguageServer.Test
         //[InlineData(LongText, 0, 1, "Reads text from a file.")] //doesn't work
         [InlineData(LongText, 0, 12, "`'Blake, Robert'`", "`String`")]
         [InlineData(LongText, 1, 3, "`ArrayFilter`", "`Array<T>`", "Filter an array according to a function.")]
+        [InlineData(LongText, 1, 14, "`Predicate`", "`Bool`", "A function that determines whether an entity should be included.")]
         //[InlineData(ErrorText, 0, 1, "Reads text from a file.")]
         public void ShouldGiveCorrectHover(string text, int line, int character, params string[] expectedHovers)
         {
