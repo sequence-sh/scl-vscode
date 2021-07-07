@@ -43,6 +43,7 @@ namespace LanguageServer
                         .WithHandler<HoverHandler>()
                         .WithHandler<RenameHandler>()
                         .WithHandler<SignatureHelpHandler>()
+                        .WithHandler<FormattingHandler>()
                         .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Debug)))
                         .OnStarted((ls, token) =>
                         {
