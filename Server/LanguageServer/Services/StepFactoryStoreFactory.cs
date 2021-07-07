@@ -49,7 +49,7 @@ namespace LanguageServer.Services
                     var connectorConfigurationDict = config.ConnectorSettingsDictionary?
                         .Where(x=>!string.IsNullOrWhiteSpace(x.Value.Id))
                         .ToDictionary(x=>x.Key, x=>x.Value);
-                    if (connectorConfigurationDict is null)
+                    if (connectorConfigurationDict is null || !connectorConfigurationDict.Any())
                     {
                         //load latest connectors from repository
                         var manager1 = new ConnectorManager(connectorManagerLogger, settings, connectorRegistry,

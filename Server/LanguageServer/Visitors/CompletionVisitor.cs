@@ -23,45 +23,47 @@ namespace LanguageServer.Visitors
         public Position Position { get; }
         public StepFactoryStore StepFactoryStore { get; }
 
-
-        /// <inheritdoc />
-        protected override bool ShouldVisitNextChild(IRuleNode node, CompletionList? currentResult)
-        {
-            if (currentResult is null)
-                return true;
-            return false;
-        }
-
-        /// <inheritdoc />
-        public override CompletionList? Visit(IParseTree tree)
-        {
-            if (tree is ParserRuleContext context)
-            {
-                if (context.ContainsPosition(Position))
-                {
-                    return base.Visit(tree);
-                }
-                else if (context.EndsBefore(Position) && !context.HasSiblingsAfter(Position))
-                {
-                    //This position is at the end of this line - enter anyway
-                    return base.Visit(tree);
-                }
-            }
-
-            return DefaultResult;
-        }
-
         /// <inheritdoc />
         public override CompletionList? VisitChildren(IRuleNode node)
         {
-            var result = this.DefaultResult;
-            int childCount = node.ChildCount;
-            for (int i = 0; i < childCount && this.ShouldVisitNextChild(node, result); ++i)
+            var i = 0;
+
+            while (i < node.ChildCount)
             {
-                var nextResult = node.GetChild(i).Accept(this);
-                result = this.AggregateResult(result, nextResult);
+                var child = node.GetChild(i);
+
+                if (child is TerminalNodeImpl tni && tni.GetText() == "<EOF>")
+                {
+                    break;
+                }
+
+                if (child is ParserRuleContext prc)
+                { 
+                    if (prc.StartsAfter(Position))
+                    {
+                        break;
+                    }
+                    else if(prc.ContainsPosition(Position))
+                    {
+
+                        var result = Visit(child);
+                        if (result is not null)
+                            return result;
+
+                    }
+                }
+                i++;
             }
-            return result;
+
+            if (i >= 1) //Go back to the last function and use that
+            {
+                var lastChild = node.GetChild(i - 1);
+
+                var r = Visit(lastChild);
+                return r;
+            }
+
+            return null;
         }
 
         /// <inheritdoc />
@@ -76,25 +78,31 @@ namespace LanguageServer.Visitors
         }
 
         /// <inheritdoc />
+        public override CompletionList? VisitFunction1(SCLParser.Function1Context context)
+        {
+            var func = context.function();
+
+            var result = VisitFunction(func);
+
+            return result;
+        }
+
+        /// <inheritdoc />
         public override CompletionList? VisitFunction(SCLParser.FunctionContext context)
         {
             var name = context.NAME().GetText();
 
             if (!context.ContainsPosition(Position))
             {
-                if (context.EndsBefore(Position) &&
-                    context.Stop.IsSameLineAs(Position)) //This position is on the line after the step definition
+                if (context.EndsBefore(Position))
                 {
-                    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
-                        return null; //No clue what name to use
-
-                    return StepParametersCompletionList(stepFactory, new Range(Position, Position));
+                    //Assume this is another parameter to this function
+                    if(StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
+                        return StepParametersCompletionList(stepFactory, new Range(Position, Position));
                 }
 
                 return null;
             }
-
-
             if (context.NAME().Symbol.ContainsPosition(Position))
             {
                 var nameText = context.NAME().GetText();
@@ -216,12 +224,6 @@ namespace LanguageServer.Visitors
             }
 
             return new CompletionList(options);
-        }
-
-
-        public static CompletionList EmptyList()
-        {
-            return new();
         }
     }
 }

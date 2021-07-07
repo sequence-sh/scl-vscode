@@ -33,9 +33,10 @@ namespace LanguageServer.Test
         [InlineData("- FileRead  ", 0, 11, "Path")]
         [InlineData("FileRead  ", 0, 9, "Path")]
         [InlineData("FileRead P", 0, 10, "Path")]
+        [InlineData("FileRead\r\nP", 1, 0, "Path")]
+        [InlineData("- FileRead\r\nP", 1, 0, "Path")]
         [InlineData("- FileRead P", 0, 12, "Path")]
-        [InlineData(LongText, 1, 3,
-            "FromCSV")]
+        [InlineData(LongText, 1, 3, "FromCSV")]
         public void ShouldGiveCorrectCompletion(string text, int line, int character, string? expectedLabel)
         {
             var fsAssembly = Assembly.GetAssembly(typeof(FileRead))!;

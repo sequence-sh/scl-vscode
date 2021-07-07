@@ -79,23 +79,28 @@ namespace LanguageServer
             if (completionList is not null)
                 return completionList;
 
-            var (line, linePosition) = Helpers.GetLine(Text, position);
+            var command = Helpers.GetCommand(Text, position);
 
-            visitor = new CompletionVisitor(linePosition, stepFactoryStore);
+            if (command is not null)
+            {
+                visitor = new CompletionVisitor(command.Value.newPosition, stepFactoryStore);
 
-            var lineCompletionList = visitor.LexParseAndVisit(line, x => { x.RemoveErrorListeners(); },
-                x => { x.RemoveErrorListeners(); });
+                var lineCompletionList = visitor.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
+                    x => { x.RemoveErrorListeners(); });
 
-            if (lineCompletionList is not null)
-                return lineCompletionList;
+                if (lineCompletionList is not null)
+                    return lineCompletionList;
 
-            var textWithoutToken = Helpers.RemoveToken(line, linePosition);
+                var textWithoutToken = Helpers.RemoveToken(command.Value.command, command.Value.newPosition);
 
-            var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken,
-                x => { x.RemoveErrorListeners(); }, x => { x.RemoveErrorListeners(); });
+                var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken,
+                    x => { x.RemoveErrorListeners(); }, x => { x.RemoveErrorListeners(); });
 
-            if (withoutTokenCompletionList is not null)
-                return withoutTokenCompletionList;
+                if (withoutTokenCompletionList is not null)
+                    return withoutTokenCompletionList;
+            }
+
+            
 
             return new CompletionList(); //Give up
         }
@@ -117,24 +122,24 @@ namespace LanguageServer
 
                 else
                 {
-                    diagnostics = freezeResult.Error.GetAllErrors().Select(x=>ToDiagnostic(x, 0 ,0)).WhereNotNull().ToList();
+                    diagnostics = freezeResult.Error.GetAllErrors().Select(x=>ToDiagnostic(x, new Position(0,0))).WhereNotNull().ToList();
                 }
             }
             else
             {
                 var commands = Helpers.SplitIntoCommands(Text);
                 diagnostics = new List<Diagnostic>();
-                foreach (var (commandText, line, column) in commands)
+                foreach (var (commandText, commandPosition) in commands)
                 {
                     var visitor = new DiagnosticsVisitor();
                     var listener = new ErrorErrorListener();
                     var parseResult = visitor.LexParseAndVisit(commandText, _ => { },
                         x => { x.AddErrorListener(listener); });
 
-                    IList<Diagnostic> newDiagnostics = listener.Errors.Select(x=>ToDiagnostic(x, line, column)).WhereNotNull().ToList();
+                    IList<Diagnostic> newDiagnostics = listener.Errors.Select(x=>ToDiagnostic(x, commandPosition)).WhereNotNull().ToList();
 
                     if (!newDiagnostics.Any())
-                        newDiagnostics = parseResult.Select(x=>ToDiagnostic(x, line, column)).WhereNotNull().ToList();
+                        newDiagnostics = parseResult.Select(x=>ToDiagnostic(x, commandPosition)).WhereNotNull().ToList();
                     diagnostics.AddRange(newDiagnostics);
                 }
             }
@@ -146,14 +151,14 @@ namespace LanguageServer
                 Uri = DocumentUri
             };
 
-            static Diagnostic? ToDiagnostic(SingleError error, int lineOffSet, int columnOffset)
+            static Diagnostic? ToDiagnostic(SingleError error, Position positionOffset)
             {
                 if (error.Location.TextLocation is null) return null;
 
                 return
                     new Diagnostic()
                     {
-                        Range = error.Location.TextLocation.GetRange(lineOffSet, columnOffset),
+                        Range = error.Location.TextLocation.GetRange(positionOffset.Line, positionOffset.Character),
                         Severity = DiagnosticSeverity.Error,
                         Source = "SCL",
                         Message = error.Message

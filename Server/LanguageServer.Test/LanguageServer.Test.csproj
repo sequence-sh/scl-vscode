@@ -17,8 +17,8 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="Reductech.EDR.Connectors.FileSystem" Version="0.10.0-a.master.2106301657" />
-    <PackageReference Include="Reductech.EDR.Connectors.StructuredData" Version="0.10.0-a.master.2106301627" />
+    <PackageReference Include="Reductech.EDR.Connectors.FileSystem" Version="0.10.0" />
+    <PackageReference Include="Reductech.EDR.Connectors.StructuredData" Version="0.10.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>

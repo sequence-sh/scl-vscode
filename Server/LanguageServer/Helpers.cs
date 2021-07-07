@@ -71,7 +71,7 @@ namespace LanguageServer
         }
 
 
-        public static IReadOnlyList<(string text, int line, int column)> SplitIntoCommands(string text)
+        public static IReadOnlyList<(string text, Position position)> SplitIntoCommands(string text)
         {
             var inputStream = new AntlrInputStream(text);
             var lexer = new SCLLexer(inputStream);
@@ -80,10 +80,10 @@ namespace LanguageServer
 
             var newCommandTokenType = lexer.GetTokenType("NEWCOMMAND");
 
-            List<(string text, int line, int column)> results = new();
+            List<(string text, Position startPosition)> results = new();
 
             StringBuilder sb = new();
-            (int index, int line, int column)? start = null;
+            Position? start = null;
 
             foreach (var token in tokens)
             {
@@ -91,7 +91,7 @@ namespace LanguageServer
                 {
                     if (start is not null)
                     {
-                        results.Add((sb.ToString(), start.Value.line, start.Value.column));
+                        results.Add((sb.ToString(), start));
                     }
 
                     sb = new StringBuilder();
@@ -115,7 +115,7 @@ namespace LanguageServer
                         lineOffset++;
                     }
 
-                    start = new(token.StartIndex, token.Line + lineOffset - 1, lineOffset > 0 ? 0 : token.Column);
+                    start = new(token.Line + lineOffset - 1, lineOffset > 0 ? 0 : token.Column);
                     sb.Append(trimmedText);
                 }
                 else
@@ -125,23 +125,30 @@ namespace LanguageServer
             }
 
             if (start is not null)
-                results.Add((sb.ToString(), start.Value.line, start.Value.column));
+                results.Add((sb.ToString(), start));
 
             return results;
         }
 
 
-        public static (string line, Position newPosition) GetLine(string text, Position originalPosition)
+        public static (string command, Position newPosition)? GetCommand(string text, Position originalPosition)
         {
-            var newPosition = new Position(0, originalPosition.Character);
-            var lines = text.Split('\n');
+            var commands = SplitIntoCommands(text);
+            var myCommand = commands.TakeWhile(x => x.position <= originalPosition).LastOrDefault();
 
-            if (originalPosition.Line >= lines.Length)
-                return ("", newPosition);
+            if (myCommand == default) return null;
 
-            var line = lines[originalPosition.Line];
+            Position newPosition;
+            if (originalPosition.Line == myCommand.position.Line)
+            {
+                newPosition = new Position(0, originalPosition.Character - myCommand.position.Character);
+            }
+            else
+            {
+                newPosition = new Position(originalPosition.Line - myCommand.position.Line, originalPosition.Character);
+            }
 
-            return (line, newPosition);
+            return (myCommand.text, newPosition);
         }
 
         public static string RemoveToken(string text, Position tokenPosition)

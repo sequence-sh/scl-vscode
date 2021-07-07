@@ -14,7 +14,7 @@ namespace LanguageServer.Test
         {
             var results = Helpers.SplitIntoCommands(text);
 
-            var actual= results.Select(x => $"{x.text}:{x.line},{x.column}").ToList();
+            var actual= results.Select(x => $"{x.text}:{x.position.Line},{x.position.Character}").ToList();
 
             actual.Should().BeEquivalentTo(expected);
         }
