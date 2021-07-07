@@ -21,18 +21,23 @@ namespace LanguageServer.Visitors
 {
     public class HoverVisitor : SCLBaseVisitor<Hover?>
     {
-        public HoverVisitor(Position position, StepFactoryStore stepFactoryStore, string fullSCL)
+        public HoverVisitor(Position position, StepFactoryStore stepFactoryStore, Lazy<Result<TypeResolver, IError>> lazyTypeResolver)
         {
             Position = position;
             StepFactoryStore = stepFactoryStore;
+            LazyTypeResolver = lazyTypeResolver;
+        }
 
-
-            LazyTypeResolver = new Lazy<Result<TypeResolver, IError>>(
+        public static Lazy<Result<TypeResolver, IError>> CreateLazyTypeResolver(string fullSCL, StepFactoryStore stepFactoryStore)
+        {
+            var resolver = new Lazy<Result<TypeResolver, IError>>(
                 () =>
                     SCLParsing.TryParseStep(fullSCL).Bind(
                         x => TypeResolver.TryCreate(stepFactoryStore, SCLRunner.RootCallerMetadata,
                             Maybe<VariableName>.None, x))
             );
+
+            return resolver;
         }
 
         public Position Position { get; }

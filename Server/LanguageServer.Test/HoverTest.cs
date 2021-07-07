@@ -10,17 +10,15 @@ namespace LanguageServer.Test
     public class HoverTest
     {
 
-        public const string ErrorText = @"- FileRead 'artwork_data.csv'
-- 0.1.2.3";
-
         [Theory]
         [InlineData("Print 123", 0, 1, "`Print`", "`Unit`", "Prints a value to the console.")]
         [InlineData("Print 123", 0, 8, "`123`",  "`Integer`")]
-        //[InlineData(LongText, 0, 1, "Reads text from a file.")] //doesn't work
+        [InlineData("- Print 123\r\n- a b", 0 ,4, "`Print`", "`Unit`", "Prints a value to the console." )]
+        [InlineData("- Print 123\r\n- a b", 1 ,1, "Syntax Error: no viable alternative at input '- a b'" )]
+        [InlineData("- <val> = 123\r\n- print <val>", 1,9, "`<val>`", "`Integer`")]
         [InlineData(LongText, 0, 12, "`'Blake, Robert'`", "`String`")]
         [InlineData(LongText, 1, 3, "`ArrayFilter`", "`Array<T>`", "Filter an array according to a function.")]
         [InlineData(LongText, 1, 14, "`Predicate`", "`Bool`", "A function that determines whether an entity should be included.")]
-        //[InlineData(ErrorText, 0, 1, "Reads text from a file.")]
         public void ShouldGiveCorrectHover(string text, int line, int character, params string[] expectedHovers)
         {
             var sfs = StepFactoryStore.Create();

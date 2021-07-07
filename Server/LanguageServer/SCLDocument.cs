@@ -19,9 +19,34 @@ namespace LanguageServer
     {
         public Hover GetHover(Position position, StepFactoryStore stepFactoryStore)
         {
-            var visitor = new HoverVisitor(position, stepFactoryStore, Text);
-            var hover = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
-                x => { x.RemoveErrorListeners(); });
+            var lazyTypeResolver = HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore);
+
+            var command = Helpers.GetCommand(Text, position);
+
+            if (command is null) return new Hover();
+
+            var visitor2 = new HoverVisitor(command.Value.newPosition, stepFactoryStore, lazyTypeResolver);
+
+            var errorListener = new ErrorErrorListener();
+
+            var hover = visitor2.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
+                x =>
+                {
+                    x.RemoveErrorListeners();
+                    x.AddErrorListener(errorListener);
+                });
+            if (hover is not null) return hover;
+
+            if (errorListener.Errors.Any())
+            {
+                var error = errorListener.Errors.First();
+                var errorHover = new Hover()
+                {
+                    Range = error.Location.TextLocation?.GetRange(command.Value.newPosition.Line, command.Value.newPosition.Character),
+                    Contents = new MarkedStringsOrMarkupContent(error.Message)
+                };
+                return errorHover;
+            }
 
             return hover ?? new Hover();
         }
@@ -85,7 +110,8 @@ namespace LanguageServer
             {
                 visitor = new CompletionVisitor(command.Value.newPosition, stepFactoryStore);
 
-                var lineCompletionList = visitor.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
+                var lineCompletionList = visitor.LexParseAndVisit(command.Value.command,
+                    x => { x.RemoveErrorListeners(); },
                     x => { x.RemoveErrorListeners(); });
 
                 if (lineCompletionList is not null)
@@ -100,7 +126,6 @@ namespace LanguageServer
                     return withoutTokenCompletionList;
             }
 
-            
 
             return new CompletionList(); //Give up
         }
@@ -109,7 +134,7 @@ namespace LanguageServer
         {
             IList<Diagnostic> diagnostics;
 
-             var initialParseResult = SCLParsing.TryParseStep(Text);
+            var initialParseResult = SCLParsing.TryParseStep(Text);
 
             if (initialParseResult.IsSuccess)
             {
@@ -122,7 +147,8 @@ namespace LanguageServer
 
                 else
                 {
-                    diagnostics = freezeResult.Error.GetAllErrors().Select(x=>ToDiagnostic(x, new Position(0,0))).WhereNotNull().ToList();
+                    diagnostics = freezeResult.Error.GetAllErrors().Select(x => ToDiagnostic(x, new Position(0, 0)))
+                        .WhereNotNull().ToList();
                 }
             }
             else
@@ -136,10 +162,12 @@ namespace LanguageServer
                     var parseResult = visitor.LexParseAndVisit(commandText, _ => { },
                         x => { x.AddErrorListener(listener); });
 
-                    IList<Diagnostic> newDiagnostics = listener.Errors.Select(x=>ToDiagnostic(x, commandPosition)).WhereNotNull().ToList();
+                    IList<Diagnostic> newDiagnostics = listener.Errors.Select(x => ToDiagnostic(x, commandPosition))
+                        .WhereNotNull().ToList();
 
                     if (!newDiagnostics.Any())
-                        newDiagnostics = parseResult.Select(x=>ToDiagnostic(x, commandPosition)).WhereNotNull().ToList();
+                        newDiagnostics = parseResult.Select(x => ToDiagnostic(x, commandPosition)).WhereNotNull()
+                            .ToList();
                     diagnostics.AddRange(newDiagnostics);
                 }
             }
