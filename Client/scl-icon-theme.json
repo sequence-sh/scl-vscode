@@ -1,8 +1,0 @@
-{
-  "iconDefinitions": {
-    "_reductech_logo": {
-      "iconPath": "images/reductech-scl-file.svg"
-    }
-  },
-  "languageIds": { "scl": "_reductech_logo" }
-}
