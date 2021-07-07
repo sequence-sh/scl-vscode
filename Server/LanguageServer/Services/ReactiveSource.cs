@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace LanguageServer
+namespace LanguageServer.Services
 {
     public class ReactiveSource<T, TOption> where TOption : class
     {

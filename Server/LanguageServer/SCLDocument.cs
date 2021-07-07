@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Antlr4.Runtime;
-using CSharpFunctionalExtensions;
+using LanguageServer.Visitors;
+using NuGet.Packaging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
@@ -17,8 +19,34 @@ namespace LanguageServer
     {
         public Hover GetHover(Position position, StepFactoryStore stepFactoryStore)
         {
-            var visitor = new HoverVisitor(position, stepFactoryStore, Text);
-            var hover = visitor.LexParseAndVisit(Text);
+            var lazyTypeResolver = HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore);
+
+            var command = Helpers.GetCommand(Text, position);
+
+            if (command is null) return new Hover();
+
+            var visitor2 = new HoverVisitor(command.Value.newPosition, stepFactoryStore, lazyTypeResolver);
+
+            var errorListener = new ErrorErrorListener();
+
+            var hover = visitor2.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
+                x =>
+                {
+                    x.RemoveErrorListeners();
+                    x.AddErrorListener(errorListener);
+                });
+            if (hover is not null) return hover;
+
+            if (errorListener.Errors.Any())
+            {
+                var error = errorListener.Errors.First();
+                var errorHover = new Hover()
+                {
+                    Range = error.Location.TextLocation?.GetRange(command.Value.newPosition.Line, command.Value.newPosition.Character),
+                    Contents = new MarkedStringsOrMarkupContent(error.Message)
+                };
+                return errorHover;
+            }
 
             return hover ?? new Hover();
         }
@@ -26,7 +54,8 @@ namespace LanguageServer
         public SignatureHelp? GetSignatureHelp(Position position, StepFactoryStore stepFactoryStore)
         {
             var visitor = new SignatureHelpVisitor(position, stepFactoryStore);
-            var signatureHelp = visitor.LexParseAndVisit(Text);
+            var signatureHelp = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
+                x => { x.RemoveErrorListeners(); });
 
             return signatureHelp;
         }
@@ -69,61 +98,95 @@ namespace LanguageServer
         {
             var visitor = new CompletionVisitor(position, stepFactoryStore);
 
-            var completionList = visitor.LexParseAndVisit(Text);
+            var completionList = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
+                x => { x.RemoveErrorListeners(); });
 
             if (completionList is not null)
                 return completionList;
 
-            var (line, linePosition) = Helpers.GetLine(Text, position);
+            var command = Helpers.GetCommand(Text, position);
 
-            visitor = new CompletionVisitor(linePosition, stepFactoryStore);
-            
-            var lineCompletionList = visitor.LexParseAndVisit(line);
+            if (command is not null)
+            {
+                visitor = new CompletionVisitor(command.Value.newPosition, stepFactoryStore);
 
-            if (lineCompletionList is not null)
-                return lineCompletionList;
+                var lineCompletionList = visitor.LexParseAndVisit(command.Value.command,
+                    x => { x.RemoveErrorListeners(); },
+                    x => { x.RemoveErrorListeners(); });
 
-            var textWithoutToken = Helpers.RemoveToken(line, linePosition);
+                if (lineCompletionList is not null)
+                    return lineCompletionList;
 
-            var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken);
+                var textWithoutToken = Helpers.RemoveToken(command.Value.command, command.Value.newPosition);
 
-            if (withoutTokenCompletionList is not null)
-                return withoutTokenCompletionList;
+                var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken,
+                    x => { x.RemoveErrorListeners(); }, x => { x.RemoveErrorListeners(); });
+
+                if (withoutTokenCompletionList is not null)
+                    return withoutTokenCompletionList;
+            }
+
 
             return new CompletionList(); //Give up
         }
 
         public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)
         {
-            var result = SCLParsing.TryParseStep(Text)
-                .Bind(x => x.TryFreeze(SCLRunner.RootCallerMetadata, stepFactoryStore));
+            IList<Diagnostic> diagnostics;
 
-            if (result.IsSuccess)
+            var initialParseResult = SCLParsing.TryParseStep(Text);
+
+            if (initialParseResult.IsSuccess)
             {
-                return new PublishDiagnosticsParams
+                var freezeResult = initialParseResult.Value.TryFreeze(SCLRunner.RootCallerMetadata, stepFactoryStore);
+
+                if (freezeResult.IsSuccess)
                 {
-                    Diagnostics = new Container<Diagnostic>(),
-                    Uri = DocumentUri
-                };
+                    diagnostics = ImmutableList<Diagnostic>.Empty;
+                }
+
+                else
+                {
+                    diagnostics = freezeResult.Error.GetAllErrors().Select(x => ToDiagnostic(x, new Position(0, 0)))
+                        .WhereNotNull().ToList();
+                }
+            }
+            else
+            {
+                var commands = Helpers.SplitIntoCommands(Text);
+                diagnostics = new List<Diagnostic>();
+                foreach (var (commandText, commandPosition) in commands)
+                {
+                    var visitor = new DiagnosticsVisitor();
+                    var listener = new ErrorErrorListener();
+                    var parseResult = visitor.LexParseAndVisit(commandText, _ => { },
+                        x => { x.AddErrorListener(listener); });
+
+                    IList<Diagnostic> newDiagnostics = listener.Errors.Select(x => ToDiagnostic(x, commandPosition))
+                        .WhereNotNull().ToList();
+
+                    if (!newDiagnostics.Any())
+                        newDiagnostics = parseResult.Select(x => ToDiagnostic(x, commandPosition)).WhereNotNull()
+                            .ToList();
+                    diagnostics.AddRange(newDiagnostics);
+                }
             }
 
 
-            var diagnostics = result.Error.GetAllErrors().Select(ToDiagnostic).WhereNotNull().ToList();
-
-            return new PublishDiagnosticsParams()
+            return new PublishDiagnosticsParams
             {
                 Diagnostics = new Container<Diagnostic>(diagnostics),
                 Uri = DocumentUri
             };
 
-            static Diagnostic? ToDiagnostic(SingleError error)
+            static Diagnostic? ToDiagnostic(SingleError error, Position positionOffset)
             {
                 if (error.Location.TextLocation is null) return null;
 
                 return
                     new Diagnostic()
                     {
-                        Range = error.Location.TextLocation.GetRange(),
+                        Range = error.Location.TextLocation.GetRange(positionOffset.Line, positionOffset.Character),
                         Severity = DiagnosticSeverity.Error,
                         Source = "SCL",
                         Message = error.Message

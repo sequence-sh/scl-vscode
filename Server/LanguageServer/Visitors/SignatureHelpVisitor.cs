@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Reflection;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using Namotion.Reflection;
@@ -7,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
 
-namespace LanguageServer
+namespace LanguageServer.Visitors
 {
     public class SignatureHelpVisitor : SCLBaseVisitor<SignatureHelp?>
     {

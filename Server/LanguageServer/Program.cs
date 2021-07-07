@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
+using LanguageServer.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

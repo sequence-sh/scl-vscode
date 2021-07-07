@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace LanguageServer
+namespace LanguageServer.Services
 {
     internal class DidChangeConfigurationHandler : IDidChangeConfigurationHandler
     {

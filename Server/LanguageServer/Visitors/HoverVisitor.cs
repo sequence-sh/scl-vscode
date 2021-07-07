@@ -17,22 +17,27 @@ using Reductech.EDR.Core.Util;
 using Entity = CSharpFunctionalExtensions.Entity;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace LanguageServer
+namespace LanguageServer.Visitors
 {
     public class HoverVisitor : SCLBaseVisitor<Hover?>
     {
-        public HoverVisitor(Position position, StepFactoryStore stepFactoryStore, string fullSCL)
+        public HoverVisitor(Position position, StepFactoryStore stepFactoryStore, Lazy<Result<TypeResolver, IError>> lazyTypeResolver)
         {
             Position = position;
             StepFactoryStore = stepFactoryStore;
+            LazyTypeResolver = lazyTypeResolver;
+        }
 
-
-            LazyTypeResolver = new Lazy<Result<TypeResolver, IError>>(
+        public static Lazy<Result<TypeResolver, IError>> CreateLazyTypeResolver(string fullSCL, StepFactoryStore stepFactoryStore)
+        {
+            var resolver = new Lazy<Result<TypeResolver, IError>>(
                 () =>
                     SCLParsing.TryParseStep(fullSCL).Bind(
                         x => TypeResolver.TryCreate(stepFactoryStore, SCLRunner.RootCallerMetadata,
                             Maybe<VariableName>.None, x))
             );
+
+            return resolver;
         }
 
         public Position Position { get; }
@@ -75,9 +80,22 @@ namespace LanguageServer
 
                         if (term.ContainsPosition(Position))
                         {
+                            int trueIndex;
+                            if (context.Parent is SCLParser.PipeFunctionContext pipeFunctionContext &&
+                                pipeFunctionContext.children.Last() == context)
+                            {
+                                trueIndex = index + 2;
+                            }
+                            else
+                            {
+                                trueIndex = index + 1;
+                            }
+
+                            var indexReference = new StepParameterReference.Index(trueIndex);
+
                             if (
                                 stepFactory.ParameterDictionary.TryGetValue(
-                                    new StepParameterReference.Index(index + 1),
+                                    indexReference,
                                     out var pi
                                 ))
                             {
@@ -389,7 +407,7 @@ namespace LanguageServer
 
         public static Hover Description(string? name, string? type, string? summary, Range range)
         {
-            var markedStrings = new[] {$"`{name}`", $"`{type}`", summary}
+            var markedStrings = new[] { $"`{name}`", $"`{type}`", summary }
                 .WhereNotNull()
                 .Select(x => new MarkedString(x)).ToList();
 
@@ -446,25 +464,25 @@ namespace LanguageServer
         private static readonly Dictionary<Type, string> TypeAliases =
             new()
             {
-                {typeof(byte), "byte"},
-                {typeof(sbyte), "sbyte"},
-                {typeof(short), "short"},
-                {typeof(ushort), "ushort"},
-                {typeof(int), "int"},
-                {typeof(uint), "uint"},
-                {typeof(long), "long"},
-                {typeof(ulong), "ulong"},
-                {typeof(float), "float"},
-                {typeof(double), "double"},
-                {typeof(decimal), "decimal"},
-                {typeof(object), "object"},
-                {typeof(bool), "bool"},
-                {typeof(char), "char"},
-                {typeof(string), "string"},
-                {typeof(StringStream), "string"},
-                {typeof(Entity), "entity"},
-                {typeof(DateTime), "dateTime"},
-                {typeof(void), "void"}
+                { typeof(byte), "byte" },
+                { typeof(sbyte), "sbyte" },
+                { typeof(short), "short" },
+                { typeof(ushort), "ushort" },
+                { typeof(int), "int" },
+                { typeof(uint), "uint" },
+                { typeof(long), "long" },
+                { typeof(ulong), "ulong" },
+                { typeof(float), "float" },
+                { typeof(double), "double" },
+                { typeof(decimal), "decimal" },
+                { typeof(object), "object" },
+                { typeof(bool), "bool" },
+                { typeof(char), "char" },
+                { typeof(string), "string" },
+                { typeof(StringStream), "string" },
+                { typeof(Entity), "entity" },
+                { typeof(DateTime), "dateTime" },
+                { typeof(void), "void" }
             };
     }
 }

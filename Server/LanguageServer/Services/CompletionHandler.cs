@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 
-namespace LanguageServer
+namespace LanguageServer.Services
 {
     internal class CompletionHandler : ICompletionHandler
     {

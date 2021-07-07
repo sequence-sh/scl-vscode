@@ -1,10 +1,6 @@
 using System.Linq;
-using System.Reflection;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.EDR.ConnectorManagement.Base;
-using Reductech.EDR.Connectors.FileSystem;
-using Reductech.EDR.Connectors.StructuredData;
 using Reductech.EDR.Core.Internal;
 using Xunit;
 using static LanguageServer.Test.TestHelpers;
@@ -13,37 +9,19 @@ namespace LanguageServer.Test
 {
     public class HoverTest
     {
-        public const string LongText = @"FileRead 'artwork_data.csv'
-| FromCSV
-| ArrayFilter ((from <entity> 'artist') == 'Blake, Robert')
-| EntityMap (in <entity> 'artist' (StringToCase (from <entity> 'artist') TextCase.Upper ))
-| EntityMapProperties (artist: 'Artist Name' artistId: 'ArtistId')
-| ArraySort (from <entity> 'year')
-| ArrayDistinct (from <entity> 'id')
-| ToJson
-| FileWrite 'Artwork_Data.json'
-";
-
-        public const string ErrorText = @"- FileRead 'artwork_data.csv'
-- 0.1.2.3";
 
         [Theory]
         [InlineData("Print 123", 0, 1, "`Print`", "`Unit`", "Prints a value to the console.")]
         [InlineData("Print 123", 0, 8, "`123`",  "`Integer`")]
-        //[InlineData(LongText, 0, 1, "Reads text from a file.")] //doesn't work
-        [InlineData(LongText, 0, 12, "`'artwork_data.csv'`", "`String`")]
-        [InlineData(LongText, 1, 3,
-            "`FromCSV`", "`Array<T>`", "Extracts entities from a CSV file.\nThe same as FromConcordance but with different default values.")]
-        //[InlineData(ErrorText, 0, 1, "Reads text from a file.")]
+        [InlineData("- Print 123\r\n- a b", 0 ,4, "`Print`", "`Unit`", "Prints a value to the console." )]
+        [InlineData("- Print 123\r\n- a b", 1 ,1, "Syntax Error: no viable alternative at input '- a b'" )]
+        [InlineData("- <val> = 123\r\n- print <val>", 1,9, "`<val>`", "`Integer`")]
+        [InlineData(LongText, 0, 12, "`'Blake, Robert'`", "`String`")]
+        [InlineData(LongText, 1, 3, "`ArrayFilter`", "`Array<T>`", "Filter an array according to a function.")]
+        [InlineData(LongText, 1, 14, "`Predicate`", "`Bool`", "A function that determines whether an entity should be included.")]
         public void ShouldGiveCorrectHover(string text, int line, int character, params string[] expectedHovers)
         {
-            var fsAssembly = Assembly.GetAssembly(typeof(FileRead))!;
-            var sdAssembly = Assembly.GetAssembly(typeof(ToJson))!;
-
-            var fsConnectorData = new ConnectorData(ConnectorSettings.DefaultForAssembly(fsAssembly), fsAssembly);
-            var sdConnectorData = new ConnectorData(ConnectorSettings.DefaultForAssembly(sdAssembly), sdAssembly);
-
-            var sfs = StepFactoryStore.Create(fsConnectorData, sdConnectorData);
+            var sfs = StepFactoryStore.Create();
 
             var document = new SCLDocument(text, DefaultUri);
 
