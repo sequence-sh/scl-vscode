@@ -29,7 +29,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.2" />
     <PackageReference Include="Reductech.EDR.ConnectorManager" Version="0.3.0" />
-    <PackageReference Include="Reductech.EDR.Core" Version="0.10.0" />
+    <PackageReference Include="Reductech.EDR.Core" Version="0.11.0-a.master.2109021229" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
     <PackageReference Include="system.io.abstractions" Version="13.2.38" />
   </ItemGroup>
