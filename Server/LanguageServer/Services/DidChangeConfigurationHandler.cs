@@ -48,10 +48,10 @@ namespace LanguageServer.Services
 
             var changed = EntityChangeSync.TryUpdate(newConfig);
 
-            if (changed)
-            {
-                await File.WriteAllTextAsync(Program.AppSettingsPath, newText, cancellationToken);
-            }
+            //if (changed)
+            //{
+            //    await File.WriteAllTextAsync(Program.AppSettingsPath, newText, cancellationToken);
+            //}
 
             return Unit.Value;
         }
