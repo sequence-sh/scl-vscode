@@ -62,6 +62,7 @@ namespace LanguageServer.Visitors
             return DefaultResult;
         }
 
+        
         /// <inheritdoc />
         public override Hover? VisitFunction(SCLParser.FunctionContext context)
         {
