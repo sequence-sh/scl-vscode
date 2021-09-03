@@ -66,7 +66,7 @@
         "reductech-scl.edr.launchdebugger": {
           "description": "Whether to launch the Visual Studio Debugger when the extension starts.",
           "type": "boolean",
-          "default": true
+          "default": false
         },
         "reductech-scl.edr.connectors": {
           "description": "The connector configuration to be used with EDR.",
