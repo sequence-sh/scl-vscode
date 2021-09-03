@@ -21,9 +21,10 @@ namespace LanguageServer.Visitors
 {
     public class HoverVisitor : SCLBaseVisitor<Hover?>
     {
-        public HoverVisitor(Position position, StepFactoryStore stepFactoryStore, Lazy<Result<TypeResolver, IError>> lazyTypeResolver)
+        public HoverVisitor(Position position, Position positionOffset, StepFactoryStore stepFactoryStore, Lazy<Result<TypeResolver, IError>> lazyTypeResolver)
         {
             Position = position;
+            PositionOffset = positionOffset;
             StepFactoryStore = stepFactoryStore;
             LazyTypeResolver = lazyTypeResolver;
         }
@@ -41,6 +42,7 @@ namespace LanguageServer.Visitors
         }
 
         public Position Position { get; }
+        public Position PositionOffset { get; }
         public StepFactoryStore StepFactoryStore { get; }
         public Lazy<Result<TypeResolver, IError>> LazyTypeResolver { get; }
 
@@ -108,14 +110,14 @@ namespace LanguageServer.Visitors
                                     return Description(
                                         pi.Name,
                                         type.Name,
-                                        pi.GetXmlDocsSummary(), term.GetRange());
+                                        pi.GetXmlDocsSummary(), term.GetRange(), PositionOffset);
                                 }
 
 
                                 return nHover;
                             }
 
-                            return Error($"Step '{name}' does not take an argument {index}", context.GetRange());
+                            return Error($"Step '{name}' does not take an argument {index}", context.GetRange(), PositionOffset);
                         }
                     }
 
@@ -138,14 +140,14 @@ namespace LanguageServer.Visitors
                                     return Description(
                                         pi.Name,
                                         type.Name,
-                                        pi.GetXmlDocsSummary(), namedArgumentContext.GetRange());
+                                        pi.GetXmlDocsSummary(), namedArgumentContext.GetRange(), PositionOffset);
 
                                 return nHover;
                             }
 
                             return Error(
                                 $"Step '{name}' does not take an argument {argumentName}"
-                                , context.GetRange());
+                                , context.GetRange(), PositionOffset);
                         }
                     }
                 }
@@ -156,11 +158,11 @@ namespace LanguageServer.Visitors
                     stepFactory.TypeName,
                     stepFactory.OutputTypeExplanation,
                     summary
-                    , context.GetRange());
+                    , context.GetRange(), PositionOffset);
             }
             else
             {
-                return Error(name, context.GetRange());
+                return Error(name, context.GetRange(), PositionOffset);
             }
         }
 
@@ -176,7 +178,7 @@ namespace LanguageServer.Visitors
                 : TypeReference.Actual.Double;
 
 
-            return Description(text, typeReference.Name, null, context.GetRange());
+            return Description(text, typeReference.Name, null, context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -185,7 +187,7 @@ namespace LanguageServer.Visitors
             if (!context.ContainsPosition(Position))
                 return null;
 
-            return Description(context.GetText(), TypeReference.Actual.Bool.Name, null, context.GetRange());
+            return Description(context.GetText(), TypeReference.Actual.Bool.Name, null, context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -200,7 +202,7 @@ namespace LanguageServer.Visitors
                 if (r is not null) return r;
             }
 
-            return Description(context.GetText(), TypeReference.Actual.Entity.Name, null, context.GetRange());
+            return Description(context.GetText(), TypeReference.Actual.Entity.Name, null, context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -209,7 +211,7 @@ namespace LanguageServer.Visitors
             if (!context.ContainsPosition(Position))
                 return null;
 
-            return Description(context.GetText(), TypeReference.Actual.Date.Name, null, context.GetRange());
+            return Description(context.GetText(), TypeReference.Actual.Date.Name, null, context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -226,16 +228,16 @@ namespace LanguageServer.Visitors
 
             if (!StepFactoryStore.EnumTypesDictionary.TryGetValue(prefix, out var enumType))
             {
-                return Error($"'{prefix}' is not a valid enum type.", context.GetRange());
+                return Error($"'{prefix}' is not a valid enum type.", context.GetRange(), PositionOffset);
             }
 
             if (!Enum.TryParse(enumType, suffix, true, out var value))
             {
-                return Error($"'{suffix}' is not a member of enumeration '{prefix}'", context.GetRange());
+                return Error($"'{suffix}' is not a member of enumeration '{prefix}'", context.GetRange(), PositionOffset);
             }
 
             return Description(value!.ToString(), enumType.Name, value.GetType().GetXmlDocsSummary(),
-                context.GetRange());
+                context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -245,7 +247,7 @@ namespace LanguageServer.Visitors
                 return null;
 
 
-            return Description("<>", null, "Automatic Variable", context.GetRange());
+            return Description("<>", null, "Automatic Variable", context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -256,16 +258,16 @@ namespace LanguageServer.Visitors
 
 
             if (LazyTypeResolver.Value.IsFailure)
-                return Description(context.GetText(), nameof(VariableName), null, context.GetRange());
+                return Description(context.GetText(), nameof(VariableName), null, context.GetRange(), PositionOffset);
 
             var vn = new VariableName(context.GetText().TrimStart('<').TrimEnd('>'));
 
             if (LazyTypeResolver.Value.Value.Dictionary.TryGetValue(vn, out var tr))
             {
-                return Description(context.GetText(), tr.Name, null, context.GetRange());
+                return Description(context.GetText(), tr.Name, null, context.GetRange(), PositionOffset);
             }
 
-            return Description(context.GetText(), nameof(VariableName), null, context.GetRange());
+            return Description(context.GetText(), nameof(VariableName), null, context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -285,7 +287,7 @@ namespace LanguageServer.Visitors
 
 
             return Description(setVariable.TypeName, setVariable.OutputTypeExplanation,
-                setVariable.StepType.GetXmlDocsSummary(), context.GetRange());
+                setVariable.StepType.GetXmlDocsSummary(), context.GetRange(), PositionOffset);
         }
 
         public Hover? VisitVariable(ITerminalNode variableNameNode)
@@ -297,16 +299,16 @@ namespace LanguageServer.Visitors
             var text = variableNameNode.GetText();
 
             if (LazyTypeResolver.Value.IsFailure)
-                return Description(text, nameof(VariableName), null, variableNameNode.Symbol.GetRange());
+                return Description(text, nameof(VariableName), null, variableNameNode.Symbol.GetRange(), PositionOffset);
 
             var vn = new VariableName(text.TrimStart('<').TrimEnd('>'));
 
             if (LazyTypeResolver.Value.Value.Dictionary.TryGetValue(vn, out var tr))
             {
-                return Description(text, tr.Name, null, variableNameNode.Symbol.GetRange());
+                return Description(text, tr.Name, null, variableNameNode.Symbol.GetRange(), PositionOffset);
             }
 
-            return Description(text, nameof(VariableName), null, variableNameNode.Symbol.GetRange());
+            return Description(text, nameof(VariableName), null, variableNameNode.Symbol.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -315,7 +317,7 @@ namespace LanguageServer.Visitors
             if (!context.ContainsPosition(Position))
                 return null;
 
-            return Description(context.GetText(), TypeReference.Actual.String.Name, null, context.GetRange());
+            return Description(context.GetText(), TypeReference.Actual.String.Name, null, context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -331,7 +333,7 @@ namespace LanguageServer.Visitors
                     return h1;
             }
 
-            return DescribeStep(context.GetText(), context.GetRange());
+            return DescribeStep(context.GetText(), context.GetRange(), PositionOffset);
         }
 
         /// <inheritdoc />
@@ -352,18 +354,18 @@ namespace LanguageServer.Visitors
 
             if (operatorSymbols.Count != 1)
             {
-                return Error("Invalid mix of operators", context.GetRange());
+                return Error("Invalid mix of operators", context.GetRange(), PositionOffset);
             }
 
-            return DescribeStep(context.GetText(), context.GetRange());
+            return DescribeStep(context.GetText(), context.GetRange(), PositionOffset);
         }
 
-        public Hover DescribeStep(string text, Range range)
+        public Hover DescribeStep(string text, Range range, Position offsetPosition)
         {
             var step = SCLParsing.TryParseStep(text);
 
             if (step.IsFailure)
-                return Error(step.Error.AsString, range);
+                return Error(step.Error.AsString, range, offsetPosition);
 
             var callerMetadata = new CallerMetadata("Step", "Parameter", TypeReference.Any.Instance);
 
@@ -379,13 +381,13 @@ namespace LanguageServer.Visitors
             }
 
             if (freezeResult.IsFailure)
-                return Error(freezeResult.Error.AsString, range);
+                return Error(freezeResult.Error.AsString, range, offsetPosition);
 
 
-            return Description(freezeResult.Value, range);
+            return Description(freezeResult.Value, range, offsetPosition);
         }
 
-        public static Hover Description(IStep step, Range range)
+        public static Hover Description(IStep step, Range range, Position offsetPosition)
         {
             var name = step.Name;
             string type = GetHumanReadableTypeName(step.OutputType);
@@ -402,10 +404,10 @@ namespace LanguageServer.Visitors
             }
 
 
-            return Description(name, type, description, range);
+            return Description(name, type, description, range, offsetPosition);
         }
 
-        public static Hover Description(string? name, string? type, string? summary, Range range)
+        public static Hover Description(string? name, string? type, string? summary, Range range, Position offsetPosition)
         {
             var markedStrings = new[] { $"`{name}`", $"`{type}`", summary }
                 .WhereNotNull()
@@ -413,16 +415,16 @@ namespace LanguageServer.Visitors
 
             return new()
             {
-                Range = range,
+                Range = range.Offset(offsetPosition),
                 Contents = new MarkedStringsOrMarkupContent(markedStrings)
             };
         }
 
-        public static Hover Error(string message, Range range)
+        public static Hover Error(string message, Range range, Position offsetPosition)
         {
             return new()
             {
-                Range = range,
+                Range = range.Offset(offsetPosition),
                 Contents = new MarkedStringsOrMarkupContent(message)
             };
         }

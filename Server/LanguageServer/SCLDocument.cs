@@ -27,7 +27,7 @@ namespace LanguageServer
 
             if (command is null) return new Hover();
 
-            var visitor2 = new HoverVisitor(command.Value.newPosition, stepFactoryStore, lazyTypeResolver);
+            var visitor2 = new HoverVisitor(command.Value.newPosition, command.Value.positionOffset, stepFactoryStore, lazyTypeResolver);
 
             var errorListener = new ErrorErrorListener();
 
