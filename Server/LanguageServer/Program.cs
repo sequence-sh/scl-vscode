@@ -13,7 +13,6 @@ namespace LanguageServer
 {
     internal class Program
     {
-
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
         private static void Main(string[] args) => MainAsync(args).Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
@@ -44,7 +43,6 @@ namespace LanguageServer
                         .OnStarted((ls, token) =>
                         {
                             var logger = ls.GetRequiredService<ILogger<Program>>();
-
                             logger.LogInformation("Language Server started");
                             var changeSync = ls.GetRequiredService<EntityChangeSync<SCLLanguageServerConfiguration>>();
 
@@ -52,8 +50,7 @@ namespace LanguageServer
                             {
                                 Debugger.Launch();
                             }
-
-
+                            
                             changeSync.OnChange += (_, x) =>
                             {
                                 if (x.LaunchDebugger)
@@ -61,6 +58,8 @@ namespace LanguageServer
                                     Debugger.Launch();
                                 }
                             };
+
+
                             return Task.CompletedTask;
                         })
                         ;

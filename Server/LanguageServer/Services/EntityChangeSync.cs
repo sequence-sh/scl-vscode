@@ -5,24 +5,38 @@ namespace LanguageServer.Services
     /// <summary>
     /// Basically an OptionsMonitor, but working I hope
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class EntityChangeSync<T> where T : class
+    public class EntityChangeSync<T> where T : class, new()
     {
+        /// <summary>
+        /// Create a new EntityChangeSync
+        /// </summary>
         public EntityChangeSync(IConfiguration configuration)
         {
-            Latest = configuration.Get<T>();
+            Latest = configuration.Get<T>()?? new T();
         }
 
+        /// <summary>
+        /// The latest configured value
+        /// </summary>
         public T Latest { get; private set; }
 
-        // Declare the delegate (if using non-generic pattern).
+        /// <summary>
+        /// The change event handler
+        /// </summary>
         public delegate void ChangeEventHandler(object sender, T entity);
 
-        // Declare the event.
+        /// <summary>
+        /// IS called whenever the value changes
+        /// </summary>
         public event ChangeEventHandler? OnChange;
 
         // Wrap the event in a protected virtual method
         // to enable derived classes to raise the event.
+
+        /// <summary>
+        /// The method called whenever the entity changes
+        /// </summary>
+        /// <param name="entity"></param>
         public virtual void EntityHasChanged(T entity)
         {
             Latest = entity;
