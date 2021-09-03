@@ -1,54 +1,32 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Antlr4.Runtime;
 using Reductech.EDR.Core.Internal;
-using Reductech.EDR.Core.Internal.Errors;
+using Reductech.EDR.Core.Internal.Parser;
 using Reductech.EDR.Core.Internal.Serialization;
 using Reductech.EDR.Core.Steps;
 
 namespace LanguageServer
 {
+    /// <summary>
+    /// Contains methods for formatting steps
+    /// </summary>
     public static class Formatter
     {
-        //public static Result<string, IError> Format(IFreezableStep step, StepFactoryStore stepFactoryStore)
-        //{
-        //    var sb = new IndentationStringBuilder();
-        //    var errors = new List<IError>();
-        //    Format1(sb, step);
-
-        //    void Format1(IndentationStringBuilder sb, IFreezableStep step)
-        //    {
-        //        if (step  is CompoundFreezableStep compoundStep)
-        //        {
-        //            var sfs = compoundStep.TryGetStepFactory(stepFactoryStore);
-        //            if (compoundStep.TryGetStepFactory(s) .StepFactory.Serializer is FunctionSerializer)
-        //            {
-        //            }
-        //        }
-        //        //TODO entity constant
-
-        //        //Default to basic serialization
-        //        var freezeResult = step.TryFreeze()
-
-
-        //        sb.WriteLine(step..Serialize());
-        //    }
-
-        //    if (errors.Any())
-        //        return Result.Failure<string, IError>(ErrorList.Combine(errors));
-
-        //    return sb.ToString();
-        //}
-
+        /// <summary>
+        /// Format a step
+        /// </summary>
         public static string Format(IStep step)
         {
             var sb = new IndentationStringBuilder();
-            var errors = new List<IError>();
-            Format1(sb, step, true);
+            
+            var usedComments = new HashSet< (int type, int channel, int line, int column)>();
 
-            static void Format1(IndentationStringBuilder sb, IStep step, bool topLevel)
+            Format1(sb, step, true, usedComments);
+
+            static void Format1(IndentationStringBuilder sb, IStep step, bool topLevel, HashSet< (int type, int channel, int line, int column)> usedComments)
             {
-                step.TextLocation.
                 if (step is ICompoundStep compoundStep)
                 {
                     if (compoundStep is ISequenceStep sequenceStep)
@@ -57,7 +35,18 @@ namespace LanguageServer
                         {
                             sb.AppendLine();
                             sb.Append("- ");
-                            Format1(sb, seqStep, true);
+                            Format1(sb, seqStep, true, usedComments);
+                        }
+
+                        var comments0 = ReadComments(step);
+                        foreach (var commentToken in comments0)
+                        {
+                            if (usedComments.Add(commentToken.GetTokenKey()))
+                            {
+                                if(commentToken.Type == SCLLexer.DELIMITEDCOMMENT)
+                                    sb.AppendLine();
+                                sb.Append(commentToken.Text);
+                            }
                         }
 
                         return;
@@ -87,7 +76,7 @@ namespace LanguageServer
 
                             if (stepProperty is StepProperty.SingleStepProperty ssp)
                             {
-                                Format1(sb, ssp.Step, false);
+                                Format1(sb, ssp.Step, false,usedComments);
                             }
                             else if (stepProperty is StepProperty.LambdaFunctionProperty lfp)
                             {
@@ -96,7 +85,7 @@ namespace LanguageServer
                                     sb.Append("<>");
                                 else sb.Append(lfp.LambdaFunction.Variable.Value.Serialize());
                                 sb.Append(" => ");
-                                Format1(sb, lfp.LambdaFunction.Step, false);
+                                Format1(sb, lfp.LambdaFunction.Step, false, usedComments);
                                 sb.Append(")");
                             }
                             else
@@ -111,6 +100,18 @@ namespace LanguageServer
                             sb.Append(")");
                         if (allProperties.Count > 1)
                             sb.UnIndent();
+
+                        var comments1 = ReadComments(step);
+                        foreach (var commentToken in comments1)
+                        {
+                            if (usedComments.Add(commentToken.GetTokenKey()))
+                            {
+                                if(commentToken.Type == SCLLexer.DELIMITEDCOMMENT)
+                                    sb.AppendLine();
+                                sb.Append(commentToken.Text);
+                            }
+                        }
+
                         return;
                     }
                 }
@@ -118,13 +119,45 @@ namespace LanguageServer
 
                 //Default to basic serialization
 
-
                 sb.Append(step.Serialize());
+                var comments2 = ReadComments(step);
+                foreach (var commentToken in comments2)
+                {
+                    if (usedComments.Add(commentToken.GetTokenKey()))
+                    {
+                        if(commentToken.Type == SCLLexer.DELIMITEDCOMMENT)
+                            sb.AppendLine();
+                        sb.Append(commentToken.Text);
+                    }
+                }
             }
 
             return sb.ToString();
         }
 
+        public static IEnumerable<IToken> ReadComments(IStep step)
+        {
+            if(step.TextLocation is null)
+                yield break;
+
+            var inputStream       = new AntlrInputStream(step.TextLocation.Text);
+            var lexer             = new SCLLexer(inputStream);
+
+            
+
+            foreach (var token in lexer.GetAllTokens())
+            {
+                if (token.Type is SCLLexer.DELIMITEDCOMMENT or SCLLexer.SINGLELINECOMMENT)
+                {
+                    yield return token;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get a unique key for a token
+        /// </summary>
+        public static (int type, int channel, int line, int column) GetTokenKey(this IToken token) => (token.Type, token.Channel, token.Line, token.Column);
 
         private class IndentationStringBuilder
         {
