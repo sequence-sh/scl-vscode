@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace LanguageServer.Services
 {
-    public class ReactiveSource<T, TOption> where TOption : class
+    public class ReactiveSource<T, TOption> where TOption : class, new()
     {
         public readonly Func<TOption, Task<T>> CreateFunc;
 

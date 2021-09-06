@@ -5,8 +5,9 @@
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
-    <Version>0.10.0$(VersionSuffix)</Version>
+    <Version>0.11.0$(VersionSuffix)</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -27,11 +28,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.2" />
-    <PackageReference Include="Reductech.EDR.ConnectorManager" Version="0.3.0" />
-    <PackageReference Include="Reductech.EDR.Core" Version="0.10.0" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
+    <PackageReference Include="Reductech.EDR.ConnectorManager" Version="0.4.0" />
+    <PackageReference Include="Reductech.EDR.Core" Version="0.11.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
-    <PackageReference Include="system.io.abstractions" Version="13.2.38" />
+    <PackageReference Include="system.io.abstractions" Version="13.2.47" />
   </ItemGroup>
 
   <ItemGroup>

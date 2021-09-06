@@ -27,7 +27,7 @@ namespace LanguageServer
 
             if (command is null) return new Hover();
 
-            var visitor2 = new HoverVisitor(command.Value.newPosition, stepFactoryStore, lazyTypeResolver);
+            var visitor2 = new HoverVisitor(command.Value.newPosition, command.Value.positionOffset, stepFactoryStore, lazyTypeResolver);
 
             var errorListener = new ErrorErrorListener();
 
@@ -92,7 +92,7 @@ namespace LanguageServer
 
                     if (freezeResult.IsSuccess)
                     {
-                        var text = freezeResult.Value.Serialize().Trim();
+                        var text = Formatter.Format(freezeResult.Value).Trim();// freezeResult.Value.Serialize().Trim();
 
                         var range = freezeResult.Value.TextLocation?.GetRange(offset.Line, offset.Character)!;
                         var realRange = new Range(offset, new Position(range.End.Line, range.End.Character + 1)); //Need to end one character later

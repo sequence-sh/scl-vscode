@@ -13,8 +13,6 @@ namespace LanguageServer
 {
     internal class Program
     {
-        public const string AppSettingsPath = "appsettings.json";
-
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
         private static void Main(string[] args) => MainAsync(args).Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
@@ -24,9 +22,6 @@ namespace LanguageServer
             var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
                 options =>
                 {
-                    options.ConfigurationBuilder.AddJsonFile(AppSettingsPath, true, true);
-
-
                     options
                         .WithInput(Console.OpenStandardInput())
                         .WithOutput(Console.OpenStandardOutput())
@@ -48,7 +43,6 @@ namespace LanguageServer
                         .OnStarted((ls, token) =>
                         {
                             var logger = ls.GetRequiredService<ILogger<Program>>();
-
                             logger.LogInformation("Language Server started");
                             var changeSync = ls.GetRequiredService<EntityChangeSync<SCLLanguageServerConfiguration>>();
 
@@ -56,8 +50,7 @@ namespace LanguageServer
                             {
                                 Debugger.Launch();
                             }
-
-
+                            
                             changeSync.OnChange += (_, x) =>
                             {
                                 if (x.LaunchDebugger)
@@ -65,6 +58,8 @@ namespace LanguageServer
                                     Debugger.Launch();
                                 }
                             };
+
+
                             return Task.CompletedTask;
                         })
                         ;

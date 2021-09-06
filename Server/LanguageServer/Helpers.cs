@@ -29,6 +29,8 @@ namespace LanguageServer
             );
         }
 
+        
+
         public static bool HasSiblingsAfter(this IRuleNode ruleContext, Position p)
         {
             if (ruleContext.Parent is ParserRuleContext prc)
@@ -131,7 +133,7 @@ namespace LanguageServer
         }
 
 
-        public static (string command, Position newPosition)? GetCommand(string text, Position originalPosition)
+        public static (string command, Position newPosition, Position positionOffset)? GetCommand(string text, Position originalPosition)
         {
             var commands = SplitIntoCommands(text);
             var myCommand = commands.TakeWhile(x => x.position <= originalPosition).LastOrDefault();
@@ -139,16 +141,19 @@ namespace LanguageServer
             if (myCommand == default) return null;
 
             Position newPosition;
+            Position offsetPosition;
             if (originalPosition.Line == myCommand.position.Line)
             {
                 newPosition = new Position(0, originalPosition.Character - myCommand.position.Character);
+                offsetPosition = myCommand.position;
             }
             else
             {
                 newPosition = new Position(originalPosition.Line - myCommand.position.Line, originalPosition.Character);
+                offsetPosition = myCommand.position;
             }
 
-            return (myCommand.text, newPosition);
+            return (myCommand.text, newPosition, offsetPosition);
         }
 
         public static string RemoveToken(string text, Position tokenPosition)
@@ -221,6 +226,14 @@ namespace LanguageServer
             );
         }
 
+        /// <summary>
+        /// Offsets the range by the position
+        /// </summary>
+        public static Range Offset(this Range range, Position offset)
+        {
+            return new Range(new Position(offset.Line + range.Start.Line, range.Start.Character), new Position(offset.Line + range.End.Line, range.End.Character));
+        }
+
         public static Position GetFromOffset(this TextPosition position, int lineOffset, int charOffSet)
         {
             if (position.Line == 1)
@@ -257,10 +270,9 @@ namespace LanguageServer
 
         public static string GetMarkDownDocumentation(IGrouping<IStepFactory, string> stepFactoryGroup)
         {
-            var stepWrapper = new StepWrapper(stepFactoryGroup);
-
             try
             {
+                var stepWrapper = new StepWrapper(stepFactoryGroup);
                 var text = DocumentationCreator.GetStepPage(stepWrapper);
 
                 return text.FileText;

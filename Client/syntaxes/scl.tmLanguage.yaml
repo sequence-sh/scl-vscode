@@ -36,10 +36,10 @@ repository:
 
     variable-name:
         name: variable.language.scl
-        match: <[a-zA-Z0-9_]+>
+        match: <[a-zA-Z0-9_]*>
     
     enum:
-        name: constant.other.scl
+        name: constant.language.enum.scl
         match: \b[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+\b
 
     date:
@@ -56,7 +56,7 @@ repository:
 
     operator:
         name: keyword.operator.scl
-        match: ([\-+*/%^<>=]|(&&)|(\|\|)|(==)|(!=)|(<=)|(>=))
+        match: ([\-+*/%^<>=]|(&&)|(\|\|)|(==)|(!=)|(<=)|(>=)|(=>))
 
     comma:
         name: punctuation.comma.scl
