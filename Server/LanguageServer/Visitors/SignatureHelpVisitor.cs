@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using Namotion.Reflection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
@@ -144,7 +143,7 @@ namespace LanguageServer.Visitors
                 Signatures = new Container<SignatureInformation>(new SignatureInformation
                 {
                     Label = stepFactory.TypeName,
-                    Documentation = stepFactory.StepType.GetXmlDocsSummary(),
+                    Documentation = stepFactory.Summary,
                     Parameters = new Container<ParameterInformation>(options)
                 })
             };

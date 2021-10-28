@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using Namotion.Reflection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
@@ -180,7 +178,7 @@ namespace LanguageServer.Visitors
                         InsertTextMode = InsertTextMode.AsIs,
                         InsertTextFormat = InsertTextFormat.PlainText,
                         InsertText = key,
-                        Detail = factory.Key.StepType.GetXmlDocsSummary(),
+                        Detail = factory.Key.Summary,
                         Documentation = new StringOrMarkupContent(new MarkupContent
                         {
                             Kind = MarkupKind.Markdown,
@@ -191,6 +189,9 @@ namespace LanguageServer.Visitors
             }
         }
 
+        /// <summary>
+        /// Gets the step parameter completion list
+        /// </summary>
         public static CompletionList StepParametersCompletionList(IStepFactory stepFactory, Range range)
         {
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
@@ -202,7 +203,7 @@ namespace LanguageServer.Visitors
 
 
             CompletionItem CreateCompletionItem(StepParameterReference stepParameterReference,
-                PropertyInfo propertyInfo)
+                IStepParameter stepParameter)
             {
                 return new()
                 {
@@ -214,7 +215,7 @@ namespace LanguageServer.Visitors
                     Label = stepParameterReference.Name,
                     InsertTextMode = InsertTextMode.AsIs,
                     InsertTextFormat = InsertTextFormat.PlainText,
-                    Detail = propertyInfo.GetXmlDocsSummary(),
+                    Detail = stepParameter.Summary,
                     Documentation = new StringOrMarkupContent(new MarkupContent()
                     {
                         Kind = MarkupKind.Markdown,

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using CSharpFunctionalExtensions;
@@ -99,19 +98,17 @@ namespace LanguageServer.Visitors
                             if (
                                 stepFactory.ParameterDictionary.TryGetValue(
                                     indexReference,
-                                    out var pi
+                                    out var stepParameter
                                 ))
                             {
                                 var nHover = Visit(term);
 
                                 if (nHover is null)
                                 {
-                                    var type = GetTypeReference(pi);
-
                                     return Description(
-                                        pi.Name,
-                                        type.Name,
-                                        pi.GetXmlDocsSummary(), term.GetRange(), PositionOffset);
+                                        stepParameter.Name,
+                                        stepParameter.ActualType.Name,
+                                        stepParameter.Summary, term.GetRange(), PositionOffset);
                                 }
 
 
@@ -130,18 +127,16 @@ namespace LanguageServer.Visitors
 
                             if (stepFactory.ParameterDictionary.TryGetValue(
                                 new StepParameterReference.Named(argumentName),
-                                out var pi
+                                out var stepParameter
                             ))
                             {
                                 var nHover = Visit(namedArgumentContext);
 
-                                var type = GetTypeReference(pi);
-
                                 if (nHover is null)
                                     return Description(
-                                        pi.Name,
-                                        type.Name,
-                                        pi.GetXmlDocsSummary(), namedArgumentContext.GetRange(), PositionOffset);
+                                        stepParameter.Name,
+                                        stepParameter.ActualType.Name,
+                                        stepParameter.Summary, namedArgumentContext.GetRange(), PositionOffset);
 
                                 return nHover;
                             }
@@ -153,7 +148,7 @@ namespace LanguageServer.Visitors
                     }
                 }
 
-                var summary = stepFactory.StepType.GetXmlDocsSummary();
+                var summary = stepFactory.Summary;
 
                 return Description(
                     stepFactory.TypeName,
@@ -288,7 +283,7 @@ namespace LanguageServer.Visitors
 
 
             return Description(setVariable.TypeName, setVariable.OutputTypeExplanation,
-                setVariable.StepType.GetXmlDocsSummary(), context.GetRange(), PositionOffset);
+                setVariable.Summary, context.GetRange(), PositionOffset);
         }
 
         public Hover? VisitVariable(ITerminalNode variableNameNode)
@@ -343,7 +338,7 @@ namespace LanguageServer.Visitors
             if (!context.ContainsPosition(Position))
                 return null;
 
-            foreach (var termContext in context.term())
+            foreach (var termContext in context.infixableTerm())
             {
                 var h1 = Visit(termContext);
                 if (h1 is not null)
@@ -396,7 +391,7 @@ namespace LanguageServer.Visitors
 
             if (step is ICompoundStep cs)
             {
-                description = cs.StepFactory.StepType.GetXmlDocsSummary();
+                description = cs.StepFactory.Summary;
             }
 
             else
@@ -430,10 +425,10 @@ namespace LanguageServer.Visitors
             };
         }
 
-        private static TypeReference GetTypeReference(PropertyInfo propertyInfo)
-        {
-            return TypeReference.CreateFromStepType(propertyInfo.PropertyType);
-        }
+        //private static TypeReference GetTypeReference(PropertyInfo propertyInfo)
+        //{
+        //    return TypeReference.CreateFromStepType(propertyInfo.PropertyType);
+        //}
 
         public static string GetHumanReadableTypeName(Type t)
         {
