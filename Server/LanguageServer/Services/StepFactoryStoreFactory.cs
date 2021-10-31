@@ -1,4 +1,5 @@
-﻿using System.IO.Abstractions;
+﻿using System;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,13 @@ namespace LanguageServer.Services
 
     public class StepFactoryStoreFactory : IAsyncFactory<StepFactoryStore>
     {
+        /// <summary>
+        /// The configuration
+        /// </summary>
         public ILanguageServerConfiguration LanguageServerConfiguration { get; }
+        /// <summary>
+        /// The logger
+        /// </summary>
         private readonly ILogger<StepFactoryStoreFactory> _logger;
 
         private readonly ReactiveSource<StepFactoryStore, SCLLanguageServerConfiguration> _stepFactoryStoreSource;
@@ -41,10 +48,11 @@ namespace LanguageServer.Services
                         loggerFactory.CreateLogger<ConnectorRegistry>(),
                         config.ConnectorRegistrySettings ?? ConnectorRegistrySettings.Reductech);
 
-
-                    
                     var connectorManagerLogger = loggerFactory.CreateLogger<ConnectorManager>();
                     var settings = config.ConnectorManagerSettings ?? ConnectorManagerSettings.Default;
+
+                    logger.LogWarning($"Connector Settings\r\nConfiguration Path: {settings.ConfigurationPath}\r\nConnector Path: {settings.ConnectorPath}");
+                    
 
                     var connectorConfigurationDict = config.ConnectorSettingsDictionary?
                         .Where(x=>!string.IsNullOrWhiteSpace(x.Value.Id))
@@ -74,7 +82,18 @@ namespace LanguageServer.Services
                             fileSystem
                         );
 
-                    var sfs = await connectorManager.GetStepFactoryStoreAsync();
+                    StepFactoryStore sfs;
+
+                    try
+                    {
+                        sfs = await connectorManager.GetStepFactoryStoreAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, e.Message);
+                        sfs = StepFactoryStore.Create();
+                    }
+                    
 
                     return sfs;
                 }, optionsMonitor
