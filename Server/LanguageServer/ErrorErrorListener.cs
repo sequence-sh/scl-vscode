@@ -6,9 +6,14 @@ using Reductech.EDR.Core.Internal.Errors;
 
 namespace LanguageServer
 {
+    /// <summary>
+    /// Listens for errors in the SCL
+    /// </summary>
     public class ErrorErrorListener : IAntlrErrorListener<IToken>
     {
-
+        /// <summary>
+        /// The errors which have been found
+        /// </summary>
         public List<SingleError> Errors = new();
 
         /// <inheritdoc />

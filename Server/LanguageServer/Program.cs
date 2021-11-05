@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 using LanguageServer.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
@@ -23,6 +22,7 @@ namespace LanguageServer
                 options =>
                 {
                     options
+                        .ConfigureLogging(x=>x.SetMinimumLevel(LogLevel.Debug))
                         .WithInput(Console.OpenStandardInput())
                         .WithOutput(Console.OpenStandardOutput())
                         .ConfigureLogging(x => x.AddLanguageProtocolLogging().SetMinimumLevel(LogLevel.Debug))

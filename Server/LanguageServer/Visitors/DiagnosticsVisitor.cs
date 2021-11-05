@@ -6,6 +6,9 @@ using Reductech.EDR.Core.Internal.Parser;
 
 namespace LanguageServer.Visitors
 {
+    /// <summary>
+    /// Visits SCL to find errors
+    /// </summary>
     public class DiagnosticsVisitor : SCLBaseVisitor<ImmutableList<SingleError>>
     {
         /// <inheritdoc />

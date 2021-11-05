@@ -7,6 +7,9 @@ using Reductech.EDR.Core.Internal.Parser;
 
 namespace LanguageServer.Visitors
 {
+    /// <summary>
+    /// Visits SCL to get Signature Help
+    /// </summary>
     public class SignatureHelpVisitor : SCLBaseVisitor<SignatureHelp?>
     {
         /// <inheritdoc />
@@ -16,7 +19,13 @@ namespace LanguageServer.Visitors
             StepFactoryStore = stepFactoryStore;
         }
 
+        /// <summary>
+        /// The position to get Signature Help at
+        /// </summary>
         public Position Position { get; }
+        /// <summary>
+        /// The Step Factory Store
+        /// </summary>
         public StepFactoryStore StepFactoryStore { get; }
 
         /// <inheritdoc />
@@ -61,7 +70,7 @@ namespace LanguageServer.Visitors
                     if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                         return null; //No clue what name to use
 
-                    var result = StepParametersSignatureHelp(stepFactory, new Range(Position, Position));
+                    var result = StepParametersSignatureHelp(stepFactory);
                     return result;
                 }
 
@@ -95,9 +104,9 @@ namespace LanguageServer.Visitors
                         if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
                             return null; //Don't know what step factory to use
 
-                        var range = namedArgumentContext.NAME().Symbol.GetRange();
+                        //var range = namedArgumentContext.NAME().Symbol.GetRange();
 
-                        return StepParametersSignatureHelp(stepFactory, range);
+                        return StepParametersSignatureHelp(stepFactory);
                     }
 
 
@@ -110,12 +119,12 @@ namespace LanguageServer.Visitors
                     return null; //No clue what name to use
 
 
-                return StepParametersSignatureHelp(stepFactory, new Range(Position, Position));
+                return StepParametersSignatureHelp(stepFactory);
             }
         }
 
 
-        public static SignatureHelp StepParametersSignatureHelp(IStepFactory stepFactory, Range range)
+        private static SignatureHelp StepParametersSignatureHelp(IStepFactory stepFactory)
         {
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
             var options =

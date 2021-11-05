@@ -17,8 +17,14 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
+    /// <summary>
+    /// A document containing SCL text
+    /// </summary>
     public record SCLDocument(string Text, DocumentUri DocumentUri)
     {
+        /// <summary>
+        /// Gets the hover at a particular position
+        /// </summary>
         public Hover GetHover(Position position, StepFactoryStore stepFactoryStore)
         {
             var lazyTypeResolver = HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore);
@@ -54,6 +60,9 @@ namespace LanguageServer
             return hover ?? new Hover();
         }
 
+        /// <summary>
+        /// Get the signature help at a particular position
+        /// </summary>
         public SignatureHelp? GetSignatureHelp(Position position, StepFactoryStore stepFactoryStore)
         {
             var visitor = new SignatureHelpVisitor(position, stepFactoryStore);
@@ -63,6 +72,9 @@ namespace LanguageServer
             return signatureHelp;
         }
 
+        /// <summary>
+        /// Format an SCL document
+        /// </summary>
         public List<TextEdit> FormatDocument(StepFactoryStore stepFactoryStore)
         {
             var commands = Helpers.SplitIntoCommands(Text);
@@ -109,6 +121,9 @@ namespace LanguageServer
             return textEdits;
         }
 
+        /// <summary>
+        /// Rename a particular variable
+        /// </summary>
         public List<TextEdit> RenameVariable(Position position, string newName)
         {
             var inputStream = new AntlrInputStream(Text);
@@ -143,6 +158,9 @@ namespace LanguageServer
             return edits;
         }
 
+        /// <summary>
+        /// Get the Completion List from a particular position
+        /// </summary>
         public CompletionList GetCompletionList(Position position, StepFactoryStore stepFactoryStore)
         {
             var visitor = new CompletionVisitor(position, stepFactoryStore);
@@ -179,6 +197,9 @@ namespace LanguageServer
             return new CompletionList(); //Give up
         }
 
+        /// <summary>
+        /// Get diagnostics for this document
+        /// </summary>
         public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)
         {
             IList<Diagnostic> diagnostics;

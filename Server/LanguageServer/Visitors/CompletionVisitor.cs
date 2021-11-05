@@ -10,15 +10,27 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer.Visitors
 {
+    /// <summary>
+    /// Visits SCL for completion
+    /// </summary>
     public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
     {
+        /// <summary>
+        /// Creates a new Completion Visitor
+        /// </summary>
         public CompletionVisitor(Position position, StepFactoryStore stepFactoryStore)
         {
             Position = position;
             StepFactoryStore = stepFactoryStore;
         }
 
+        /// <summary>
+        /// The position
+        /// </summary>
         public Position Position { get; }
+        /// <summary>
+        /// The Step Factory Store
+        /// </summary>
         public StepFactoryStore StepFactoryStore { get; }
 
         /// <inheritdoc />
@@ -154,7 +166,7 @@ namespace LanguageServer.Visitors
             }
         }
 
-        public static CompletionList ReplaceWithSteps(IEnumerable<IGrouping<IStepFactory, string>> stepFactories,
+        private static CompletionList ReplaceWithSteps(IEnumerable<IGrouping<IStepFactory, string>> stepFactories,
             Range range)
         {
             var options = stepFactories.SelectMany(CreateCompletionItems);

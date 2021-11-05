@@ -12,13 +12,22 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer
 {
+    /// <summary>
+    /// General helper methods for the Language Server
+    /// </summary>
     public static class Helpers
     {
+        /// <summary>
+        /// Does this token contain this position
+        /// </summary>
         public static bool ContainsPosition(this IToken token, Position position)
         {
             return token.StartsBeforeOrAt(position) && token.EndsAfterOrAt(position);
         }
 
+        /// <summary>
+        /// Gets the range of this token
+        /// </summary>
         public static Range GetRange(this IToken token)
         {
             return new(
@@ -29,8 +38,9 @@ namespace LanguageServer
             );
         }
 
-        
-
+        /// <summary>
+        /// Returns whether this node siblings after the position
+        /// </summary>
         public static bool HasSiblingsAfter(this IRuleNode ruleContext, Position p)
         {
             if (ruleContext.Parent is ParserRuleContext prc)
@@ -45,6 +55,9 @@ namespace LanguageServer
             return false;
         }
 
+        /// <summary>
+        /// Whether this token starts before or at the position
+        /// </summary>
         public static bool StartsBeforeOrAt(this IToken token, Position position)
         {
             if (token.Line - 1 < position.Line)
@@ -54,6 +67,9 @@ namespace LanguageServer
             return false;
         }
 
+        /// <summary>
+        /// Whether this token ends after or at the position
+        /// </summary>
         public static bool EndsAfterOrAt(this IToken token, Position position)
         {
             if (token.Line - 1 < position.Line)
@@ -62,7 +78,9 @@ namespace LanguageServer
                 return (token.Column + token.Text.Length) >= position.Character;
             return true;
         }
-
+        /// <summary>
+        /// Whether this token ends at the position
+        /// </summary>
         public static bool EndsAt(this IToken token, Position position)
         {
             if (token.Line - 1 < position.Line)
@@ -72,7 +90,9 @@ namespace LanguageServer
             return true;
         }
 
-
+        /// <summary>
+        /// Splits SCL text into commands
+        /// </summary>
         public static IReadOnlyList<(string text, Position position)> SplitIntoCommands(string text)
         {
             var inputStream = new AntlrInputStream(text);
@@ -132,7 +152,9 @@ namespace LanguageServer
             return results;
         }
 
-
+        /// <summary>
+        /// Gets a particular command from the text
+        /// </summary>
         public static (string command, Position newPosition, Position positionOffset)? GetCommand(string text, Position originalPosition)
         {
             var commands = SplitIntoCommands(text);
@@ -156,6 +178,9 @@ namespace LanguageServer
             return (myCommand.text, newPosition, offsetPosition);
         }
 
+        /// <summary>
+        /// Remove a token from the text
+        /// </summary>
         public static string RemoveToken(string text, Position tokenPosition)
         {
             var inputStream = new AntlrInputStream(text);
@@ -180,6 +205,9 @@ namespace LanguageServer
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Whether the context contains the position
+        /// </summary>
         public static bool ContainsPosition(this ParserRuleContext context, Position position)
         {
             if (!context.Start.StartsBeforeOrAt(position))
@@ -189,18 +217,30 @@ namespace LanguageServer
             return true;
         }
 
+        /// <summary>
+        /// Whether the token is on the same line as the position
+        /// </summary>
         public static bool IsSameLineAs(this IToken token, Position position)
         {
             var sameLine = token.Line - 1 == position.Line;
             return sameLine;
         }
 
+        /// <summary>
+        /// Whether the context ends before the position
+        /// </summary>
         public static bool EndsBefore(this ParserRuleContext context, Position position) =>
             !context.Stop.EndsAfterOrAt(position);
 
+        /// <summary>
+        /// Whether the context starts after the position
+        /// </summary>
         public static bool StartsAfter(this ParserRuleContext context, Position position) =>
             !context.Start.StartsBeforeOrAt(position);
 
+        /// <summary>
+        /// Get the range of the context
+        /// </summary>
         public static Range GetRange(this ParserRuleContext context)
         {
             return new(
@@ -210,15 +250,10 @@ namespace LanguageServer
                 context.Stop.Column + context.Stop.Text.Length
             );
         }
-
-        //public static Range GetRange(this TextLocation textLocation)
-        //{
-        //    return new(
-        //        textLocation.Start.Line - 1, textLocation.Start.Column,
-        //        textLocation.Stop.Line - 1, textLocation.Stop.Index + textLocation.Stop.Interval.Length
-        //    );
-        //}
-
+        
+        /// <summary>
+        /// Get the range of the Text Location
+        /// </summary>
         public static Range GetRange(this TextLocation textLocation, int lineOffset, int charOffSet)
         {
             return new(textLocation.Start.GetFromOffset(lineOffset, charOffSet),
@@ -234,6 +269,9 @@ namespace LanguageServer
             return new Range(new Position(offset.Line + range.Start.Line, range.Start.Character), new Position(offset.Line + range.End.Line, range.End.Character));
         }
 
+        /// <summary>
+        /// Get the position adjusted by the offset
+        /// </summary>
         public static Position GetFromOffset(this TextPosition position, int lineOffset, int charOffSet)
         {
             if (position.Line == 1)
@@ -243,7 +281,9 @@ namespace LanguageServer
                 return new Position(position.Line - 1 + lineOffset, position.Column);
         }
 
-
+        /// <summary>
+        /// Lex parse and Visit the SCL text
+        /// </summary>
         public static T LexParseAndVisit<T>(this SCLBaseVisitor<T> visitor, string text, Action<SCLLexer> setupLexer,
             Action<SCLParser> setupParser)
         {
@@ -260,6 +300,9 @@ namespace LanguageServer
             return result;
         }
 
+        /// <summary>
+        /// Get the documentation of the step
+        /// </summary>
         public static string GetMarkDownDocumentation(IStepFactory stepFactory)
         {
             var grouping = new[] { stepFactory }
@@ -268,6 +311,9 @@ namespace LanguageServer
             return GetMarkDownDocumentation(grouping);
         }
 
+        /// <summary>
+        /// Get the documentation of the step
+        /// </summary>
         public static string GetMarkDownDocumentation(IGrouping<IStepFactory, string> stepFactoryGroup)
         {
             try

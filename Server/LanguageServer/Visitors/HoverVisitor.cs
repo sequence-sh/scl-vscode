@@ -18,8 +18,14 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer.Visitors
 {
+    /// <summary>
+    /// Visits SCL to find hover
+    /// </summary>
     public class HoverVisitor : SCLBaseVisitor<Hover?>
     {
+        /// <summary>
+        /// Create a new HoverVisitor
+        /// </summary>
         public HoverVisitor(Position position, Position positionOffset, StepFactoryStore stepFactoryStore, Lazy<Result<TypeResolver, IError>> lazyTypeResolver)
         {
             Position = position;
@@ -28,6 +34,9 @@ namespace LanguageServer.Visitors
             LazyTypeResolver = lazyTypeResolver;
         }
 
+        /// <summary>
+        /// Creates a type resolver lazily
+        /// </summary>
         public static Lazy<Result<TypeResolver, IError>> CreateLazyTypeResolver(string fullSCL, StepFactoryStore stepFactoryStore)
         {
             var resolver = new Lazy<Result<TypeResolver, IError>>(
@@ -40,9 +49,21 @@ namespace LanguageServer.Visitors
             return resolver;
         }
 
+        /// <summary>
+        /// The position of the hover
+        /// </summary>
         public Position Position { get; }
+        /// <summary>
+        /// The position offset
+        /// </summary>
         public Position PositionOffset { get; }
+        /// <summary>
+        /// The Step Factory Store
+        /// </summary>
         public StepFactoryStore StepFactoryStore { get; }
+        /// <summary>
+        /// A Lazy Type Resolver
+        /// </summary>
         public Lazy<Result<TypeResolver, IError>> LazyTypeResolver { get; }
 
         /// <inheritdoc />
@@ -286,7 +307,7 @@ namespace LanguageServer.Visitors
                 setVariable.Summary, context.GetRange(), PositionOffset);
         }
 
-        public Hover? VisitVariable(ITerminalNode variableNameNode)
+        private Hover? VisitVariable(ITerminalNode variableNameNode)
         {
             if (!variableNameNode.Symbol.ContainsPosition(Position))
                 return null;
@@ -356,7 +377,7 @@ namespace LanguageServer.Visitors
             return DescribeStep(context.GetText(), context.GetRange(), PositionOffset);
         }
 
-        public Hover DescribeStep(string text, Range range, Position offsetPosition)
+        private Hover DescribeStep(string text, Range range, Position offsetPosition)
         {
             var step = SCLParsing.TryParseStep(text);
 
@@ -383,7 +404,7 @@ namespace LanguageServer.Visitors
             return Description(freezeResult.Value, range, offsetPosition);
         }
 
-        public static Hover Description(IStep step, Range range, Position offsetPosition)
+        private static Hover Description(IStep step, Range range, Position offsetPosition)
         {
             var name = step.Name;
             string type = GetHumanReadableTypeName(step.OutputType);
@@ -403,7 +424,7 @@ namespace LanguageServer.Visitors
             return Description(name, type, description, range, offsetPosition);
         }
 
-        public static Hover Description(string? name, string? type, string? summary, Range range, Position offsetPosition)
+        private static Hover Description(string? name, string? type, string? summary, Range range, Position offsetPosition)
         {
             var markedStrings = new[] { $"`{name}`", $"`{type}`", summary }
                 .WhereNotNull()
@@ -416,7 +437,7 @@ namespace LanguageServer.Visitors
             };
         }
 
-        public static Hover Error(string message, Range range, Position offsetPosition)
+        private static Hover Error(string message, Range range, Position offsetPosition)
         {
             return new()
             {
@@ -430,7 +451,7 @@ namespace LanguageServer.Visitors
         //    return TypeReference.CreateFromStepType(propertyInfo.PropertyType);
         //}
 
-        public static string GetHumanReadableTypeName(Type t)
+        private static string GetHumanReadableTypeName(Type t)
         {
             if (!t.IsSignatureType && t.IsEnum)
                 return t.Name;
