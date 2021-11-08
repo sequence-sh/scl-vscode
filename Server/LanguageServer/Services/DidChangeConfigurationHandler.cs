@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using Reductech.EDR.Core.Entities;
 
 namespace LanguageServer.Services
 {
@@ -21,6 +22,10 @@ namespace LanguageServer.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// The capability
+        /// </summary>
+        // ReSharper disable once NotAccessedField.Local
         private DidChangeConfigurationCapability _capability;
 
         private readonly ILogger<DidChangeConfigurationHandler> _logger;
@@ -28,6 +33,7 @@ namespace LanguageServer.Services
         /// <inheritdoc />
         public async Task<Unit> Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             var mainSection = request.Settings?["reductech-scl"]?["edr"];
 
             var newText = mainSection?.ToString();
@@ -38,7 +44,13 @@ namespace LanguageServer.Services
                 return Unit.Value;
             }
 
-            var newConfig = JsonConvert.DeserializeObject<SCLLanguageServerConfiguration>(newText);
+            var options = new JsonSerializerOptions()
+            {
+                Converters = { new JsonStringEnumConverter(), VersionJsonConverter.Instance },
+                PropertyNameCaseInsensitive = true
+            };
+
+            var newConfig = JsonSerializer.Deserialize<SCLLanguageServerConfiguration>(newText, options);
 
             if (newConfig is null)
             {
@@ -46,7 +58,7 @@ namespace LanguageServer.Services
                 return Unit.Value;
             }
 
-            var changed = EntityChangeSync.TryUpdate(newConfig);
+            _ = EntityChangeSync.TryUpdate(newConfig);
 
             //if (changed)
             //{

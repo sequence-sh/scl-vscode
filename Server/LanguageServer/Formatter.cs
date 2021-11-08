@@ -55,8 +55,8 @@ namespace LanguageServer
                     if (compoundStep.StepFactory.Serializer is FunctionSerializer)
                     {
                         var allProperties =
-                            ((IEnumerable<StepProperty>)compoundStep.GetType().GetProperty("AllProperties")
-                                .GetValue(compoundStep)).ToList();
+                            ((IEnumerable<StepProperty>)compoundStep.GetType().GetProperty("AllProperties")!
+                                .GetValue(compoundStep)!).ToList();
 
                         if (!topLevel && compoundStep.ShouldBracketWhenSerialized)
                             sb.Append("(");
@@ -135,7 +135,7 @@ namespace LanguageServer
             return sb.ToString();
         }
 
-        public static IEnumerable<IToken> ReadComments(IStep step)
+        private static IEnumerable<IToken> ReadComments(IStep step)
         {
             if(step.TextLocation is null)
                 yield break;

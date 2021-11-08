@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using Namotion.Reflection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Parser;
@@ -12,15 +10,27 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer.Visitors
 {
+    /// <summary>
+    /// Visits SCL for completion
+    /// </summary>
     public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
     {
+        /// <summary>
+        /// Creates a new Completion Visitor
+        /// </summary>
         public CompletionVisitor(Position position, StepFactoryStore stepFactoryStore)
         {
             Position = position;
             StepFactoryStore = stepFactoryStore;
         }
 
+        /// <summary>
+        /// The position
+        /// </summary>
         public Position Position { get; }
+        /// <summary>
+        /// The Step Factory Store
+        /// </summary>
         public StepFactoryStore StepFactoryStore { get; }
 
         /// <inheritdoc />
@@ -156,7 +166,7 @@ namespace LanguageServer.Visitors
             }
         }
 
-        public static CompletionList ReplaceWithSteps(IEnumerable<IGrouping<IStepFactory, string>> stepFactories,
+        private static CompletionList ReplaceWithSteps(IEnumerable<IGrouping<IStepFactory, string>> stepFactories,
             Range range)
         {
             var options = stepFactories.SelectMany(CreateCompletionItems);
@@ -180,7 +190,7 @@ namespace LanguageServer.Visitors
                         InsertTextMode = InsertTextMode.AsIs,
                         InsertTextFormat = InsertTextFormat.PlainText,
                         InsertText = key,
-                        Detail = factory.Key.StepType.GetXmlDocsSummary(),
+                        Detail = factory.Key.Summary,
                         Documentation = new StringOrMarkupContent(new MarkupContent
                         {
                             Kind = MarkupKind.Markdown,
@@ -191,6 +201,9 @@ namespace LanguageServer.Visitors
             }
         }
 
+        /// <summary>
+        /// Gets the step parameter completion list
+        /// </summary>
         public static CompletionList StepParametersCompletionList(IStepFactory stepFactory, Range range)
         {
             var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
@@ -202,7 +215,7 @@ namespace LanguageServer.Visitors
 
 
             CompletionItem CreateCompletionItem(StepParameterReference stepParameterReference,
-                PropertyInfo propertyInfo)
+                IStepParameter stepParameter)
             {
                 return new()
                 {
@@ -214,7 +227,7 @@ namespace LanguageServer.Visitors
                     Label = stepParameterReference.Name,
                     InsertTextMode = InsertTextMode.AsIs,
                     InsertTextFormat = InsertTextFormat.PlainText,
-                    Detail = propertyInfo.GetXmlDocsSummary(),
+                    Detail = stepParameter.Summary,
                     Documentation = new StringOrMarkupContent(new MarkupContent()
                     {
                         Kind = MarkupKind.Markdown,

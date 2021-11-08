@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using CSharpFunctionalExtensions;
@@ -19,8 +18,14 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer.Visitors
 {
+    /// <summary>
+    /// Visits SCL to find hover
+    /// </summary>
     public class HoverVisitor : SCLBaseVisitor<Hover?>
     {
+        /// <summary>
+        /// Create a new HoverVisitor
+        /// </summary>
         public HoverVisitor(Position position, Position positionOffset, StepFactoryStore stepFactoryStore, Lazy<Result<TypeResolver, IError>> lazyTypeResolver)
         {
             Position = position;
@@ -29,6 +34,9 @@ namespace LanguageServer.Visitors
             LazyTypeResolver = lazyTypeResolver;
         }
 
+        /// <summary>
+        /// Creates a type resolver lazily
+        /// </summary>
         public static Lazy<Result<TypeResolver, IError>> CreateLazyTypeResolver(string fullSCL, StepFactoryStore stepFactoryStore)
         {
             var resolver = new Lazy<Result<TypeResolver, IError>>(
@@ -41,9 +49,21 @@ namespace LanguageServer.Visitors
             return resolver;
         }
 
+        /// <summary>
+        /// The position of the hover
+        /// </summary>
         public Position Position { get; }
+        /// <summary>
+        /// The position offset
+        /// </summary>
         public Position PositionOffset { get; }
+        /// <summary>
+        /// The Step Factory Store
+        /// </summary>
         public StepFactoryStore StepFactoryStore { get; }
+        /// <summary>
+        /// A Lazy Type Resolver
+        /// </summary>
         public Lazy<Result<TypeResolver, IError>> LazyTypeResolver { get; }
 
         /// <inheritdoc />
@@ -99,19 +119,17 @@ namespace LanguageServer.Visitors
                             if (
                                 stepFactory.ParameterDictionary.TryGetValue(
                                     indexReference,
-                                    out var pi
+                                    out var stepParameter
                                 ))
                             {
                                 var nHover = Visit(term);
 
                                 if (nHover is null)
                                 {
-                                    var type = GetTypeReference(pi);
-
                                     return Description(
-                                        pi.Name,
-                                        type.Name,
-                                        pi.GetXmlDocsSummary(), term.GetRange(), PositionOffset);
+                                        stepParameter.Name,
+                                        stepParameter.ActualType.Name,
+                                        stepParameter.Summary, term.GetRange(), PositionOffset);
                                 }
 
 
@@ -130,18 +148,16 @@ namespace LanguageServer.Visitors
 
                             if (stepFactory.ParameterDictionary.TryGetValue(
                                 new StepParameterReference.Named(argumentName),
-                                out var pi
+                                out var stepParameter
                             ))
                             {
                                 var nHover = Visit(namedArgumentContext);
 
-                                var type = GetTypeReference(pi);
-
                                 if (nHover is null)
                                     return Description(
-                                        pi.Name,
-                                        type.Name,
-                                        pi.GetXmlDocsSummary(), namedArgumentContext.GetRange(), PositionOffset);
+                                        stepParameter.Name,
+                                        stepParameter.ActualType.Name,
+                                        stepParameter.Summary, namedArgumentContext.GetRange(), PositionOffset);
 
                                 return nHover;
                             }
@@ -153,7 +169,7 @@ namespace LanguageServer.Visitors
                     }
                 }
 
-                var summary = stepFactory.StepType.GetXmlDocsSummary();
+                var summary = stepFactory.Summary;
 
                 return Description(
                     stepFactory.TypeName,
@@ -288,10 +304,10 @@ namespace LanguageServer.Visitors
 
 
             return Description(setVariable.TypeName, setVariable.OutputTypeExplanation,
-                setVariable.StepType.GetXmlDocsSummary(), context.GetRange(), PositionOffset);
+                setVariable.Summary, context.GetRange(), PositionOffset);
         }
 
-        public Hover? VisitVariable(ITerminalNode variableNameNode)
+        private Hover? VisitVariable(ITerminalNode variableNameNode)
         {
             if (!variableNameNode.Symbol.ContainsPosition(Position))
                 return null;
@@ -343,7 +359,7 @@ namespace LanguageServer.Visitors
             if (!context.ContainsPosition(Position))
                 return null;
 
-            foreach (var termContext in context.term())
+            foreach (var termContext in context.infixableTerm())
             {
                 var h1 = Visit(termContext);
                 if (h1 is not null)
@@ -361,7 +377,7 @@ namespace LanguageServer.Visitors
             return DescribeStep(context.GetText(), context.GetRange(), PositionOffset);
         }
 
-        public Hover DescribeStep(string text, Range range, Position offsetPosition)
+        private Hover DescribeStep(string text, Range range, Position offsetPosition)
         {
             var step = SCLParsing.TryParseStep(text);
 
@@ -388,7 +404,7 @@ namespace LanguageServer.Visitors
             return Description(freezeResult.Value, range, offsetPosition);
         }
 
-        public static Hover Description(IStep step, Range range, Position offsetPosition)
+        private static Hover Description(IStep step, Range range, Position offsetPosition)
         {
             var name = step.Name;
             string type = GetHumanReadableTypeName(step.OutputType);
@@ -396,7 +412,7 @@ namespace LanguageServer.Visitors
 
             if (step is ICompoundStep cs)
             {
-                description = cs.StepFactory.StepType.GetXmlDocsSummary();
+                description = cs.StepFactory.Summary;
             }
 
             else
@@ -408,7 +424,7 @@ namespace LanguageServer.Visitors
             return Description(name, type, description, range, offsetPosition);
         }
 
-        public static Hover Description(string? name, string? type, string? summary, Range range, Position offsetPosition)
+        private static Hover Description(string? name, string? type, string? summary, Range range, Position offsetPosition)
         {
             var markedStrings = new[] { $"`{name}`", $"`{type}`", summary }
                 .WhereNotNull()
@@ -421,7 +437,7 @@ namespace LanguageServer.Visitors
             };
         }
 
-        public static Hover Error(string message, Range range, Position offsetPosition)
+        private static Hover Error(string message, Range range, Position offsetPosition)
         {
             return new()
             {
@@ -430,13 +446,9 @@ namespace LanguageServer.Visitors
             };
         }
 
-        private static TypeReference GetTypeReference(PropertyInfo propertyInfo)
+        private static string GetHumanReadableTypeName(Type t)
         {
-            return TypeReference.CreateFromStepType(propertyInfo.PropertyType);
-        }
 
-        public static string GetHumanReadableTypeName(Type t)
-        {
             if (!t.IsSignatureType && t.IsEnum)
                 return t.Name;
 
