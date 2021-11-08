@@ -446,13 +446,9 @@ namespace LanguageServer.Visitors
             };
         }
 
-        //private static TypeReference GetTypeReference(PropertyInfo propertyInfo)
-        //{
-        //    return TypeReference.CreateFromStepType(propertyInfo.PropertyType);
-        //}
-
         private static string GetHumanReadableTypeName(Type t)
         {
+
             if (!t.IsSignatureType && t.IsEnum)
                 return t.Name;
 
