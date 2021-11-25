@@ -16,8 +16,11 @@ namespace LanguageServer
         private static void Main(string[] args) => MainAsync(args).Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
-        private static async Task MainAsync(string[] args)
+        private static async Task MainAsync(string[] _)
         {
+
+            //await OmniSharp.Extensions.LanguageServer.Server.
+            
             var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
                 options =>
                 {
@@ -39,6 +42,9 @@ namespace LanguageServer
                         .WithHandler<RenameHandler>()
                         .WithHandler<SignatureHelpHandler>()
                         .WithHandler<FormattingHandler>()
+
+                        
+
                         .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Debug)))
                         .OnStarted((ls, token) =>
                         {

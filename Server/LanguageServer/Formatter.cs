@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
@@ -141,7 +142,7 @@ namespace LanguageServer
                 yield break;
 
             var inputStream       = new AntlrInputStream(step.TextLocation.Text);
-            var lexer             = new SCLLexer(inputStream);
+            var lexer             = new SCLLexer(inputStream, TextWriter.Null, TextWriter.Null);
 
             
 
