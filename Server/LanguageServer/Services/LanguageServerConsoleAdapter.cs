@@ -4,50 +4,51 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Reductech.EDR.Core.Abstractions;
 
-namespace LanguageServer.Services;
-
-/// <summary>
-/// Console adapter for the language server.
-/// </summary>
-public class LanguageServerConsoleAdapter : IConsole
+namespace LanguageServer.Services
 {
     /// <summary>
-    /// Create a new Language Server console adapter
+    /// Console adapter for the language server.
     /// </summary>
-    /// <param name="languageServerFacade"></param>
-    public LanguageServerConsoleAdapter(ILanguageServerFacade languageServerFacade)
+    public class LanguageServerConsoleAdapter : IConsole
     {
-        LanguageServerFacade = languageServerFacade;
-    }
-
-    private ILanguageServerFacade LanguageServerFacade { get; }
-
-    /// <inheritdoc />
-    public void WriteLine(string? value)
-    {
-        if (value is not null)
+        /// <summary>
+        /// Create a new Language Server console adapter
+        /// </summary>
+        /// <param name="languageServerFacade"></param>
+        public LanguageServerConsoleAdapter(ILanguageServerFacade languageServerFacade)
         {
-            LanguageServerFacade.Window.LogMessage(new LogMessageParams(){Message = value, Type = MessageType.Info});
-            //These messages will show up in the SCL Language Server window
+            LanguageServerFacade = languageServerFacade;
         }
+
+        private ILanguageServerFacade LanguageServerFacade { get; }
+
+        /// <inheritdoc />
+        public void WriteLine(string? value)
+        {
+            if (value is not null)
+            {
+                LanguageServerFacade.Window.LogMessage(new LogMessageParams(){Message = value, Type = MessageType.Info});
+                //These messages will show up in the SCL Language Server window
+            }
             
-    }
+        }
 
-    /// <inheritdoc />
-    public Stream OpenStandardInput()
-    {
-        return Stream.Null;
-    }
+        /// <inheritdoc />
+        public Stream OpenStandardInput()
+        {
+            return Stream.Null;
+        }
 
-    /// <inheritdoc />
-    public Stream OpenStandardOutput()
-    {
-        return Stream.Null;
-    }
+        /// <inheritdoc />
+        public Stream OpenStandardOutput()
+        {
+            return Stream.Null;
+        }
 
-    /// <inheritdoc />
-    public Stream OpenStandardError()
-    {
-        return Stream.Null;
+        /// <inheritdoc />
+        public Stream OpenStandardError()
+        {
+            return Stream.Null;
+        }
     }
 }
