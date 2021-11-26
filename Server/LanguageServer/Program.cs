@@ -19,9 +19,6 @@ namespace LanguageServer
 
         private static async Task MainAsync(string[] _)
         {
-
-            //await OmniSharp.Extensions.LanguageServer.Server.
-            
             var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
                 options =>
                 {
@@ -44,7 +41,7 @@ namespace LanguageServer
                         .WithHandler<SignatureHelpHandler>()
                         .WithHandler<FormattingHandler>()
                         .WithHandler<RunSCLHandler>()
-
+                        .WithHandler<StartDebuggerHandler>()
 
                         .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Debug)))
                         .OnStarted((ls, token) =>

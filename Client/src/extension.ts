@@ -92,6 +92,12 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(commands.registerCommand('reductech-scl.run', sclRunCommand));
 
+  const sclStartDebuggerCommand = async () => {
+    let result  = await client.sendRequest("scl/StartDebugger", {});
+  }
+
+  context.subscriptions.push(commands.registerCommand('reductech-scl.startDebugger', sclStartDebuggerCommand));
+
   
 
 }
