@@ -51,7 +51,7 @@ namespace LanguageServer.Services
                     var connectorManagerLogger = loggerFactory.CreateLogger<ConnectorManager>();
                     var settings = config.ConnectorManagerSettings ?? ConnectorManagerSettings.Default;
 
-                    logger.LogWarning(
+                    logger.LogInformation(
                         $"Connector Settings\r\nConfiguration Path: {settings.ConfigurationPath}\r\nConnector Path: {settings.ConnectorPath}");
 
 

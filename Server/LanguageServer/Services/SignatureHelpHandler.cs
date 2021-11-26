@@ -36,9 +36,9 @@ namespace LanguageServer.Services
                 return null;
             }
 
-            var sfs = await _stepFactoryStore.GetValueAsync();
+            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
 
-            var signatureHelp = document.GetSignatureHelp(request.Position, sfs.stepFactoryStore);
+            var signatureHelp = document.GetSignatureHelp(request.Position, stepFactoryStore);
 
             _logger.LogDebug($"Signature Help: {signatureHelp}");
 

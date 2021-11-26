@@ -40,8 +40,8 @@ namespace LanguageServer.Services
                 return new CompletionList();
             }
 
-            var sfs = await _stepFactoryStore.GetValueAsync();
-            var cl = document.GetCompletionList(request.Position, sfs.stepFactoryStore);
+            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
+            var cl = document.GetCompletionList(request.Position, stepFactoryStore);
 
             Logger.LogInformation($"Completion Request returns {cl.Items.Count()} items ");
 

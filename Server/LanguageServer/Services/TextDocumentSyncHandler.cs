@@ -23,7 +23,10 @@ namespace LanguageServer.Services
             }
         );
 
+        // ReSharper disable once NotAccessedField.Local
+#pragma warning disable IDE0052 // Remove unread private members
         private SynchronizationCapability _capability;
+#pragma warning restore IDE0052 // Remove unread private members
 
         public TextDocumentSyncHandler(ILogger<TextDocumentSyncHandler> logger, DocumentManager documentManager)
         {

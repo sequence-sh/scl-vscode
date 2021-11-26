@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,14 +10,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Serialization;
 
 namespace LanguageServer.Services
 {
+
+
+
     internal class RunSCLHandler : IRunSCLHandler
     {
         /// <summary>
@@ -43,18 +49,26 @@ namespace LanguageServer.Services
         /// <inheritdoc />
         public async Task<RunResult> Handle(RunSCLParams request, CancellationToken cancellationToken)
         {
+            ILogger logger = new FacadeLogger(LanguageServerFacade);
+
             var document = _documentManager.GetDocument(request.TextDocument.Uri);
 
             if (document is null)
+            {
+                logger.LogError("Could not get document");
+
                 return new RunResult()
                 {
                     Success = false,
                     Message = "Could not get document"
                 };
 
-            var sfs = await _stepFactoryStore.GetValueAsync();
+            }
+                
 
-            var runner = new SCLRunner(Logger, sfs.stepFactoryStore, sfs.externalContext);
+            var (stepFactoryStore, externalContext) = await _stepFactoryStore.GetValueAsync();
+
+            var runner = new SCLRunner(logger, stepFactoryStore, externalContext);
 
             var result =
                 await runner.RunSequenceFromTextAsync(document.Text, new Dictionary<string, object>(),
@@ -63,6 +77,8 @@ namespace LanguageServer.Services
 
             if (result.IsSuccess)
             {
+                logger.LogInformation("Sequence Completed Successfully");
+
                 return new RunResult()
                 {
                     Message = "Sequence Completed Successfully",
@@ -99,6 +115,16 @@ namespace LanguageServer.Services
                 );
             }
 
+            logger.LogError("Sequence Failed");
+
+            foreach (var error in result.Error.GetAllErrors())
+            {
+                logger.LogError(error.AsString);
+                if(error.Location.TextLocation is not null)
+                    logger.LogError(request.TextDocument.Uri.Path + ":" +
+                                    error.Location.TextLocation.Start.Line);
+            }
+
 
             return new RunResult()
             {
@@ -122,6 +148,103 @@ namespace LanguageServer.Services
 
         public RunSCLCapability RunSCLCapability { get; set; } = null!;
         public ClientCapabilities ClientCapabilities { get; set; } = null!;
+    }
+
+    internal class FacadeLogger : ILogger
+    {
+
+        private readonly ILanguageServerFacade _responseRouter;
+
+        public FacadeLogger(ILanguageServerFacade responseRouter)
+        {
+            _responseRouter = responseRouter;
+        }
+
+        /// <inheritdoc />
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            if (IsEnabled(logLevel))
+            {
+                var message = formatter.Invoke(state, exception);
+                
+
+                var messageType = logLevel switch
+                {
+                    LogLevel.Trace => MessageType.Log,
+                    LogLevel.Debug => MessageType.Log,
+                    LogLevel.Information => MessageType.Info,
+                    LogLevel.Warning => MessageType.Warning,
+                    LogLevel.Error => MessageType.Error,
+                    LogLevel.Critical => MessageType.Error,
+                    LogLevel.None => MessageType.Log,
+                    _ => throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null)
+                };
+
+                _responseRouter.Window.Log(new LogMessageParams(){Message = message, Type = messageType});
+            }
+
+        }
+
+        /// <inheritdoc />
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return logLevel >= LogLevel.Information;
+        }
+
+        /// <inheritdoc />
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return new FakeDisposable();
+        }
+
+        private class FakeDisposable : IDisposable
+        {
+            /// <inheritdoc />
+            public void Dispose()
+            {
+            }
+        }
+    }
+
+
+    internal class ProgressManagerLogger : ILogger
+    {
+        public ProgressManagerLogger(IProgressObserver<string> progressObserver)
+        {
+            ProgressObserver = progressObserver;
+        }
+
+        public IProgressObserver<string> ProgressObserver { get; }
+
+        /// <inheritdoc />
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            if (logLevel >= LogLevel.Information)
+            {
+                var message = formatter.Invoke(state, exception);
+                ProgressObserver.OnNext(message);
+            }
+        }
+
+        /// <inheritdoc />
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return logLevel >= LogLevel.Information;
+        }
+
+        /// <inheritdoc />
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return new FakeDisposable();
+        }
+
+        private class FakeDisposable : IDisposable
+        {
+            /// <inheritdoc />
+            public void Dispose()
+            {
+            }
+        }
     }
 
 

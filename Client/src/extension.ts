@@ -7,6 +7,7 @@ import {
   TaskScope,
   tasks,
   window,
+  ProgressOptions,
 } from 'vscode';
 import {
   LanguageClient,
@@ -58,31 +59,14 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(disposable);
 
-  const outputChannel = window.createOutputChannel("RunSCL");
 
   const sclRunCommand = async () => {
     const editor = window.activeTextEditor;
 
     if (!editor) return;
-
-    //Create output channel
-    outputChannel.show();
-    outputChannel.appendLine("Running SCL Sequence...");
-
-    const docPath = editor.document.fileName;
-
-    let result : SCLRunResult = await client.sendRequest<SCLRunResult>("scl/runSCL", {TextDocument: docPath});
-
     
-
-    if(result.success == true)
-    {
-        outputChannel.appendLine(result.message);
-    }
-    else{
-        outputChannel.appendLine("Sequence Failed");
-        outputChannel.appendLine(result.message);
-    }
+    const docPath = editor.document.fileName;
+    let result : SCLRunResult = await client.sendRequest<SCLRunResult>("scl/runSCL", {TextDocument: docPath});
 
     class SCLRunResult{
       message! : string;

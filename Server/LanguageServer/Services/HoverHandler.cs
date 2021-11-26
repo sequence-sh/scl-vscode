@@ -36,9 +36,9 @@ namespace LanguageServer.Services
                 return new Hover();
             }
 
-            var sfs = await _stepFactoryStore.GetValueAsync();
+            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
 
-            var hover = document.GetHover(request.Position, sfs.stepFactoryStore);
+            var hover = document.GetHover(request.Position, stepFactoryStore);
 
             _logger.LogDebug($"Hover: {hover.Contents}");
 

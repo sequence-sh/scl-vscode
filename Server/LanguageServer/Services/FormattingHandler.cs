@@ -34,9 +34,9 @@ namespace LanguageServer.Services
                 return null;
             }
 
-            var sfs = await _stepFactoryStore.GetValueAsync();
+            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
 
-            var formatting = document.FormatDocument(sfs.stepFactoryStore);
+            var formatting = document.FormatDocument(stepFactoryStore);
 
             return formatting;
         }

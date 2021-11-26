@@ -40,10 +40,10 @@ namespace LanguageServer.Services
         {
             _documents.AddOrUpdate(document.DocumentUri.ToString(), document, (_, _) => document);
 
-            var sfs = await _stepFactoryStore.GetValueAsync();
+            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
 
 
-            var diagnostics =document.GetDiagnostics(sfs.stepFactoryStore);
+            var diagnostics =document.GetDiagnostics(stepFactoryStore);
 
             var diagnosticCount = diagnostics.Diagnostics?.Count() ?? 0;
 
