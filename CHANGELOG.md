@@ -1,3 +1,20 @@
+# v0.12.0 (2021-11-26)
+
+## Summary of Changes
+
+
+- VS Code language server now runs SCL directly rather than calling EDR
+
+## Issues Closed in this Release
+
+### New Features
+
+- The Language Server should be able to run SCL directly #34
+
+### Maintenance
+
+- Update Core to latest version #33
+
 # v0.10.0 (2021-07-07)
 
 ## Issues Closed in this Release
