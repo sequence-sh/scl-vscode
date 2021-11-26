@@ -58,30 +58,40 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(disposable);
 
-  const sclRunCommand = () => {
+  const outputChannel = window.createOutputChannel("RunSCL");
+
+  const sclRunCommand = async () => {
     const editor = window.activeTextEditor;
 
     if (!editor) return;
 
-    const config = workspace.getConfiguration('reductech-scl.edr');
-    const edrPath = config.path;
-
-    if (!edrPath) return;
+    //Create output channel
+    outputChannel.show();
+    outputChannel.appendLine("Running SCL Sequence...");
 
     const docPath = editor.document.fileName;
 
-    let exec = `"${edrPath}" run path "${docPath}"`;
+    let result : SCLRunResult = await client.sendRequest<SCLRunResult>("scl/runSCL", {TextDocument: docPath});
 
-    let task = new Task(
-      { type: 'process' },
-      TaskScope.Workspace,
-      'Reductech EDR',
-      'scl',
-      new ShellExecution(exec)
-    );
+    
 
-    tasks.executeTask(task);
+    if(result.success == true)
+    {
+        outputChannel.appendLine(result.message);
+    }
+    else{
+        outputChannel.appendLine("Sequence Failed");
+        outputChannel.appendLine(result.message);
+    }
+
+    class SCLRunResult{
+      message! : string;
+      success! : boolean;
+    }
   };
 
   context.subscriptions.push(commands.registerCommand('reductech-scl.run', sclRunCommand));
+
+  
+
 }

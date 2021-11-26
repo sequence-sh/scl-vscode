@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer.Services
@@ -15,11 +16,11 @@ namespace LanguageServer.Services
 
         private readonly DocumentManager _documentManager;
 
-        private readonly IAsyncFactory<StepFactoryStore> _stepFactoryStore;
+        private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> _stepFactoryStore;
 
         public CompletionHandler(
             ILogger<CompletionHandler> logger,
-            DocumentManager documentManager, IAsyncFactory<StepFactoryStore> stepFactoryStore)
+            DocumentManager documentManager, IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
         {
             Logger = logger;
             _documentManager = documentManager;
@@ -40,7 +41,7 @@ namespace LanguageServer.Services
             }
 
             var sfs = await _stepFactoryStore.GetValueAsync();
-            var cl = document.GetCompletionList(request.Position, sfs);
+            var cl = document.GetCompletionList(request.Position, sfs.stepFactoryStore);
 
             Logger.LogInformation($"Completion Request returns {cl.Items.Count()} items ");
 

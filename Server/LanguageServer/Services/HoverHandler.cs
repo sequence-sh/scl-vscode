@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer.Services
@@ -12,11 +13,11 @@ namespace LanguageServer.Services
     {
         private readonly ILogger<HoverHandler> _logger;
         private readonly DocumentManager _documentManager;
-        private readonly IAsyncFactory<StepFactoryStore>  _stepFactoryStore;
+        private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>  _stepFactoryStore;
         
 
         public HoverHandler(ILogger<HoverHandler> logger,
-            DocumentManager documentManager, IAsyncFactory<StepFactoryStore> stepFactoryStore)
+            DocumentManager documentManager, IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
         {
             _logger = logger;
             _documentManager = documentManager;
@@ -37,7 +38,7 @@ namespace LanguageServer.Services
 
             var sfs = await _stepFactoryStore.GetValueAsync();
 
-            var hover = document.GetHover(request.Position, sfs);
+            var hover = document.GetHover(request.Position, sfs.stepFactoryStore);
 
             _logger.LogDebug($"Hover: {hover.Contents}");
 

@@ -6,6 +6,7 @@ using LanguageServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
+using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
@@ -32,7 +33,7 @@ namespace LanguageServer
                         .WithServices(x =>
                             x.AddSingleton<IFileSystem>(new FileSystem())
                                 .AddSingleton<DocumentManager>()
-                                .AddSingleton<IAsyncFactory<StepFactoryStore>, StepFactoryStoreFactory>()
+                                .AddSingleton<IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>, StepFactoryStoreFactory>()
                                 .AddSingleton(typeof(EntityChangeSync<>))
                         )
                         .WithHandler<DidChangeConfigurationHandler>()
@@ -42,8 +43,8 @@ namespace LanguageServer
                         .WithHandler<RenameHandler>()
                         .WithHandler<SignatureHelpHandler>()
                         .WithHandler<FormattingHandler>()
+                        .WithHandler<RunSCLHandler>()
 
-                        
 
                         .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Debug)))
                         .OnStarted((ls, token) =>
