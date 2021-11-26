@@ -6,6 +6,7 @@ using LanguageServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
+using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer
@@ -16,7 +17,7 @@ namespace LanguageServer
         private static void Main(string[] args) => MainAsync(args).Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
-        private static async Task MainAsync(string[] args)
+        private static async Task MainAsync(string[] _)
         {
             var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
                 options =>
@@ -29,7 +30,7 @@ namespace LanguageServer
                         .WithServices(x =>
                             x.AddSingleton<IFileSystem>(new FileSystem())
                                 .AddSingleton<DocumentManager>()
-                                .AddSingleton<IAsyncFactory<StepFactoryStore>, StepFactoryStoreFactory>()
+                                .AddSingleton<IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>, StepFactoryStoreFactory>()
                                 .AddSingleton(typeof(EntityChangeSync<>))
                         )
                         .WithHandler<DidChangeConfigurationHandler>()
@@ -39,6 +40,9 @@ namespace LanguageServer
                         .WithHandler<RenameHandler>()
                         .WithHandler<SignatureHelpHandler>()
                         .WithHandler<FormattingHandler>()
+                        .WithHandler<RunSCLHandler>()
+                        .WithHandler<StartDebuggerHandler>()
+
                         .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Debug)))
                         .OnStarted((ls, token) =>
                         {

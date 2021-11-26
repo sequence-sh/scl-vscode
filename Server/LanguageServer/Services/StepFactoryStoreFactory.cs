@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Reductech.EDR.ConnectorManagement;
 using Reductech.EDR.ConnectorManagement.Base;
 using Reductech.EDR.Core.Abstractions;
@@ -25,9 +26,9 @@ namespace LanguageServer.Services
     /// <summary>
     /// Service that creates StepFactoryStores
     /// </summary>
-    public class StepFactoryStoreFactory : IAsyncFactory<StepFactoryStore>
+    public class StepFactoryStoreFactory : IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>
     {
-        private readonly ReactiveSource<StepFactoryStore, SCLLanguageServerConfiguration> _stepFactoryStoreSource;
+        private readonly ReactiveSource<(StepFactoryStore stepFactoryStore, IExternalContext externalContext), SCLLanguageServerConfiguration> _stepFactoryStoreSource;
 
         /// <summary>
         /// Create a new StepFactoryStoreFactory
@@ -36,10 +37,11 @@ namespace LanguageServer.Services
             EntityChangeSync<SCLLanguageServerConfiguration> optionsMonitor,
             ILoggerFactory loggerFactory,
             ILogger<StepFactoryStoreFactory> logger,
-            IFileSystem fileSystem
+            IFileSystem fileSystem,
+            ILanguageServerFacade languageServerFacade
         )
         {
-            _stepFactoryStoreSource = new ReactiveSource<StepFactoryStore, SCLLanguageServerConfiguration>(
+            _stepFactoryStoreSource = new ReactiveSource<(StepFactoryStore stepFactoryStore, IExternalContext externalContext), SCLLanguageServerConfiguration>(
                 async config =>
                 {
                     var connectorRegistry = new ConnectorRegistry(
@@ -49,7 +51,7 @@ namespace LanguageServer.Services
                     var connectorManagerLogger = loggerFactory.CreateLogger<ConnectorManager>();
                     var settings = config.ConnectorManagerSettings ?? ConnectorManagerSettings.Default;
 
-                    logger.LogWarning(
+                    logger.LogInformation(
                         $"Connector Settings\r\nConfiguration Path: {settings.ConfigurationPath}\r\nConnector Path: {settings.ConnectorPath}");
 
 
@@ -57,7 +59,7 @@ namespace LanguageServer.Services
                         .Where(x => !string.IsNullOrWhiteSpace(x.Value.Id))
                         .ToDictionary(x => x.Key, x => x.Value);
 
-                    if (connectorConfigurationDict is null || !connectorConfigurationDict.Any())
+                    if (connectorConfigurationDict is null)
                     {
                         //load latest connectors from repository
                         var manager1 = new ConnectorManager(connectorManagerLogger, settings, connectorRegistry,
@@ -81,18 +83,23 @@ namespace LanguageServer.Services
                             fileSystem
                         );
 
+                    var consoleAdapter = new LanguageServerConsoleAdapter(languageServerFacade);
+
+                    var defaultExternalContext = new ExternalContext(ExternalContext.Default.ExternalProcessRunner,
+                        ExternalContext.Default.RestClientFactory, consoleAdapter);
+
                     var externalContextResult = await
                         connectorManager.GetExternalContextAsync(
-                            ExternalContext.Default.ExternalProcessRunner,
-                            ExternalContext.Default.RestClientFactory,
-                            ExternalContext.Default.Console,
+                            defaultExternalContext.ExternalProcessRunner,
+                            defaultExternalContext.RestClientFactory,
+                            defaultExternalContext.Console,
                             CancellationToken.None);
 
 
                     if (externalContextResult.IsFailure)
                     {
                         logger.LogError(externalContextResult.Error.AsString);
-                        return StepFactoryStore.Create();
+                        return (StepFactoryStore.Create(), defaultExternalContext) ;
                     }
 
                     var sfsResult = await connectorManager. GetStepFactoryStoreAsync(externalContextResult.Value,
@@ -101,16 +108,16 @@ namespace LanguageServer.Services
                     if (sfsResult.IsFailure)
                     {
                         logger.LogError(sfsResult.Error.AsString);
-                        return StepFactoryStore.Create();
+                        return (StepFactoryStore.Create(), externalContextResult.Value);
                     }
 
-                    return sfsResult.Value;
+                    return (sfsResult.Value, externalContextResult.Value);
                 }, optionsMonitor
             );
         }
 
         /// <inheritdoc />
-        public async Task<StepFactoryStore> GetValueAsync()
+        public async Task<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> GetValueAsync()
         {
             return await _stepFactoryStoreSource.Value;
         }

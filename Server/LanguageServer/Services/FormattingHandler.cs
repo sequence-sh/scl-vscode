@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer.Services
@@ -12,9 +13,9 @@ namespace LanguageServer.Services
     {
         private readonly ILogger<FormattingHandler> _logger;
         private readonly DocumentManager _documentManager;
-        private readonly IAsyncFactory<StepFactoryStore>  _stepFactoryStore;
+        private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>  _stepFactoryStore;
 
-        public FormattingHandler(ILogger<FormattingHandler> logger, DocumentManager documentManager, IAsyncFactory<StepFactoryStore> stepFactoryStore)
+        public FormattingHandler(ILogger<FormattingHandler> logger, DocumentManager documentManager, IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
         {
             _logger = logger;
             _documentManager = documentManager;
@@ -33,9 +34,9 @@ namespace LanguageServer.Services
                 return null;
             }
 
-            var sfs = await _stepFactoryStore.GetValueAsync();
+            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
 
-            var formatting = document.FormatDocument(sfs);
+            var formatting = document.FormatDocument(stepFactoryStore);
 
             return formatting;
         }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
 namespace LanguageServer.Services
@@ -18,12 +19,12 @@ namespace LanguageServer.Services
 
         private readonly ILanguageServerFacade _facade;
 
-        private readonly IAsyncFactory<StepFactoryStore> _stepFactoryStore;
+        private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> _stepFactoryStore;
         
 
         public DocumentManager(ILanguageServerFacade facade,
             ILogger<DocumentManager> logger,
-            IAsyncFactory<StepFactoryStore> stepFactoryStore)
+            IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
         {
             _facade = facade;
             _logger = logger;
@@ -39,10 +40,10 @@ namespace LanguageServer.Services
         {
             _documents.AddOrUpdate(document.DocumentUri.ToString(), document, (_, _) => document);
 
-            var sfs = await _stepFactoryStore.GetValueAsync();
+            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
 
 
-            var diagnostics =document.GetDiagnostics(sfs);
+            var diagnostics =document.GetDiagnostics(stepFactoryStore);
 
             var diagnosticCount = diagnostics.Diagnostics?.Count() ?? 0;
 

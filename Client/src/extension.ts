@@ -7,6 +7,7 @@ import {
   TaskScope,
   tasks,
   window,
+  ProgressOptions,
 } from 'vscode';
 import {
   LanguageClient,
@@ -58,30 +59,29 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(disposable);
 
-  const sclRunCommand = () => {
+
+  const sclRunCommand = async () => {
     const editor = window.activeTextEditor;
 
     if (!editor) return;
-
-    const config = workspace.getConfiguration('reductech-scl.edr');
-    const edrPath = config.path;
-
-    if (!edrPath) return;
-
+    
     const docPath = editor.document.fileName;
+    let result : SCLRunResult = await client.sendRequest<SCLRunResult>("scl/runSCL", {TextDocument: docPath});
 
-    let exec = `"${edrPath}" run path "${docPath}"`;
-
-    let task = new Task(
-      { type: 'process' },
-      TaskScope.Workspace,
-      'Reductech EDR',
-      'scl',
-      new ShellExecution(exec)
-    );
-
-    tasks.executeTask(task);
+    class SCLRunResult{
+      message! : string;
+      success! : boolean;
+    }
   };
 
   context.subscriptions.push(commands.registerCommand('reductech-scl.run', sclRunCommand));
+
+  const sclStartDebuggerCommand = async () => {
+    let result  = await client.sendRequest("scl/StartDebugger", {});
+  }
+
+  context.subscriptions.push(commands.registerCommand('reductech-scl.startDebugger', sclStartDebuggerCommand));
+
+  
+
 }
