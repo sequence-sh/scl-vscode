@@ -4,6 +4,7 @@
 
 
 - VS Code language server now runs SCL directly rather than calling EDR
+- There is a new command to debug the Language Server
 
 ## Issues Closed in this Release
 
