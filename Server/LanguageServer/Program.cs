@@ -1,75 +1,74 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
+using LanguageServer.Logging;
 using LanguageServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
+using NLog.Config;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace LanguageServer
 {
-    internal class Program
-    {
+internal class Program
+{
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-        private static void Main(string[] args) => MainAsync(args).Wait();
+    // ReSharper disable once UnusedParameter.Local
+    private static void Main(string[] _) => MainAsync().Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
-        private static async Task MainAsync(string[] _)
-        {
-            var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
-                options =>
-                {
-                    options
-                        .ConfigureLogging(x=>x.SetMinimumLevel(LogLevel.Debug))
-                        .WithInput(Console.OpenStandardInput())
-                        .WithOutput(Console.OpenStandardOutput())
-                        .ConfigureLogging(x => x.AddLanguageProtocolLogging().SetMinimumLevel(LogLevel.Debug))
-                        .WithServices(x =>
-                            x.AddSingleton<IFileSystem>(new FileSystem())
-                                .AddSingleton<DocumentManager>()
-                                .AddSingleton<IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>, StepFactoryStoreFactory>()
-                                .AddSingleton(typeof(EntityChangeSync<>))
-                        )
-                        .WithHandler<DidChangeConfigurationHandler>()
-                        .WithHandler<CompletionHandler>()
-                        .WithHandler<TextDocumentSyncHandler>()
-                        .WithHandler<HoverHandler>()
-                        .WithHandler<RenameHandler>()
-                        .WithHandler<SignatureHelpHandler>()
-                        .WithHandler<FormattingHandler>()
-                        .WithHandler<RunSCLHandler>()
-                        .WithHandler<StartDebuggerHandler>()
+    public static ILanguageServerFacade LanguageServerFacade { get; private set; } = null!;
 
-                        .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Debug)))
-                        .OnStarted((ls, token) =>
-                        {
-                            var logger = ls.GetRequiredService<ILogger<Program>>();
-                            logger.LogInformation("Language Server started");
-                            var changeSync = ls.GetRequiredService<EntityChangeSync<SCLLanguageServerConfiguration>>();
+    private static async Task MainAsync()
+    {
+        ConfigurationItemFactory
+            .Default
+            .Targets
+            .RegisterDefinition("OutputWindow", typeof(OutputWindowTarget));
 
-                            if (changeSync.Latest.LaunchDebugger)
-                            {
-                                Debugger.Launch();
-                            }
-                            
-                            changeSync.OnChange += (_, x) =>
-                            {
-                                if (x.LaunchDebugger)
-                                {
-                                    Debugger.Launch();
-                                }
-                            };
+        var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(
+            options =>
+            {
+                options
+                    .WithInput(Console.OpenStandardInput())
+                    .WithOutput(Console.OpenStandardOutput())
+                    .ConfigureLogging(x =>
+                    {
+                        x.AddLanguageProtocolLogging()
+                            .SetMinimumLevel(LogLevel.Debug);
+                    })
+                    .WithServices(x =>
+                        x.AddSingleton<IFileSystem>(new FileSystem())
+                            .AddSingleton<DocumentManager>()
+                            .AddSingleton<
+                                IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>
+                                , StepFactoryStoreFactory>()
+                            .AddSingleton(typeof(EntityChangeSync<>))
+                    )
+                    .WithHandler<DidChangeConfigurationHandler>()
+                    .WithHandler<CompletionHandler>()
+                    .WithHandler<TextDocumentSyncHandler>()
+                    .WithHandler<HoverHandler>()
+                    .WithHandler<RenameHandler>()
+                    .WithHandler<SignatureHelpHandler>()
+                    .WithHandler<FormattingHandler>()
+                    .WithHandler<RunSCLHandler>()
+                    .WithHandler<StartDebuggerHandler>()
+                    .OnStarted((ls, _) =>
+                    {
+                        LanguageServerFacade = ls.GetRequiredService<ILanguageServerFacade>();
+                        var logger = ls.GetRequiredService<ILogger<Program>>();
+                        logger.LogInformation("Language Server started");
 
 
-                            return Task.CompletedTask;
-                        })
-                        ;
-                });
+                        return Task.CompletedTask;
+                    });
+            });
 
-            await server.WaitForExit;
-        }
+        await server.WaitForExit;
     }
+}
 }

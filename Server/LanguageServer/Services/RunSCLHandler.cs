@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 using Reductech.EDR.Core.Internal.Serialization;
@@ -29,17 +28,17 @@ namespace LanguageServer.Services
         /// Create a new RunSCLHandler
         /// </summary>
         public RunSCLHandler(DocumentManager documentManager,
-            IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore,
-            ILogger<RunSCLHandler> logger, ILanguageServerFacade languageServerFacade)
+            IAsyncFactory<(StepFactoryStore stepFactoryStore,
+                IExternalContext externalContext)> stepFactoryStore,
+            ILanguageServerFacade languageServerFacade)
         {
             _documentManager = documentManager;
             _stepFactoryStore = stepFactoryStore;
-            Logger = logger;
             LanguageServerFacade = languageServerFacade;
         }
-
-        public ILogger<RunSCLHandler> Logger { get; }
+        
         public ILanguageServerFacade LanguageServerFacade { get; }
+        //public ILogger<RunSCLHandler> Logger { get; }
 
         private readonly DocumentManager _documentManager;
 
@@ -49,12 +48,22 @@ namespace LanguageServer.Services
         /// <inheritdoc />
         public async Task<RunResult> Handle(RunSCLParams request, CancellationToken cancellationToken)
         {
-            ILogger logger = new FacadeLogger(LanguageServerFacade);
+            var factory = new NLogLoggerFactory(new NLogLoggerProvider(new NLogProviderOptions()
+            {
+
+            },
+                LogManager.LogFactory));
+
+            var logger = factory.CreateLogger<RunSCLHandler>();
+            
+            //var nlogFactory = new NLog.LogFactory(new NLogLoggingConfiguration(Configuration.GetSection("nlog")));
+            //ILogger logger =  new FacadeLogger(LanguageServerFacade);
 
             var document = _documentManager.GetDocument(request.TextDocument.Uri);
 
             if (document is null)
             {
+                
                 logger.LogError("Could not get document");
 
                 return new RunResult()
@@ -77,8 +86,6 @@ namespace LanguageServer.Services
 
             if (result.IsSuccess)
             {
-                logger.LogInformation("Sequence Completed Successfully");
-
                 return new RunResult()
                 {
                     Message = "Sequence Completed Successfully",
@@ -150,102 +157,102 @@ namespace LanguageServer.Services
         public ClientCapabilities ClientCapabilities { get; set; } = null!;
     }
 
-    internal class FacadeLogger : ILogger
-    {
+    //internal class FacadeLogger : ILogger
+    //{
 
-        private readonly ILanguageServerFacade _responseRouter;
+    //    private readonly ILanguageServerFacade _responseRouter;
 
-        public FacadeLogger(ILanguageServerFacade responseRouter)
-        {
-            _responseRouter = responseRouter;
-        }
+    //    public FacadeLogger(ILanguageServerFacade responseRouter)
+    //    {
+    //        _responseRouter = responseRouter;
+    //    }
 
-        /// <inheritdoc />
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            if (IsEnabled(logLevel))
-            {
-                var message = formatter.Invoke(state, exception);
+    //    /// <inheritdoc />
+    //    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    //    {
+    //        if (IsEnabled(logLevel))
+    //        {
+    //            var message = formatter.Invoke(state, exception);
                 
 
-                var messageType = logLevel switch
-                {
-                    LogLevel.Trace => MessageType.Log,
-                    LogLevel.Debug => MessageType.Log,
-                    LogLevel.Information => MessageType.Info,
-                    LogLevel.Warning => MessageType.Warning,
-                    LogLevel.Error => MessageType.Error,
-                    LogLevel.Critical => MessageType.Error,
-                    LogLevel.None => MessageType.Log,
-                    _ => throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null)
-                };
+    //            var messageType = logLevel switch
+    //            {
+    //                LogLevel.Trace => MessageType.Log,
+    //                LogLevel.Debug => MessageType.Log,
+    //                LogLevel.Information => MessageType.Info,
+    //                LogLevel.Warning => MessageType.Warning,
+    //                LogLevel.Error => MessageType.Error,
+    //                LogLevel.Critical => MessageType.Error,
+    //                LogLevel.None => MessageType.Log,
+    //                _ => throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null)
+    //            };
 
-                _responseRouter.Window.Log(new LogMessageParams(){Message = message, Type = messageType});
-            }
+    //            _responseRouter.Window.Log(new LogMessageParams(){Message = message, Type = messageType});
+    //        }
 
-        }
+    //    }
 
-        /// <inheritdoc />
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return logLevel >= LogLevel.Information;
-        }
+    //    /// <inheritdoc />
+    //    public bool IsEnabled(LogLevel logLevel)
+    //    {
+    //        return logLevel >= LogLevel.Information;
+    //    }
 
-        /// <inheritdoc />
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return new FakeDisposable();
-        }
+    //    /// <inheritdoc />
+    //    public IDisposable BeginScope<TState>(TState state)
+    //    {
+    //        return new FakeDisposable();
+    //    }
 
-        private class FakeDisposable : IDisposable
-        {
-            /// <inheritdoc />
-            public void Dispose()
-            {
-            }
-        }
-    }
+    //    private class FakeDisposable : IDisposable
+    //    {
+    //        /// <inheritdoc />
+    //        public void Dispose()
+    //        {
+    //        }
+    //    }
+    //}
 
 
-    internal class ProgressManagerLogger : ILogger
-    {
-        public ProgressManagerLogger(IProgressObserver<string> progressObserver)
-        {
-            ProgressObserver = progressObserver;
-        }
+    //internal class ProgressManagerLogger : ILogger
+    //{
+    //    public ProgressManagerLogger(IProgressObserver<string> progressObserver)
+    //    {
+    //        ProgressObserver = progressObserver;
+    //    }
 
-        public IProgressObserver<string> ProgressObserver { get; }
+    //    public IProgressObserver<string> ProgressObserver { get; }
 
-        /// <inheritdoc />
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            if (logLevel >= LogLevel.Information)
-            {
-                var message = formatter.Invoke(state, exception);
-                ProgressObserver.OnNext(message);
-            }
-        }
+    //    /// <inheritdoc />
+    //    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    //    {
+    //        if (logLevel >= LogLevel.Information)
+    //        {
+    //            var message = formatter.Invoke(state, exception);
+    //            ProgressObserver.OnNext(message);
+    //        }
+    //    }
 
-        /// <inheritdoc />
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return logLevel >= LogLevel.Information;
-        }
+    //    /// <inheritdoc />
+    //    public bool IsEnabled(LogLevel logLevel)
+    //    {
+    //        return logLevel >= LogLevel.Information;
+    //    }
 
-        /// <inheritdoc />
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return new FakeDisposable();
-        }
+    //    /// <inheritdoc />
+    //    public IDisposable BeginScope<TState>(TState state)
+    //    {
+    //        return new FakeDisposable();
+    //    }
 
-        private class FakeDisposable : IDisposable
-        {
-            /// <inheritdoc />
-            public void Dispose()
-            {
-            }
-        }
-    }
+    //    private class FakeDisposable : IDisposable
+    //    {
+    //        /// <inheritdoc />
+    //        public void Dispose()
+    //        {
+    //        }
+    //    }
+    //}
 
 
     [Parallel, Method("scl/runSCL")]

@@ -4,3 +4,5 @@ Client/out
 Client/Server
 *.vsix
 .vscode-test
+/Client/scl.log
+/Client/edr.log
