@@ -12,33 +12,11 @@ namespace LanguageServer
     [DataContract]
     public record SCLLanguageServerConfiguration
     {
-        /// <summary>
-        /// The key to the EDR path property
-        /// </summary>
-        public const string PathKey = "path";
-        /// <summary>
-        /// The key to the launch debugger property
-        /// </summary>
-        public const string LaunchDebuggerKey = "launchdebugger";
 
         /// <summary>
         /// The key to the connector settings property
         /// </summary>
         public const string ConnectorSettingsKey = "connectors";
-
-        /// <summary>
-        /// The path to the EDR executable
-        /// </summary>
-        [DataMember(Name = PathKey)]
-        [JsonPropertyName(PathKey)]
-        public string EDRPath { get; init; } = "";
-
-        /// <summary>
-        /// Whether to launch the C# debugger
-        /// </summary>
-        [DataMember(Name = LaunchDebuggerKey)]
-        [JsonPropertyName(LaunchDebuggerKey)]
-        public bool LaunchDebugger { get; init; }
 
         /// <summary>
         /// Settings for the Connector Manager

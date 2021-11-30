@@ -1,9 +1,14 @@
-﻿using System.Text.Json;
+﻿using System.IO;
+using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -30,6 +35,12 @@ namespace LanguageServer.Services
 
         private readonly ILogger<DidChangeConfigurationHandler> _logger;
 
+        private static readonly JsonSerializerOptions JSONSerializerOptions = new ()
+        {
+            Converters = { new JsonStringEnumConverter(), VersionJsonConverter.Instance },
+            PropertyNameCaseInsensitive = true
+        };
+
         /// <inheritdoc />
         public async Task<Unit> Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken)
         {
@@ -43,14 +54,8 @@ namespace LanguageServer.Services
                 _logger.LogError("Configuration did not contain 'reductech-scl.edr' ");
                 return Unit.Value;
             }
-
-            var options = new JsonSerializerOptions()
-            {
-                Converters = { new JsonStringEnumConverter(), VersionJsonConverter.Instance },
-                PropertyNameCaseInsensitive = true
-            };
-
-            var newConfig = JsonSerializer.Deserialize<SCLLanguageServerConfiguration>(newText, options);
+            
+            var newConfig = JsonSerializer.Deserialize<SCLLanguageServerConfiguration>(newText, JSONSerializerOptions);
 
             if (newConfig is null)
             {
@@ -60,10 +65,7 @@ namespace LanguageServer.Services
 
             _ = EntityChangeSync.TryUpdate(newConfig);
 
-            //if (changed)
-            //{
-            //    await File.WriteAllTextAsync(Program.AppSettingsPath, newText, cancellationToken);
-            //}
+            SetNLogConfiguration(newText);
 
             return Unit.Value;
         }
@@ -72,6 +74,29 @@ namespace LanguageServer.Services
         public void SetCapability(DidChangeConfigurationCapability capability, ClientCapabilities clientCapabilities)
         {
             _capability = capability;
+        }
+
+        private static void SetNLogConfiguration(string text)
+        {
+            const string sectionName = "nlog";
+
+            var sectionBytes = Encoding.UTF8.GetBytes(text);
+            var sectionStream = new MemoryStream(sectionBytes);
+
+            var builder = new ConfigurationBuilder().AddJsonStream(sectionStream).Build();
+
+            var section = builder.GetSection(sectionName);
+            if (!section.Exists())
+            {
+                sectionBytes = Encoding.UTF8.GetBytes(Logging.Defaults.DefaultConfig);
+                sectionStream = new MemoryStream(sectionBytes);
+
+                builder = new ConfigurationBuilder().AddJsonStream(sectionStream).Build();
+
+                section = builder.GetSection(sectionName);
+            }
+
+            LogManager.Configuration = new NLogLoggingConfiguration(section);
         }
     }
 }

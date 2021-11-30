@@ -62,6 +62,10 @@
         "reductech-scl.edr.connectors": {
           "description": "The connector configuration to be used with EDR.",
           "type": "object"
+        },
+        "reductech-scl.edr.nlog": {
+          "description": "Logging Settings for the Language Server.",
+          "type": "object"
         }
       }
     },
