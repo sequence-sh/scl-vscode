@@ -9,58 +9,57 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
-namespace LanguageServer.Services
+namespace LanguageServer.Services;
+
+internal class DocumentManager
 {
-    internal class DocumentManager
-    {
-        private readonly ConcurrentDictionary<string, SCLDocument> _documents = new();
+    private readonly ConcurrentDictionary<string, SCLDocument> _documents = new();
 
-        private readonly ILogger<DocumentManager> _logger;
+    private readonly ILogger<DocumentManager> _logger;
 
-        private readonly ILanguageServerFacade _facade;
+    private readonly ILanguageServerFacade _facade;
 
-        private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> _stepFactoryStore;
+    private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> _stepFactoryStore;
         
 
-        public DocumentManager(ILanguageServerFacade facade,
-            ILogger<DocumentManager> logger,
-            IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
-        {
-            _facade = facade;
-            _logger = logger;
-            _stepFactoryStore = stepFactoryStore;
-        }
+    public DocumentManager(ILanguageServerFacade facade,
+        ILogger<DocumentManager> logger,
+        IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
+    {
+        _facade = facade;
+        _logger = logger;
+        _stepFactoryStore = stepFactoryStore;
+    }
 
-        public void RemoveDocument(DocumentUri documentUri)
-        {
-            _documents.Remove(documentUri.ToString(), out var _);
-        }
+    public void RemoveDocument(DocumentUri documentUri)
+    {
+        _documents.Remove(documentUri.ToString(), out var _);
+    }
 
-        public async Task UpdateDocumentAsync( SCLDocument document)
-        {
-            _documents.AddOrUpdate(document.DocumentUri.ToString(), document, (_, _) => document);
+    public async Task UpdateDocumentAsync( SCLDocument document)
+    {
+        _documents.AddOrUpdate(document.DocumentUri.ToString(), document, (_, _) => document);
 
-            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
-
-
-            var diagnostics =document.GetDiagnostics(stepFactoryStore);
-
-            var diagnosticCount = diagnostics.Diagnostics?.Count() ?? 0;
-
-            _logger.LogDebug($"Publishing {diagnosticCount} diagnostics for {document.DocumentUri}");
-
-            _facade.TextDocument.PublishDiagnostics(diagnostics);
+        var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
 
 
-        }
+        var diagnostics =document.GetDiagnostics(stepFactoryStore);
 
-        public SCLDocument? GetDocument(DocumentUri documentPath)
-        {
-            var result =  _documents.TryGetValue(documentPath.ToString(), out var document) ? document : null;
+        var diagnosticCount = diagnostics.Diagnostics?.Count() ?? 0;
 
-            if (result is null) _logger.LogWarning($"Document not found: {documentPath}");
+        _logger.LogDebug($"Publishing {diagnosticCount} diagnostics for {document.DocumentUri}");
 
-            return result;
-        }
+        _facade.TextDocument.PublishDiagnostics(diagnostics);
+
+
+    }
+
+    public SCLDocument? GetDocument(DocumentUri documentPath)
+    {
+        var result =  _documents.TryGetValue(documentPath.ToString(), out var document) ? document : null;
+
+        if (result is null) _logger.LogWarning($"Document not found: {documentPath}");
+
+        return result;
     }
 }

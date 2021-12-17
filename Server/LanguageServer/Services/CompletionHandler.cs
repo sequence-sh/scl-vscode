@@ -8,54 +8,53 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
-namespace LanguageServer.Services
+namespace LanguageServer.Services;
+
+internal class CompletionHandler : ICompletionHandler
 {
-    internal class CompletionHandler : ICompletionHandler
+    public ILogger<CompletionHandler> Logger { get; }
+
+    private readonly DocumentManager _documentManager;
+
+    private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> _stepFactoryStore;
+
+    public CompletionHandler(
+        ILogger<CompletionHandler> logger,
+        DocumentManager documentManager, IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
     {
-        public ILogger<CompletionHandler> Logger { get; }
+        Logger = logger;
+        _documentManager = documentManager;
+        _stepFactoryStore = stepFactoryStore;
+    }
 
-        private readonly DocumentManager _documentManager;
+    public async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask;
 
-        private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> _stepFactoryStore;
+        var document = _documentManager.GetDocument(request.TextDocument.Uri);
+        Logger.LogInformation(
+            $"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
 
-        public CompletionHandler(
-            ILogger<CompletionHandler> logger,
-            DocumentManager documentManager, IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
+        if (document == null)
         {
-            Logger = logger;
-            _documentManager = documentManager;
-            _stepFactoryStore = stepFactoryStore;
+            return new CompletionList();
         }
 
-        public async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
+        var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
+        var cl = document.GetCompletionList(request.Position, stepFactoryStore);
+
+        Logger.LogInformation($"Completion Request returns {cl.Items.Count()} items ");
+
+        return cl;
+    }
+
+
+    public CompletionRegistrationOptions GetRegistrationOptions(CompletionCapability capability,
+        ClientCapabilities clientCapabilities)
+    {
+        return new()
         {
-            await Task.CompletedTask;
-
-            var document = _documentManager.GetDocument(request.TextDocument.Uri);
-            Logger.LogInformation(
-                $"Completion Request Context: {request.Context} Position: {request.Position} Document: {request.TextDocument.Uri}");
-
-            if (document == null)
-            {
-                return new CompletionList();
-            }
-
-            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
-            var cl = document.GetCompletionList(request.Position, stepFactoryStore);
-
-            Logger.LogInformation($"Completion Request returns {cl.Items.Count()} items ");
-
-            return cl;
-        }
-
-
-        public CompletionRegistrationOptions GetRegistrationOptions(CompletionCapability capability,
-            ClientCapabilities clientCapabilities)
-        {
-            return new()
-            {
-                DocumentSelector = TextDocumentSyncHandler.DocumentSelector,
-            };
-        }
+            DocumentSelector = TextDocumentSyncHandler.DocumentSelector,
+        };
     }
 }
