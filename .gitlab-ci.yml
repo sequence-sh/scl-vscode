@@ -31,7 +31,7 @@ variables:
 
 build server:
   stage: build
-  image: mcr.microsoft.com/dotnet/sdk:5.0
+  image: mcr.microsoft.com/dotnet/sdk:6.0
   variables:
     NUGET_PROJECT_ID: $NUGET_PROJECT_ID_DEV
     NUGET_USERNAME: $NUGET_USER_DEV
@@ -49,7 +49,7 @@ build server:
 
 test server:
   stage: test
-  image: mcr.microsoft.com/dotnet/sdk:5.0
+  image: mcr.microsoft.com/dotnet/sdk:6.0
   needs:
     - build server
   script:
