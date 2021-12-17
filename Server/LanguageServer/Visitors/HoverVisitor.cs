@@ -300,7 +300,7 @@ public class HoverVisitor : SCLBaseVisitor<Hover?>
 
         if (h2 is not null) return h2;
 
-        var setVariable = new SetVariable<int>().StepFactory;
+        var setVariable = new SetVariable<SCLInt>().StepFactory;
 
 
         return Description(setVariable.TypeName, setVariable.OutputTypeExplanation,

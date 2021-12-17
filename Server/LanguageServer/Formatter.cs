@@ -84,14 +84,14 @@ public static class Formatter
                             sb.Append("(");
                             if(lfp.LambdaFunction.Variable is null)
                                 sb.Append("<>");
-                            else sb.Append(lfp.LambdaFunction.Variable.Value.Serialize());
+                            else sb.Append(lfp.LambdaFunction.Variable.Value.Serialize(SerializeOptions.Serialize));
                             sb.Append(" => ");
                             Format1(sb, lfp.LambdaFunction.Step, false, usedComments);
                             sb.Append(")");
                         }
                         else
                         {
-                            sb.Append(stepProperty.Serialize());
+                            sb.Append(stepProperty.Serialize(SerializeOptions.Serialize));
                         }
                         if (allProperties.Count > 1)
                             sb.AppendLine();
@@ -120,7 +120,7 @@ public static class Formatter
 
             //Default to basic serialization
 
-            sb.Append(step.Serialize());
+            sb.Append(step.Serialize(SerializeOptions.Serialize));
             var comments2 = ReadComments(step);
             foreach (var commentToken in comments2)
             {
