@@ -1,9 +1,9 @@
-﻿namespace LanguageServer.Logging
-{
-    internal class Defaults
-    {
+﻿namespace LanguageServer.Logging;
 
-        public const string DefaultConfig = @"{
+internal class Defaults
+{
+
+    public const string DefaultConfig = @"{
   ""nlog"": {
     ""throwConfigExceptions"": true,
     ""variables"": {
@@ -41,5 +41,4 @@
   }
 
 }";
-    }
 }

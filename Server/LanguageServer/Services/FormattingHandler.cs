@@ -7,49 +7,48 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.EDR.Core.Abstractions;
 using Reductech.EDR.Core.Internal;
 
-namespace LanguageServer.Services
+namespace LanguageServer.Services;
+
+internal class FormattingHandler : IDocumentFormattingHandler
 {
-    internal class FormattingHandler : IDocumentFormattingHandler
+    private readonly ILogger<FormattingHandler> _logger;
+    private readonly DocumentManager _documentManager;
+    private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>  _stepFactoryStore;
+
+    public FormattingHandler(ILogger<FormattingHandler> logger, DocumentManager documentManager, IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
     {
-        private readonly ILogger<FormattingHandler> _logger;
-        private readonly DocumentManager _documentManager;
-        private readonly IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)>  _stepFactoryStore;
+        _logger = logger;
+        _documentManager = documentManager;
+        _stepFactoryStore = stepFactoryStore;
+    }
 
-        public FormattingHandler(ILogger<FormattingHandler> logger, DocumentManager documentManager, IAsyncFactory<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> stepFactoryStore)
+    /// <inheritdoc />
+    public async Task<TextEditContainer?> Handle(DocumentFormattingParams request, CancellationToken cancellationToken)
+    {
+        _logger.LogDebug($"Handling Document Formatting Request");
+
+        var document = _documentManager.GetDocument(request.TextDocument.Uri);
+
+        if (document == null)
         {
-            _logger = logger;
-            _documentManager = documentManager;
-            _stepFactoryStore = stepFactoryStore;
+            return null;
         }
 
-        /// <inheritdoc />
-        public async Task<TextEditContainer?> Handle(DocumentFormattingParams request, CancellationToken cancellationToken)
+        var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
+
+        var formatting = document.FormatDocument(stepFactoryStore);
+
+        return formatting;
+    }
+
+    /// <inheritdoc />
+    public DocumentFormattingRegistrationOptions GetRegistrationOptions(DocumentFormattingCapability capability,
+        ClientCapabilities clientCapabilities)
+    {
+        return new DocumentFormattingRegistrationOptions
         {
-            _logger.LogDebug($"Handling Document Formatting Request");
-
-            var document = _documentManager.GetDocument(request.TextDocument.Uri);
-
-            if (document == null)
-            {
-                return null;
-            }
-
-            var (stepFactoryStore, _) = await _stepFactoryStore.GetValueAsync();
-
-            var formatting = document.FormatDocument(stepFactoryStore);
-
-            return formatting;
-        }
-
-        /// <inheritdoc />
-        public DocumentFormattingRegistrationOptions GetRegistrationOptions(DocumentFormattingCapability capability,
-            ClientCapabilities clientCapabilities)
-        {
-            return new DocumentFormattingRegistrationOptions
-            {
-                DocumentSelector = TextDocumentSyncHandler.DocumentSelector,
-                WorkDoneProgress = false
-            };
-        }
+            DocumentSelector = TextDocumentSyncHandler.DocumentSelector,
+            WorkDoneProgress = false
+        };
     }
 }

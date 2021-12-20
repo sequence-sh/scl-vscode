@@ -11,8 +11,8 @@ using Reductech.EDR.Core.Internal;
 using NLog.Config;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
-namespace LanguageServer
-{
+namespace LanguageServer;
+
 internal class Program
 {
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
@@ -70,5 +70,4 @@ internal class Program
 
         await server.WaitForExit;
     }
-}
 }
