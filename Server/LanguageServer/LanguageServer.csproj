@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,14 +11,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>Reductech.EDR.LanguageServer</PackageId>
+    <PackageId>Reductech.Sequence.LanguageServer</PackageId>
     <Title>SCL Language Server</Title>
-    <Product>EDR</Product>
-    <PackageTags>ediscovery;forensics;automation;orchestration;edrm;scl</PackageTags>
+    <Product>Sequence®</Product>
+    <PackageTags>ediscovery;forensics;automation;orchestration;edrm;scl;sequence</PackageTags>
 
-    <PackageProjectUrl>https://gitlab.com/reductech/edr/scl-vscode</PackageProjectUrl>
-    <RepositoryUrl>https://gitlab.com/reductech/edr/scl-vscode.git</RepositoryUrl>
-    <PackageReleaseNotes>https://gitlab.com/reductech/edr/scl-vscode/-/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <PackageProjectUrl>https://gitlab.com/reductech/sequence/scl-vscode</PackageProjectUrl>
+    <RepositoryUrl>https://gitlab.com/reductech/sequence/scl-vscode.git</RepositoryUrl>
+    <PackageReleaseNotes>https://gitlab.com/reductech/sequence/scl-vscode/-/blob/master/CHANGELOG.md</PackageReleaseNotes>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 
     <Authors>Reductech</Authors>
@@ -31,8 +31,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
-    <PackageReference Include="Reductech.EDR.ConnectorManager" Version="0.6.0-a.main.2112101947" />
-    <PackageReference Include="Reductech.EDR.Core" Version="0.13.0-a.main.2112161035" />
+    <PackageReference Include="Reductech.Sequence.ConnectorManager" Version="0.6.0-a.main.2112201234" />
+    <PackageReference Include="Reductech.Sequence.Core" Version="0.13.0-a.main.2112201532" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
 

@@ -42,7 +42,7 @@ export function activate(context: ExtensionContext) {
     ],
     progressOnInitialization: true,
     synchronize: {
-      configurationSection: 'reductech-scl.edr',
+      configurationSection: 'reductech-scl.sequence',
       fileEvents: workspace.createFileSystemWatcher('**/*.scl'),
     },
   };

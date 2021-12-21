@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;

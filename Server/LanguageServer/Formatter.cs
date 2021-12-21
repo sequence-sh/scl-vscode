@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
-using Reductech.EDR.Core.Internal;
-using Reductech.EDR.Core.Internal.Parser;
-using Reductech.EDR.Core.Internal.Serialization;
-using Reductech.EDR.Core.Steps;
+using Reductech.Sequence.Core.Internal;
+using Reductech.Sequence.Core.Internal.Parser;
+using Reductech.Sequence.Core.Internal.Serialization;
+using Reductech.Sequence.Core.Steps;
 
 namespace LanguageServer;
 

@@ -6,9 +6,9 @@ using System.Text;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.EDR.Core.Internal;
-using Reductech.EDR.Core.Internal.Documentation;
-using Reductech.EDR.Core.Internal.Parser;
+using Reductech.Sequence.Core.Internal;
+using Reductech.Sequence.Core.Internal.Documentation;
+using Reductech.Sequence.Core.Internal.Parser;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer;

@@ -5,7 +5,7 @@
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Extensions.Configuration.Json;
 //using Microsoft.Extensions.Logging.Abstractions;
-//using Reductech.EDR.Core;
+//using Reductech.Sequence.Core;
 //using Xunit;
 
 //namespace LanguageServer.Test
@@ -16,8 +16,8 @@
 //        public async Task TestDynamicAsync()
 //        {
 //            var json = @"{
-//    ""Reductech.EDR.Connectors.REST"": {
-//      ""Id"": ""Reductech.EDR.Connectors.REST"",
+//    ""Reductech.Sequence.Connectors.REST"": {
+//      ""Id"": ""Reductech.Sequence.Connectors.REST"",
 //      ""Version"": ""0.12.0-a.main.2111021310"",
 //      ""Settings"": {
 //        ""Specifications"": [{

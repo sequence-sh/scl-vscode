@@ -8,11 +8,11 @@ using LanguageServer.Visitors;
 using NuGet.Packaging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.EDR.Core.Internal;
-using Reductech.EDR.Core.Internal.Errors;
-using Reductech.EDR.Core.Internal.Parser;
-using Reductech.EDR.Core.Internal.Serialization;
-using Reductech.EDR.Core.Util;
+using Reductech.Sequence.Core.Internal;
+using Reductech.Sequence.Core.Internal.Errors;
+using Reductech.Sequence.Core.Internal.Parser;
+using Reductech.Sequence.Core.Internal.Serialization;
+using Reductech.Sequence.Core.Util;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer;
