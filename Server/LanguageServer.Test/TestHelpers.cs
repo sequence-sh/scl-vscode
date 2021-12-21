@@ -1,4 +1,4 @@
-using OmniSharp.Extensions.LanguageServer.Protocol;
+﻿using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace LanguageServer.Test;
 

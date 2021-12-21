@@ -7,12 +7,12 @@ internal class Defaults
   ""nlog"": {
     ""throwConfigExceptions"": true,
     ""variables"": {
-      ""edrlogname"": ""..\\scl""
+      ""sequencelogname"": ""..\\scl""
     },
     ""targets"": {
       ""fileTarget"": {
         ""type"": ""File"",
-        ""fileName"": ""${basedir:fixtempdir=true}\\${edrlogname}.log"",
+        ""fileName"": ""${basedir:fixtempdir=true}\\${sequencelogname}.log"",
         ""layout"": ""${date} ${level:uppercase=true} ${message} ${exception}""
       },
       ""outputWindow"": {

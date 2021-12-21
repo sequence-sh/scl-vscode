@@ -1,8 +1,8 @@
 ﻿using System.Collections.Immutable;
 using Antlr4.Runtime.Tree;
-using Reductech.EDR.Core.Internal;
-using Reductech.EDR.Core.Internal.Errors;
-using Reductech.EDR.Core.Internal.Parser;
+using Reductech.Sequence.Core.Internal;
+using Reductech.Sequence.Core.Internal.Errors;
+using Reductech.Sequence.Core.Internal.Parser;
 
 namespace LanguageServer.Visitors;
 

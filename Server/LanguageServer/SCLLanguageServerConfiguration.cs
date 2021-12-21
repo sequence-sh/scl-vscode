@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using Reductech.EDR.ConnectorManagement;
-using Reductech.EDR.ConnectorManagement.Base;
+using Reductech.Sequence.ConnectorManagement;
+using Reductech.Sequence.ConnectorManagement.Base;
 
 namespace LanguageServer;
 

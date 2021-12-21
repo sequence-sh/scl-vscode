@@ -7,11 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Reductech.EDR.ConnectorManagement;
-using Reductech.EDR.ConnectorManagement.Base;
-using Reductech.EDR.Core.Abstractions;
-using Reductech.EDR.Core.Connectors;
-using Reductech.EDR.Core.Internal;
+using Reductech.Sequence.ConnectorManagement;
+using Reductech.Sequence.ConnectorManagement.Base;
+using Reductech.Sequence.Core.Abstractions;
+using Reductech.Sequence.Core.Connectors;
+using Reductech.Sequence.Core.Internal;
 
 namespace LanguageServer.Services;
 

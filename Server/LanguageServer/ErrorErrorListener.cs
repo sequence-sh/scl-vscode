@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Antlr4.Runtime;
-using Reductech.EDR.Core.Internal;
-using Reductech.EDR.Core.Internal.Errors;
+using Reductech.Sequence.Core.Internal;
+using Reductech.Sequence.Core.Internal.Errors;
 
 namespace LanguageServer;
 
