@@ -13,6 +13,7 @@ repository:
         - include: '#numeric-literal'
         - include: '#paren-expression'
         - include: '#string-literal'
+        - include: '#string-interpolated'
         - include: '#char-literal'
         - include: '#variable-name'
         - include: '#array'
@@ -78,11 +79,22 @@ repository:
                 - include: '#comma'
 
     propertyName:
-        match: (\b[a-zA-Z0-9_]+)(:)
+        match: (\b[a-zA-Z0-9_]+)\s*(:)
         captures:
             '0': {name: support.function.scl}
             '1': {name: punctuation.colon.scl}
 
+    string-interpolated:
+        name: string.quoted.double.scl
+        begin: '\$"'
+        beginCaptures:
+            '0': { name: punctuation.definition.string.begin.scl }
+        end: '"'
+        endCaptures:
+            '0': { name: punctuation.definition.string.end.scl }
+        patterns:
+        - include: '#interpolation-expression'
+        - include: '#string-character-escape'
 
     string-literal:
         name: string.quoted.double.scl
@@ -114,6 +126,20 @@ repository:
         name: constant.character.escape.scl
         match: "''"
 
+    interpolation-expression:
+        begin: \{
+        end: \}
+        beginCaptures:
+            '0':
+                name: punctuation.paren.open.scl
+        endCaptures:
+            '0':
+                name: punctuation.paren.close.scl
+        name: expression.group
+        patterns:
+        - include: '#expression'
+        
+
     paren-expression:
         begin: \(
         end: \)
@@ -132,15 +158,15 @@ repository:
     
     entity-propertyName:
         patterns:
-        -   match: (\b[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*)(:)
+        -   match: (\b[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*)\s*(:)
             captures:
                 '0': {name: entity.name.section.scl}
                 '1': {name: punctuation.colon.scl}
-        -   match: (\".+?\")(:)
+        -   match: (\".+?\")\s*(:)
             captures:
                 '0': {name: entity.name.section.scl}
                 '1': {name: punctuation.colon.scl}
-        -   match: ('.+?')(:)
+        -   match: ('.+?')\s*(:)
             captures:
                 '0': {name: entity.name.section.scl}
                 '1': {name: punctuation.colon.scl}
