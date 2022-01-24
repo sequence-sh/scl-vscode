@@ -10,10 +10,12 @@ public class DiagnosticsTest
     [Theory]
     [InlineData("Print 123")]
     [InlineData("Pront 123","The step 'Pront' does not exist[start: (0, 0), end: (0, 8)]")]
-    [InlineData("a b","Syntax Error: no viable alternative at input 'b'[start: (0, 2), end: (0, 3)]")]
-    [InlineData("- print 1\r\n- a b","Syntax Error: no viable alternative at input '- a b'[start: (1, 0), end: (1, 5)]")]
-    [InlineData("- print 1\r\n- a b\r\n- print 2","Syntax Error: no viable alternative at input '- a b'[start: (1, 0), end: (1, 5)]")]
-    [InlineData("- print 1\r\n- a b\r\n- c d\r\n- print 3","Syntax Error: no viable alternative at input '- a b'[start: (1, 0), end: (1, 5)]", "Syntax Error: no viable alternative at input '- c d'[start: (2, 0), end: (2, 5)]")]
+    [InlineData("a b","The step 'a' does not exist[start: (0, 0), end: (0, 2)]")]
+    [InlineData("- print 1\r\n- a b","The step 'a' does not exist[start: (1, 2), end: (1, 4)]")]
+    [InlineData("- print 1\r\n- a b\r\n- print 2","The step 'a' does not exist[start: (1, 2), end: (1, 4)]")]
+    [InlineData("- print 1\r\n- a b\r\n- c d\r\n- print 3",
+        "The step 'a' does not exist[start: (1, 2), end: (1, 4)]",
+        "The step 'c' does not exist[start: (2, 2), end: (2, 4)]")]
     public void TestGetDiagnostics(string text, params string[] expectedErrors)
     {
         var document = new SCLDocument(text, TestHelpers.DefaultUri);
