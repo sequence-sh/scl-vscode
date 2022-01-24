@@ -78,7 +78,7 @@ repository:
                 - include: '#comma'
 
     propertyName:
-        match: (\b[a-zA-Z0-9_]+)(:)
+        match: (\b[a-zA-Z0-9_]+)\s*(:)
         captures:
             '0': {name: support.function.scl}
             '1': {name: punctuation.colon.scl}

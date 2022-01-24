@@ -31,8 +31,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
-    <PackageReference Include="Reductech.Sequence.ConnectorManager" Version="0.6.0-a.main.2112201234" />
-    <PackageReference Include="Reductech.Sequence.Core" Version="0.13.0-a.main.2112201532" />
+    <PackageReference Include="Reductech.Sequence.ConnectorManager" Version="0.6.0" />
+    <PackageReference Include="Reductech.Sequence.Core" Version="0.13.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
 

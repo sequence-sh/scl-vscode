@@ -3,16 +3,16 @@
   "publisher": "reductech",
   "displayName": "Reductech SCL",
   "description": "Sequence Configuration Language extension for syntax highlighting, auto-completion and error diagnostics.",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "preview": true,
   "license": "Apache-2.0",
-  "homepage": "https://gitlab.com/reductech/edr/scl-vscode",
+  "homepage": "https://gitlab.com/reductech/sequence/scl-vscode",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/reductech/edr/scl-vscode.git"
+    "url": "https://gitlab.com/reductech/sequence/scl-vscode.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/reductech/edr/scl-vscode/-/issues"
+    "url": "https://gitlab.com/reductech/sequence/scl-vscode/-/issues"
   },
   "categories": [
     "Programming Languages"
@@ -59,11 +59,11 @@
     "configuration": {
       "title": "Reductech SCL",
       "properties": {
-        "reductech-scl.edr.connectors": {
-          "description": "The connector configuration to be used with EDR.",
+        "reductech-scl.sequence.connectors": {
+          "description": "The connector configuration for the Language Server.",
           "type": "object"
         },
-        "reductech-scl.edr.nlog": {
+        "reductech-scl.sequence.nlog": {
           "description": "Logging Settings for the Language Server.",
           "type": "object"
         }
@@ -94,7 +94,7 @@
       {
         "command": "reductech-scl.run",
         "key": "F5",
-        "when": "editorLangId == scl && config.reductech-scl.edr.path"
+        "when": "editorLangId == scl"
       }
     ]
   },
