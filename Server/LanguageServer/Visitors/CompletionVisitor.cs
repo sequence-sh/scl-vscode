@@ -108,7 +108,7 @@ public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
             {
                 //Assume this is another parameter to this function
                 if(StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
-                    return StepParametersCompletionList(stepFactory, new Range(Position, Position));
+                    return StepParametersCompletionList(stepFactory, new Range(Position, Position), context);
             }
 
             return null;
@@ -134,7 +134,29 @@ public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
 
             if (term.ContainsPosition(Position))
             {
-                return Visit(term);
+                //If this term is a partial name, give argument names as potential options
+                var text = term.GetText();
+                if (string.IsNullOrWhiteSpace(text) || text.All(char.IsLetter))
+                {
+                    //The term could be the start of a parameter argument
+
+                    if (!StepFactoryStore.Dictionary.TryGetValue(name, out var stepFactory))
+                        return Visit(term); //No clue what name to use
+
+                    var completionList1 = StepParametersCompletionList(stepFactory, term.GetRange(), context);
+                    var completionList2 = Visit(term);
+
+                    if (completionList2 is null) return completionList1;
+                    if (!completionList1.Any()) return completionList2;
+
+                    return completionList1;
+
+
+                }
+                else //Assume the term is structured object
+                {
+                    return Visit(term);
+                }
             }
         }
 
@@ -149,7 +171,7 @@ public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
 
                     var range = namedArgumentContext.NAME().Symbol.GetRange();
 
-                    return StepParametersCompletionList(stepFactory, range);
+                    return StepParametersCompletionList(stepFactory, range, context);
                 }
 
 
@@ -162,7 +184,7 @@ public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
                 return null; //No clue what name to use
 
 
-            return StepParametersCompletionList(stepFactory, new Range(Position, Position));
+            return StepParametersCompletionList(stepFactory, new Range(Position, Position), context);
         }
     }
 
@@ -204,12 +226,18 @@ public class CompletionVisitor : SCLBaseVisitor<CompletionList?>
     /// <summary>
     /// Gets the step parameter completion list
     /// </summary>
-    public static CompletionList StepParametersCompletionList(IStepFactory stepFactory, Range range)
+    public static CompletionList StepParametersCompletionList(IStepFactory stepFactory, Range range, SCLParser.FunctionContext functionContext)
     {
+        var usedNamedArguments = functionContext.namedArgument()
+            .Select(x => x.NAME().GetText())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+
         var documentation = Helpers.GetMarkDownDocumentation(stepFactory);
         var options =
             stepFactory.ParameterDictionary
                 .Where(x => x.Key is StepParameterReference.Named)
+                .Where(x=> !usedNamedArguments.Contains(x.Value.Name))
                 .Select(x => CreateCompletionItem(x.Key, x.Value))
                 .ToList();
 
