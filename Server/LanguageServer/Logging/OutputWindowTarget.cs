@@ -1,4 +1,6 @@
-﻿using NLog.Targets;
+﻿using NLog;
+using NLog.Targets;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace LanguageServer.Logging;
@@ -15,13 +17,13 @@ public sealed class OutputWindowTarget : TargetWithLayout
 
         var messageType = logEvent.Level.Name switch
         {
-            nameof(NLog.LogLevel.Trace) => MessageType.Log,
-            nameof(NLog.LogLevel.Debug) => MessageType.Log,
-            nameof(NLog.LogLevel.Info) => MessageType.Info,
-            nameof(NLog.LogLevel.Warn) => MessageType.Warning,
-            nameof(NLog.LogLevel.Error) => MessageType.Error,
-            nameof(NLog.LogLevel.Fatal) => MessageType.Error,
-            nameof(NLog.LogLevel.Off) => MessageType.Log,
+            nameof(LogLevel.Trace) => MessageType.Log,
+            nameof(LogLevel.Debug) => MessageType.Log,
+            nameof(LogLevel.Info) => MessageType.Info,
+            nameof(LogLevel.Warn) => MessageType.Warning,
+            nameof(LogLevel.Error) => MessageType.Error,
+            nameof(LogLevel.Fatal) => MessageType.Error,
+            nameof(LogLevel.Off) => MessageType.Log,
             _ => MessageType.Log,
         };
 

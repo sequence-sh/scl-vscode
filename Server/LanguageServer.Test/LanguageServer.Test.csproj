@@ -30,8 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\core\Core.LanguageServer\Core.LanguageServer.csproj" />
-    <ProjectReference Include="..\..\..\core\Core\Core.csproj" />
     <ProjectReference Include="..\LanguageServer\LanguageServer.csproj" />
   </ItemGroup>
 

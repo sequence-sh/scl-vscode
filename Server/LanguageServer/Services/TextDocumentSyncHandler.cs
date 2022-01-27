@@ -1,4 +1,12 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace LanguageServer.Services;
@@ -43,7 +51,7 @@ internal class TextDocumentSyncHandler : ITextDocumentSyncHandler
     //    return new(uri, "scl");
     //}
 
-    public Task<MediatR.Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken)
+    public Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken)
     {
         var uri = request.TextDocument.Uri;
         var text = request.ContentChanges.FirstOrDefault()?.Text ?? "";
@@ -52,24 +60,24 @@ internal class TextDocumentSyncHandler : ITextDocumentSyncHandler
         _ = _documentManager.UpdateDocumentAsync(new SCLDocument(text, uri));
         Logger.LogDebug($"Updated buffer for document: {uri}");
 
-        return MediatR.Unit.Task;
+        return Unit.Task;
     }
 
-    public Task<MediatR.Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
+    public Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
     {
         _ = _documentManager.UpdateDocumentAsync(new SCLDocument(request.TextDocument.Text, request.TextDocument.Uri));
-        return MediatR.Unit.Task;
+        return Unit.Task;
     }
 
-    public Task<MediatR.Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
+    public Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
     {
         _documentManager.RemoveDocument(request.TextDocument.Uri);
-        return MediatR.Unit.Task;
+        return Unit.Task;
     }
 
-    public Task<MediatR.Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
+    public Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
     {
-        return MediatR.Unit.Task;
+        return Unit.Task;
     }
 
     public void SetCapability(SynchronizationCapability capability)

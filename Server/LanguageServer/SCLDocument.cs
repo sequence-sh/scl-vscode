@@ -1,4 +1,19 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using Antlr4.Runtime;
+using CSharpFunctionalExtensions;
+using LanguageServer.Visitors;
+using NuGet.Packaging;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Reductech.Sequence.Core.Internal;
+using Reductech.Sequence.Core.Internal.Errors;
+using Reductech.Sequence.Core.Internal.Parser;
+using Reductech.Sequence.Core.Internal.Serialization;
+using Reductech.Sequence.Core.Util;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer;
 
@@ -12,26 +27,23 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public Hover GetHover(Position position, StepFactoryStore stepFactoryStore)
     {
-        var lazyTypeResolver =  HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore);
+        var lazyTypeResolver = HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore);
 
         var command = Helpers.GetCommand(Text, position);
 
         if (command is null) return new Hover();
 
-        var visitor2 = new HoverVisitor(command.Value.newPosition.ToLinePosition(),
-            command.Value.positionOffset.ToLinePosition(), 
-            stepFactoryStore,
-            lazyTypeResolver);
+        var visitor2 = new HoverVisitor(command.Value.newPosition, command.Value.positionOffset, stepFactoryStore, lazyTypeResolver);
 
         var errorListener = new ErrorErrorListener();
 
-        var quickInfoResponse = visitor2.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
+        var hover = visitor2.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
             x =>
             {
                 x.RemoveErrorListeners();
                 x.AddErrorListener(errorListener);
             });
-        if (quickInfoResponse is not null) return quickInfoResponse.ToHover();
+        if (hover is not null) return hover;
 
         if (errorListener.Errors.Any())
         {
@@ -45,7 +57,7 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
             return errorHover;
         }
 
-        return new Hover();
+        return hover ?? new Hover();
     }
 
     /// <summary>
@@ -53,11 +65,11 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public SignatureHelp? GetSignatureHelp(Position position, StepFactoryStore stepFactoryStore)
     {
-        var visitor = new SignatureHelpVisitor(position.ToLinePosition(), stepFactoryStore);
-        var signatureHelpResponse = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
+        var visitor = new SignatureHelpVisitor(position, stepFactoryStore);
+        var signatureHelp = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
             x => { x.RemoveErrorListeners(); });
 
-        return signatureHelpResponse?.ToSignatureHelp();
+        return signatureHelp;
     }
 
     /// <summary>
@@ -151,34 +163,34 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public CompletionList GetCompletionList(Position position, StepFactoryStore stepFactoryStore)
     {
-        var visitor = new CompletionVisitor(position.ToLinePosition(), stepFactoryStore);
+        var visitor = new CompletionVisitor(position, stepFactoryStore);
 
-        var completionResponse = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
+        var completionList = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
             x => { x.RemoveErrorListeners(); });
 
-        if (completionResponse is not null)
-            return completionResponse.ToCompletionList();
+        if (completionList is not null)
+            return completionList;
 
         var command = Helpers.GetCommand(Text, position);
 
         if (command is not null)
         {
-            visitor = new CompletionVisitor(command.Value.newPosition.ToLinePosition(), stepFactoryStore);
+            visitor = new CompletionVisitor(command.Value.newPosition, stepFactoryStore);
 
-            var lineCompletionResponse = visitor.LexParseAndVisit(command.Value.command,
+            var lineCompletionList = visitor.LexParseAndVisit(command.Value.command,
                 x => { x.RemoveErrorListeners(); },
                 x => { x.RemoveErrorListeners(); });
 
-            if (lineCompletionResponse is not null)
-                return lineCompletionResponse.ToCompletionList();
+            if (lineCompletionList is not null)
+                return lineCompletionList;
 
             var textWithoutToken = Helpers.RemoveToken(command.Value.command, command.Value.newPosition);
 
-            var withoutTokenResponse = visitor.LexParseAndVisit(textWithoutToken,
+            var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken,
                 x => { x.RemoveErrorListeners(); }, x => { x.RemoveErrorListeners(); });
 
-            if (withoutTokenResponse is not null)
-                return withoutTokenResponse.ToCompletionList();
+            if (withoutTokenCompletionList is not null)
+                return withoutTokenCompletionList;
         }
 
 
@@ -190,22 +202,65 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)
     {
+        IList<Diagnostic> diagnostics;
 
-        var diags = DiagnosticsHelper.GetDiagnostics(Text, stepFactoryStore);
+        var initialParseResult = SCLParsing.TryParseStep(Text);
+
+        if (initialParseResult.IsSuccess)
+        {
+            var freezeResult = initialParseResult.Value.TryFreeze(SCLRunner.RootCallerMetadata, stepFactoryStore);
+
+            if (freezeResult.IsSuccess)
+            {
+                diagnostics = ImmutableList<Diagnostic>.Empty;
+            }
+
+            else
+            {
+                diagnostics = freezeResult.Error.GetAllErrors().Select(x => ToDiagnostic(x, new Position(0, 0)))
+                    .WhereNotNull().ToList();
+            }
+        }
+        else
+        {
+            var commands = Helpers.SplitIntoCommands(Text);
+            diagnostics = new List<Diagnostic>();
+            foreach (var (commandText, commandPosition) in commands)
+            {
+                var visitor = new DiagnosticsVisitor();
+                var listener = new ErrorErrorListener();
+                var parseResult = visitor.LexParseAndVisit(commandText, _ => { },
+                    x => { x.AddErrorListener(listener); });
+
+                IList<Diagnostic> newDiagnostics = listener.Errors.Select(x => ToDiagnostic(x, commandPosition))
+                    .WhereNotNull().ToList();
+
+                if (!newDiagnostics.Any())
+                    newDiagnostics = parseResult.Select(x => ToDiagnostic(x, commandPosition)).WhereNotNull()
+                        .ToList();
+                diagnostics.AddRange(newDiagnostics);
+            }
+        }
+
 
         return new PublishDiagnosticsParams
         {
-            Diagnostics = diags.Select(ToDiagnostic).ToContainer(),
+            Diagnostics = new Container<Diagnostic>(diagnostics),
             Uri = DocumentUri
         };
 
-        static Diagnostic ToDiagnostic(Reductech.Sequence.Core.LanguageServer.Objects.Diagnostic d1)
+        static Diagnostic? ToDiagnostic(SingleError error, Position positionOffset)
         {
-            return new Diagnostic()
-            {
-                Message = d1.Message,
-                Range = new Range(d1.Start.Line, d1.Start.Character, d1.End.Line, d1.End.Character)
-            };
+            if (error.Location.TextLocation is null) return null;
+
+            return
+                new Diagnostic()
+                {
+                    Range = error.Location.TextLocation.GetRange(positionOffset.Line, positionOffset.Character),
+                    Severity = DiagnosticSeverity.Error,
+                    Source = "SCL",
+                    Message = error.Message
+                };
         }
     }
 }
