@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.Sequence.Core.Internal;
-using Reductech.Sequence.Core.Internal.Documentation;
-using Reductech.Sequence.Core.Internal.Parser;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-
+﻿
 namespace LanguageServer;
 
 /// <summary>

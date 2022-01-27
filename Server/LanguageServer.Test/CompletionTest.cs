@@ -23,6 +23,7 @@ public class CompletionTest
     [InlineData("- Print\r\nP", 1, 0, "Value")]
     [InlineData("- Print P", 0, 8, "Value")]
     [InlineData(LongText, 1, 3, "ArrayFilter")]
+    [InlineData("- Print \"Hello there!\"\r\n- RESTGetJSON BaseURL:'' u", 1,26, "RelativeURL")]
     public void ShouldGiveCorrectCompletion(string text, int line, int character, string? expectedLabel)
     {
 

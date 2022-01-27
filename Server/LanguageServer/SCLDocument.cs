@@ -1,19 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using Antlr4.Runtime;
-using CSharpFunctionalExtensions;
-using LanguageServer.Visitors;
-using NuGet.Packaging;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.Sequence.Core.Internal;
-using Reductech.Sequence.Core.Internal.Errors;
-using Reductech.Sequence.Core.Internal.Parser;
-using Reductech.Sequence.Core.Internal.Serialization;
-using Reductech.Sequence.Core.Util;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+﻿
 
 namespace LanguageServer;
 
@@ -27,23 +12,26 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public Hover GetHover(Position position, StepFactoryStore stepFactoryStore)
     {
-        var lazyTypeResolver = HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore);
+        var lazyTypeResolver =  HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore);
 
         var command = Helpers.GetCommand(Text, position);
 
         if (command is null) return new Hover();
 
-        var visitor2 = new HoverVisitor(command.Value.newPosition, command.Value.positionOffset, stepFactoryStore, lazyTypeResolver);
+        var visitor2 = new HoverVisitor(command.Value.newPosition.ToLinePosition(),
+            command.Value.positionOffset.ToLinePosition(), 
+            stepFactoryStore,
+            lazyTypeResolver);
 
         var errorListener = new ErrorErrorListener();
 
-        var hover = visitor2.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
+        var quickInfoResponse = visitor2.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
             x =>
             {
                 x.RemoveErrorListeners();
                 x.AddErrorListener(errorListener);
             });
-        if (hover is not null) return hover;
+        if (quickInfoResponse is not null) return quickInfoResponse.ToHover();
 
         if (errorListener.Errors.Any())
         {
@@ -57,7 +45,7 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
             return errorHover;
         }
 
-        return hover ?? new Hover();
+        return new Hover();
     }
 
     /// <summary>
@@ -65,11 +53,11 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public SignatureHelp? GetSignatureHelp(Position position, StepFactoryStore stepFactoryStore)
     {
-        var visitor = new SignatureHelpVisitor(position, stepFactoryStore);
-        var signatureHelp = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
+        var visitor = new SignatureHelpVisitor(position.ToLinePosition(), stepFactoryStore);
+        var signatureHelpResponse = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
             x => { x.RemoveErrorListeners(); });
 
-        return signatureHelp;
+        return signatureHelpResponse?.ToSignatureHelp();
     }
 
     /// <summary>
@@ -163,34 +151,34 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public CompletionList GetCompletionList(Position position, StepFactoryStore stepFactoryStore)
     {
-        var visitor = new CompletionVisitor(position, stepFactoryStore);
+        var visitor = new CompletionVisitor(position.ToLinePosition(), stepFactoryStore);
 
-        var completionList = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
+        var completionResponse = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
             x => { x.RemoveErrorListeners(); });
 
-        if (completionList is not null)
-            return completionList;
+        if (completionResponse is not null)
+            return completionResponse.ToCompletionList();
 
         var command = Helpers.GetCommand(Text, position);
 
         if (command is not null)
         {
-            visitor = new CompletionVisitor(command.Value.newPosition, stepFactoryStore);
+            visitor = new CompletionVisitor(command.Value.newPosition.ToLinePosition(), stepFactoryStore);
 
-            var lineCompletionList = visitor.LexParseAndVisit(command.Value.command,
+            var lineCompletionResponse = visitor.LexParseAndVisit(command.Value.command,
                 x => { x.RemoveErrorListeners(); },
                 x => { x.RemoveErrorListeners(); });
 
-            if (lineCompletionList is not null)
-                return lineCompletionList;
+            if (lineCompletionResponse is not null)
+                return lineCompletionResponse.ToCompletionList();
 
             var textWithoutToken = Helpers.RemoveToken(command.Value.command, command.Value.newPosition);
 
-            var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken,
+            var withoutTokenResponse = visitor.LexParseAndVisit(textWithoutToken,
                 x => { x.RemoveErrorListeners(); }, x => { x.RemoveErrorListeners(); });
 
-            if (withoutTokenCompletionList is not null)
-                return withoutTokenCompletionList;
+            if (withoutTokenResponse is not null)
+                return withoutTokenResponse.ToCompletionList();
         }
 
 
@@ -202,65 +190,22 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public PublishDiagnosticsParams GetDiagnostics(StepFactoryStore stepFactoryStore)
     {
-        IList<Diagnostic> diagnostics;
 
-        var initialParseResult = SCLParsing.TryParseStep(Text);
-
-        if (initialParseResult.IsSuccess)
-        {
-            var freezeResult = initialParseResult.Value.TryFreeze(SCLRunner.RootCallerMetadata, stepFactoryStore);
-
-            if (freezeResult.IsSuccess)
-            {
-                diagnostics = ImmutableList<Diagnostic>.Empty;
-            }
-
-            else
-            {
-                diagnostics = freezeResult.Error.GetAllErrors().Select(x => ToDiagnostic(x, new Position(0, 0)))
-                    .WhereNotNull().ToList();
-            }
-        }
-        else
-        {
-            var commands = Helpers.SplitIntoCommands(Text);
-            diagnostics = new List<Diagnostic>();
-            foreach (var (commandText, commandPosition) in commands)
-            {
-                var visitor = new DiagnosticsVisitor();
-                var listener = new ErrorErrorListener();
-                var parseResult = visitor.LexParseAndVisit(commandText, _ => { },
-                    x => { x.AddErrorListener(listener); });
-
-                IList<Diagnostic> newDiagnostics = listener.Errors.Select(x => ToDiagnostic(x, commandPosition))
-                    .WhereNotNull().ToList();
-
-                if (!newDiagnostics.Any())
-                    newDiagnostics = parseResult.Select(x => ToDiagnostic(x, commandPosition)).WhereNotNull()
-                        .ToList();
-                diagnostics.AddRange(newDiagnostics);
-            }
-        }
-
+        var diags = DiagnosticsHelper.GetDiagnostics(Text, stepFactoryStore);
 
         return new PublishDiagnosticsParams
         {
-            Diagnostics = new Container<Diagnostic>(diagnostics),
+            Diagnostics = diags.Select(ToDiagnostic).ToContainer(),
             Uri = DocumentUri
         };
 
-        static Diagnostic? ToDiagnostic(SingleError error, Position positionOffset)
+        static Diagnostic ToDiagnostic(Reductech.Sequence.Core.LanguageServer.Objects.Diagnostic d1)
         {
-            if (error.Location.TextLocation is null) return null;
-
-            return
-                new Diagnostic()
-                {
-                    Range = error.Location.TextLocation.GetRange(positionOffset.Line, positionOffset.Character),
-                    Severity = DiagnosticSeverity.Error,
-                    Source = "SCL",
-                    Message = error.Message
-                };
+            return new Diagnostic()
+            {
+                Message = d1.Message,
+                Range = new Range(d1.Start.Line, d1.Start.Character, d1.End.Line, d1.End.Character)
+            };
         }
     }
 }

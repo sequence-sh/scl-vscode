@@ -1,13 +1,9 @@
-﻿using System;
-using System.IO.Abstractions;
-using System.Threading.Tasks;
+﻿using System.IO.Abstractions;
 using LanguageServer.Logging;
 using LanguageServer.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Reductech.Sequence.Core.Abstractions;
-using Reductech.Sequence.Core.Internal;
 using NLog.Config;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -38,7 +34,7 @@ internal class Program
                     .ConfigureLogging(x =>
                     {
                         x.AddLanguageProtocolLogging()
-                            .SetMinimumLevel(LogLevel.Debug);
+                            .SetMinimumLevel(Microsoft.Extensions.Logging. LogLevel.Debug);
                     })
                     .WithServices(x =>
                         x.AddSingleton<IFileSystem>(new FileSystem())

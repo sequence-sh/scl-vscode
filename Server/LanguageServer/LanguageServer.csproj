@@ -37,6 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\core\Core.LanguageServer\Core.LanguageServer.csproj" />
+    <ProjectReference Include="..\..\..\core\Core\Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
