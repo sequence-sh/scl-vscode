@@ -1,41 +1,63 @@
-# Sequence Configuration Language
+# Sequence® Configuration Language
 
-This is a [VS Code](https://code.visualstudio.com/) extension for
-the [Reductech](https://reductech.io/) Sequence Configuration Language (SCL).
+A [Visual Studio Code](https://code.visualstudio.com/) extension for
+the [Sequence Configuration Language](https://sequence.sh) (SCL).
 
-SCL is the language that is used to define cross-application
-forensic and e-discovery workflows. It is designed to be powerful,
-containing most of the control flow features of programming languages,
+SCL is a configuration language designed to simplify automation
+of cross-application forensic and e-discovery workflows.
+It is designed to be powerful, containing most of the control flow
+features of programming languages,
 yet much easier to pick-up and use than traditional scripting or
 programming languages.
 
 A quick introduction to the language and its features can be found in the
-[documentation](https://docs.reductech.io/sequence/how-to/scl/sequence-configuration-language.html).
+[documentation](https://sequence.sh/docs/sequence-configuration-language).
 
 SCL can be validated and executed using the open-source command line
-application [Sequence](https://gitlab.com/reductech/sequence/console/-/releases).
+application [Sequence](https://sequence.sh).
 
 ## Supported Features
 
-- Syntax Highlighting
+- Syntax highlighting
 - Hover
-- Code Completion for Step names and parameters
-- Error Diagnostics
-- Exexcute SCL
+- Code completion for step names and parameters
+- Error diagnostics
+- Run and validate sequences
 
 This extension is still in preview.
 
-## SCL Example
+## SCL Examples
 
-To remove duplicate rows from a CSV file:
+### Remove duplicate rows from a CSV file
 
-```perl
+```jsx
 - FileRead 'C:\temp\data.csv'
 | FromCSV
-| ArrayDistinct <entity>
+| RemoveDuplicates
 | ToCSV
-| FileWrite 'C:\temp\data-NoDuplicates.csv'
+| FileWrite 'C:\temp\data_no-duplicates.csv'
 ```
+
+### Get data from a SQL database and write to CSV
+
+```jsx
+- <ConnectionString> = CreateMySQLConnectionString
+                         Server: 'localhost'
+                         Database: 'database'
+                         UserName: 'root'
+                         Password: 'verysecret'
+
+- SqlQuery
+    ConnectionString: <ConnectionString>
+    DatabaseType: DatabaseType.MariaDb
+    Command: $"SELECT * FROM MYTABLE"
+| ToCSV
+| FileWrite 'C:\temp\mytable-export.csv'
+```
+
+For more examples and all the supported applications (through our
+[connectors](https://sequence.sh/docs/connectors/core)
+please see the [documentation](https://sequence.sh/docs/examples/core).
 
 ## Grammar and Interpreter
 
@@ -46,9 +68,9 @@ To remove duplicate rows from a CSV file:
 
 To run SCL when using this extension:
 
-1. Open an .SCL file.
+1. Open a `.scl` file.
 2. Use the `SCL: Run Sequence` command.
 
 ## Documentation
 
-Documentation is available at [docs.reductech.io](https://docs.reductech.io)
+Documentation is available at [https://sequence.sh](https://sequence.sh/docs/intro).
