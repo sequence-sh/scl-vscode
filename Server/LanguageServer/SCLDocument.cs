@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Antlr4.Runtime;
-using CSharpFunctionalExtensions;
-using LanguageServer.Visitors;
 using NuGet.Packaging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -12,8 +10,8 @@ using Reductech.Sequence.Core.Internal;
 using Reductech.Sequence.Core.Internal.Errors;
 using Reductech.Sequence.Core.Internal.Parser;
 using Reductech.Sequence.Core.Internal.Serialization;
+using Reductech.Sequence.Core.LanguageServer;
 using Reductech.Sequence.Core.Util;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace LanguageServer;
 

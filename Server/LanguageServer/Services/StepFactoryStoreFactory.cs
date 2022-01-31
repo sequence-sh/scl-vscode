@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
