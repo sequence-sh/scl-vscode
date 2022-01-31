@@ -9,8 +9,6 @@ namespace LanguageServer.Test;
 
 public class SignatureHelpTest
 {
-        
-
     [Theory]
     [InlineData("ArrayFilter", 0, 12, "ArrayFilter")]
     [InlineData("ArrayFilter", 0, 1, null)]
@@ -26,14 +24,11 @@ public class SignatureHelpTest
 
         if (expectedLabel is null)
         {
-            signatureHelp.Should().BeNull("Expected Signature Help is null");
+            signatureHelp!.Signatures.Should().BeEmpty();
             return;
         }
 
         signatureHelp.Should().NotBeNull();
         signatureHelp!.Signatures.First().Label.Should().Be(expectedLabel);
-
-
-
     }
 }

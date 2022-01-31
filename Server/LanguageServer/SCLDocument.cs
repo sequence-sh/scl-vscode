@@ -27,37 +27,8 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public Hover GetHover(Position position, StepFactoryStore stepFactoryStore)
     {
-        var lazyTypeResolver = HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore);
-
-        var command = Helpers.GetCommand(Text, position);
-
-        if (command is null) return new Hover();
-
-        var visitor2 = new HoverVisitor(command.Value.newPosition, command.Value.positionOffset, stepFactoryStore, lazyTypeResolver);
-
-        var errorListener = new ErrorErrorListener();
-
-        var hover = visitor2.LexParseAndVisit(command.Value.command, x => { x.RemoveErrorListeners(); },
-            x =>
-            {
-                x.RemoveErrorListeners();
-                x.AddErrorListener(errorListener);
-            });
-        if (hover is not null) return hover;
-
-        if (errorListener.Errors.Any())
-        {
-            var error = errorListener.Errors.First();
-            var errorHover = new Hover()
-            {
-                Range = error.Location.TextLocation?.GetRange(command.Value.newPosition.Line,
-                    command.Value.newPosition.Character),
-                Contents = new MarkedStringsOrMarkupContent(error.Message)
-            };
-            return errorHover;
-        }
-
-        return hover ?? new Hover();
+        var result = QuickInfoHelper.GetQuickInfoAsync(Text, position.ToLinePosition(), stepFactoryStore);
+        return result.ToHover();
     }
 
     /// <summary>
@@ -65,11 +36,9 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public SignatureHelp? GetSignatureHelp(Position position, StepFactoryStore stepFactoryStore)
     {
-        var visitor = new SignatureHelpVisitor(position, stepFactoryStore);
-        var signatureHelp = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
-            x => { x.RemoveErrorListeners(); });
+        var response = SignatureHelpHelper.GetSignatureHelpResponse(Text, position.ToLinePosition(), stepFactoryStore);
 
-        return signatureHelp;
+        return response?.ToSignatureHelp();
     }
 
     /// <summary>
@@ -77,48 +46,11 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public List<TextEdit> FormatDocument(StepFactoryStore stepFactoryStore)
     {
-        var commands = Helpers.SplitIntoCommands(Text);
+        var result = 
+        FormattingHelper.FormatSCL(Text, stepFactoryStore)
+            .Select(x => x.ToTextEdit()).ToList();
 
-        var typeResolver = HoverVisitor.CreateLazyTypeResolver(Text, stepFactoryStore).Value;
-
-        var textEdits = new List<TextEdit>();
-
-        var commandCallerMetadata = new CallerMetadata("Command", "", TypeReference.Any.Instance);
-
-        foreach (var (command, offset) in commands)
-        {
-            var stepParseResult = SCLParsing.TryParseStep(command);
-
-            if (stepParseResult.IsSuccess)
-            {
-                Result<IStep, IError> freezeResult;
-
-                if (typeResolver.IsSuccess)
-                {
-                    freezeResult = stepParseResult.Value.TryFreeze(commandCallerMetadata, typeResolver.Value);
-                }
-                else
-                {
-                    freezeResult = stepParseResult.Value.TryFreeze(commandCallerMetadata, stepFactoryStore);
-                }
-
-                if (freezeResult.IsSuccess)
-                {
-                    var text = Formatter.Format(freezeResult.Value).Trim();// freezeResult.Value.Serialize().Trim();
-
-                    var range = freezeResult.Value.TextLocation?.GetRange(offset.Line, offset.Character)!;
-                    var realRange = new Range(offset, new Position(range.End.Line, range.End.Character + 1)); //Need to end one character later
-
-                    textEdits.Add(new TextEdit()
-                    {
-                        NewText = text,
-                        Range = realRange
-                    });
-                }
-            }
-        }
-
-        return textEdits;
+        return result;
     }
 
     /// <summary>
@@ -163,38 +95,9 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public CompletionList GetCompletionList(Position position, StepFactoryStore stepFactoryStore)
     {
-        var visitor = new CompletionVisitor(position, stepFactoryStore);
+        var result = CompletionHelper.GetCompletionResponse(Text, position.ToLinePosition(), stepFactoryStore);
 
-        var completionList = visitor.LexParseAndVisit(Text, x => { x.RemoveErrorListeners(); },
-            x => { x.RemoveErrorListeners(); });
-
-        if (completionList is not null)
-            return completionList;
-
-        var command = Helpers.GetCommand(Text, position);
-
-        if (command is not null)
-        {
-            visitor = new CompletionVisitor(command.Value.newPosition, stepFactoryStore);
-
-            var lineCompletionList = visitor.LexParseAndVisit(command.Value.command,
-                x => { x.RemoveErrorListeners(); },
-                x => { x.RemoveErrorListeners(); });
-
-            if (lineCompletionList is not null)
-                return lineCompletionList;
-
-            var textWithoutToken = Helpers.RemoveToken(command.Value.command, command.Value.newPosition);
-
-            var withoutTokenCompletionList = visitor.LexParseAndVisit(textWithoutToken,
-                x => { x.RemoveErrorListeners(); }, x => { x.RemoveErrorListeners(); });
-
-            if (withoutTokenCompletionList is not null)
-                return withoutTokenCompletionList;
-        }
-
-
-        return new CompletionList(); //Give up
+        return result.ToCompletionList();
     }
 
     /// <summary>
