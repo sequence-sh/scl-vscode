@@ -154,7 +154,7 @@ repository:
         - include: '#entity-propertyName'
         - include: '#expression'
         - include: '#comma'
-        
+        - include: '#comment'
     
     entity-propertyName:
         patterns:

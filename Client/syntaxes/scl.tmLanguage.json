@@ -261,6 +261,9 @@
         },
         {
           "include": "#comma"
+        },
+        {
+          "include": "#comment"
         }
       ]
     },
