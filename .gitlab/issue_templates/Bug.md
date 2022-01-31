@@ -3,7 +3,7 @@
 /label ~"priority::3"
 /label ~"wf::backlog"
 /label ~"area::scl"
-/epic reductech&23
+/label ~vscode
 
 ## Summary
 
