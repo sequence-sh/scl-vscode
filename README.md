@@ -1,4 +1,4 @@
-## SCL VS Code
+## Sequence® Configuration Language VS Code Extension
 
 This is the VS Code extension for SCL.
 
