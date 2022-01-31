@@ -1,4 +1,4 @@
-## SCL VS Code
+## Sequence® Configuration Language VS Code Extension
 
 This is the VS Code extension for SCL.
 
@@ -28,12 +28,12 @@ This is the default configuration which writes both to a file and to the output 
   "nlog": {
     "throwConfigExceptions": true,
     "variables": {
-      "edrlogname": "..\\edr"
+      "logname": "..\\sequence"
     },
     "targets": {
       "fileTarget": {
         "type": "File",
-        "fileName": "${basedir:fixtempdir=true}\\${edrlogname}.log",
+        "fileName": "${basedir:fixtempdir=true}\\${logname}.log",
         "layout": "${date} ${level:uppercase=true} ${message} ${exception}"
       },
       "outputWindow": {

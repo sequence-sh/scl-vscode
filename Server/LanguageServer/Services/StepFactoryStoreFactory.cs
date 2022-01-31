@@ -83,13 +83,18 @@ public class
 
         if (connectorConfigurationDict is null || connectorConfigurationDict.Count == 0)
         {
+            const string ConnectorFilter = "Reductech.Sequence";
+
             //load latest connectors from repository
             var manager1 = new ConnectorManager(connectorManagerLogger, settings, connectorRegistry,
                 new ConnectorConfiguration(), FileSystem);
 
             var found = await manager1.Find(); //Find all connectors
 
-            connectorConfigurationDict = found.ToDictionary(x => x.Id,
+            connectorConfigurationDict = found
+                .Where(x=>x.Id.Contains(ConnectorFilter, StringComparison.OrdinalIgnoreCase))
+                
+                .ToDictionary(x => x.Id,
                 x => new ConnectorSettings() { Enable = true, Id = x.Id, Version = GetBestVersion(x.Version) });
         }
 
