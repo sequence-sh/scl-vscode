@@ -166,33 +166,7 @@ public static class Helpers
 
         return (myCommand.text, newPosition, offsetPosition);
     }
-
-    /// <summary>
-    /// Remove a token from the text
-    /// </summary>
-    public static string RemoveToken(string text, Position tokenPosition)
-    {
-        var inputStream = new AntlrInputStream(text);
-        var lexer = new SCLLexer(inputStream, TextWriter.Null, TextWriter.Null);
-
-        StringBuilder sb = new();
-        foreach (var token in lexer.GetAllTokens())
-        {
-            if (token.ContainsPosition(tokenPosition))
-            {
-                var length = token.StopIndex - token.StartIndex;
-
-                var ws = new string(' ', length);
-                sb.Append(ws);
-            }
-            else
-            {
-                sb.Append(token.Text);
-            }
-        }
-
-        return sb.ToString();
-    }
+    
 
     /// <summary>
     /// Whether the context contains the position
@@ -268,53 +242,5 @@ public static class Helpers
             return new Position(lineOffset, position.Column + charOffSet);
         else //add lines
             return new Position(position.Line - 1 + lineOffset, position.Column);
-    }
-
-    /// <summary>
-    /// Lex parse and Visit the SCL text
-    /// </summary>
-    public static T LexParseAndVisit<T>(this SCLBaseVisitor<T> visitor, string text, Action<SCLLexer> setupLexer,
-        Action<SCLParser> setupParser)
-    {
-        var inputStream = new AntlrInputStream(text);
-        var lexer = new SCLLexer(inputStream, TextWriter.Null, TextWriter.Null);
-        var commonTokenStream = new CommonTokenStream(lexer);
-        var parser = new SCLParser(commonTokenStream, TextWriter.Null, TextWriter.Null);
-
-        setupLexer(lexer);
-        setupParser(parser);
-
-        var result = visitor.Visit(parser.fullSequence());
-
-        return result;
-    }
-
-    /// <summary>
-    /// Get the documentation of the step
-    /// </summary>
-    public static string GetMarkDownDocumentation(IStepFactory stepFactory)
-    {
-        var grouping = new[] { stepFactory }
-            .GroupBy(x => x, x => x.TypeName).Single();
-
-        return GetMarkDownDocumentation(grouping);
-    }
-
-    /// <summary>
-    /// Get the documentation of the step
-    /// </summary>
-    public static string GetMarkDownDocumentation(IGrouping<IStepFactory, string> stepFactoryGroup)
-    {
-        try
-        {
-            var stepWrapper = new StepWrapper(stepFactoryGroup);
-            var text = DocumentationCreator.GetStepPage(stepWrapper);
-
-            return text.FileText;
-        }
-        catch (Exception e)
-        {
-            return e.Message;
-        }
     }
 }

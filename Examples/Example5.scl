@@ -1,1 +1,6 @@
-- Print "Hello there!"
+- (
+	add: 1#a
+	bad: 1#b
+	cad: 1#c
+	daaaaaa: 1#d
+)

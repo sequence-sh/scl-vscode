@@ -7,10 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageServer", "LanguageS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageServer.Test", "LanguageServer.Test\LanguageServer.Test.csproj", "{BBE0D08C-022D-4593-AC61-E7102F27B177}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.LanguageServer", "..\..\core\Core.LanguageServer\Core.LanguageServer.csproj", "{16AEB028-D3DA-4DD4-BB89-7ADF52800011}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "..\..\core\Core\Core.csproj", "{9C489CDD-E92F-49CE-ACDA-13BC99D62D4D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,14 +21,6 @@ Global
 		{BBE0D08C-022D-4593-AC61-E7102F27B177}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBE0D08C-022D-4593-AC61-E7102F27B177}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBE0D08C-022D-4593-AC61-E7102F27B177}.Release|Any CPU.Build.0 = Release|Any CPU
-		{16AEB028-D3DA-4DD4-BB89-7ADF52800011}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{16AEB028-D3DA-4DD4-BB89-7ADF52800011}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{16AEB028-D3DA-4DD4-BB89-7ADF52800011}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{16AEB028-D3DA-4DD4-BB89-7ADF52800011}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9C489CDD-E92F-49CE-ACDA-13BC99D62D4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C489CDD-E92F-49CE-ACDA-13BC99D62D4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9C489CDD-E92F-49CE-ACDA-13BC99D62D4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9C489CDD-E92F-49CE-ACDA-13BC99D62D4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

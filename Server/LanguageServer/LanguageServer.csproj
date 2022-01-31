@@ -32,13 +32,9 @@
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
     <PackageReference Include="Reductech.Sequence.ConnectorManager" Version="0.6.0" />
-    <PackageReference Include="Reductech.Sequence.Core" Version="0.13.0" />
+    <PackageReference Include="Reductech.Sequence.Core" Version="0.14.0-a.main.2201311248" />
+    <PackageReference Include="Reductech.Sequence.Core.LanguageServer" Version="0.14.0-a.main.2201311248" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\core\Core.LanguageServer\Core.LanguageServer.csproj" />
-    <ProjectReference Include="..\..\..\core\Core\Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -49,23 +49,18 @@ public static class Extensions
         return new CompletionItem()
         {
             Label = ci.Label,
-            Kind = ci.Kind.ConvertEnum<Reductech.Sequence.Core.LanguageServer.Objects. CompletionItemKind, CompletionItemKind>(),
-            Tags =  ci.Tags?.Select(x=>
-                x.ConvertEnum<Reductech.Sequence.Core.LanguageServer.Objects.CompletionItemTag,
-                    OmniSharp.Extensions.LanguageServer.Protocol.Models.CompletionItemTag
-                >()).ToContainer(),
-            AdditionalTextEdits = TextEditContainer.From(ci.AdditionalTextEdits?.Select(x=>x.ToTextEdit())) ,
+            Kind = CompletionItemKind.Text,
+            Tags =  null,
+            AdditionalTextEdits = null,
             Detail = ci.Detail,
-            Documentation = ci.Documentation is null? null : new MarkupContent(){Kind = MarkupKind.Markdown, Value = ci.Documentation},
+            Documentation = new MarkupContent(){Kind = MarkupKind.Markdown, Value = ci.Documentation},
             Preselect = ci.Preselect,
-            SortText = ci.SortText,
-            FilterText = ci.FilterText,
-            InsertTextFormat = ci.InsertTextFormat?.ConvertEnum<
-                Reductech.Sequence.Core.LanguageServer.Objects.InsertTextFormat,
-                InsertTextFormat>()?? InsertTextFormat.PlainText,
-            TextEdit = ci.TextEdit is null? null : new TextEditOrInsertReplaceEdit( ci.TextEdit.ToTextEdit()) ,
-            CommitCharacters = ci.CommitCharacters?.Select(x=>x.ToString()).ToContainer() ,
-            Data = ci.Data,
+            SortText = null,
+            FilterText = null,
+            InsertTextFormat = InsertTextFormat.PlainText,
+            TextEdit =  new TextEditOrInsertReplaceEdit( ci.TextEdit.ToTextEdit()) ,
+            CommitCharacters = null ,
+            Data = null,
         };
     }
 
@@ -80,7 +75,7 @@ public static class Extensions
     /// <summary>
     /// Converts this to a text edit
     /// </summary>
-    public static TextEdit ToTextEdit(this LinePositionSpanTextChange c)
+    public static TextEdit ToTextEdit(this SCLTextEdit c)
     {
         return new TextEdit()
         {
