@@ -1,8 +1,8 @@
 {
   "name": "reductech-scl",
   "publisher": "reductech",
-  "displayName": "Reductech SCL",
-  "description": "Sequence Configuration Language extension for syntax highlighting, auto-completion and error diagnostics.",
+  "displayName": "Sequence Configuration Language",
+  "description": "SCL extension for syntax highlighting, auto-completion and error diagnostics.",
   "version": "0.13.0",
   "preview": true,
   "license": "Apache-2.0",
@@ -25,9 +25,9 @@
     "edrm",
     "sequence"
   ],
-  "icon": "images/Reductech-Icon-Small.png",
+  "icon": "images/sequence_light_square_512px.png",
   "galleryBanner": {
-    "color": "#383838",
+    "color": "#CDCDCD",
     "theme": "dark"
   },
   "activationEvents": [
@@ -58,7 +58,7 @@
       }
     ],
     "configuration": {
-      "title": "Reductech SCL",
+      "title": "Sequence Configuration Language",
       "properties": {
         "reductech-scl.sequence.connectors": {
           "description": "The connector configuration for the Language Server.",
