@@ -1,4 +1,6 @@
-FileRead  'artwork_data.csv'
+- <entity> = (artist: 'abc')
+
+- FileRead  'artwork_data.csv'
 | FromCSV Delimiter: 'a'
 | ArrayFilter ((from <entity> 'artist') == 'Blake, Robert')
 | EntityMap (in <entity> 'artist' (StringToCase (from <entity> 'artist') TextCase.Upper ))

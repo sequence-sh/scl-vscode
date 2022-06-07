@@ -66,11 +66,13 @@ public class
     async Task<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> Create(
         SCLLanguageServerConfiguration config)
     {
-        var connectorRegistry = new ConnectorRegistry(LoggerFactory.CreateLogger<ConnectorRegistry>(),
-            config.ConnectorRegistrySettings ?? ConnectorRegistrySettings.Reductech);
+
+        var settings = config.ConnectorManagerSettings ?? ConnectorManagerSettings.Default;
+
+        var connectorRegistry = new ConnectorRegistry(LoggerFactory.CreateLogger<ConnectorRegistry>(),settings);
 
         var connectorManagerLogger = LoggerFactory.CreateLogger<ConnectorManager>();
-        var settings = config.ConnectorManagerSettings ?? ConnectorManagerSettings.Default;
+        
 
         Logger.LogInformation(
             $"Connector Settings\r\nConfiguration Path: {settings.ConfigurationPath}\r\nConnector Path: {settings.ConnectorPath}");
@@ -82,7 +84,7 @@ public class
 
         if (connectorConfigurationDict is null || connectorConfigurationDict.Count == 0)
         {
-            const string ConnectorFilter = "Reductech.Sequence";
+            const string connectorFilter = "Reductech.Sequence";
 
             //load latest connectors from repository
             var manager1 = new ConnectorManager(connectorManagerLogger, settings, connectorRegistry,
@@ -91,7 +93,7 @@ public class
             var found = await manager1.Find(); //Find all connectors
 
             connectorConfigurationDict = found
-                .Where(x=>x.Id.Contains(ConnectorFilter, StringComparison.OrdinalIgnoreCase))
+                .Where(x=>x.Id.Contains(connectorFilter, StringComparison.OrdinalIgnoreCase))
                 
                 .ToDictionary(x => x.Id,
                 x => new ConnectorSettings() { Enable = true, Id = x.Id, Version = GetBestVersion(x.Version) });
@@ -151,6 +153,6 @@ public class
     /// <inheritdoc />
     public async Task<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> GetValueAsync()
     {
-        return await _stepFactoryStoreSource.Value;
+        return await _stepFactoryStoreSource.Value; //Errors here may be caused by the project version being lower than the desired connector version
     }
 }
