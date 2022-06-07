@@ -4,350 +4,368 @@
   "foldingStartMarker": "^\\s*-\\s.+",
   "foldingStopMarker": "^\\s*$",
   "patterns": [
-    {
-      "include": "#comment"
-    },
-    {
-      "include": "#expression"
-    }
+     {
+        "include": "#comment"
+     },
+     {
+        "include": "#expression"
+     }
   ],
   "repository": {
-    "expression": {
-      "patterns": [
-        {
-          "include": "#date"
+     "expression": {
+        "patterns": [
+           {
+              "include": "#date"
+           },
+           {
+              "include": "#boolean-literal"
+           },
+           {
+              "include": "#numeric-literal"
+           },
+           {
+              "include": "#paren-expression"
+           },
+           {
+              "include": "#string-multiline"
+           },
+           {
+              "include": "#string-literal"
+           },
+           {
+              "include": "#string-interpolated"
+           },
+           {
+              "include": "#char-literal"
+           },
+           {
+              "include": "#variable-name"
+           },
+           {
+              "include": "#array"
+           },
+           {
+              "include": "#enum"
+           },
+           {
+              "include": "#command"
+           },
+           {
+              "include": "#pipe"
+           },
+           {
+              "include": "#operator"
+           },
+           {
+              "include": "#propertyName"
+           },
+           {
+              "include": "#step"
+           }
+        ]
+     },
+     "boolean-literal": {
+        "patterns": [
+           {
+              "name": "constant.language.boolean.true.scl",
+              "match": "\\b[Tt][Rr][Uu][Ee]\\b"
+           },
+           {
+              "name": "constant.language.boolean.false.scl",
+              "match": "\\b[Ff][Aa][Ll][Ss][Ee]\\b"
+           }
+        ]
+     },
+     "numeric-literal": {
+        "name": "constant.numeric.decimal.scl",
+        "match": "\\b[0-9]+(\\.[0-9]+)?\\b"
+     },
+     "variable-name": {
+        "name": "variable.language.scl",
+        "match": "<[a-zA-Z0-9_]*>"
+     },
+     "enum": {
+        "name": "constant.language.enum.scl",
+        "match": "\\b[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+\\b"
+     },
+     "date": {
+        "name": "constant.other.scl",
+        "match": "\\b\\d{4}-\\d{2}-\\d{2}([Tt]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?)?\\b"
+     },
+     "command": {
+        "name": "keyword.operator.scl",
+        "match": "^\\s*-\\s"
+     },
+     "pipe": {
+        "name": "keyword.operator.scl",
+        "match": "\\|"
+     },
+     "operator": {
+        "name": "keyword.operator.scl",
+        "match": "([\\-+*/%^<>=]|(&&)|(\\|\\|)|(==)|(!=)|(<=)|(>=)|(=>))"
+     },
+     "comma": {
+        "name": "punctuation.comma.scl",
+        "match": ","
+     },
+     "array": {
+        "begin": "(?=(\\[))",
+        "beginCaptures": {
+           "1": {
+              "name": "punctuation.squarebracket.open.scl"
+           }
         },
-        {
-          "include": "#boolean-literal"
+        "end": "(?=(\\]))",
+        "endCaptures": {
+           "1": {
+              "name": "punctuation.squarebracket.close.scl"
+           }
         },
-        {
-          "include": "#numeric-literal"
-        },
-        {
-          "include": "#paren-expression"
-        },
-        {
-          "include": "#string-literal"
-        },
-        {
-          "include": "#string-interpolated"
-        },
-        {
-          "include": "#char-literal"
-        },
-        {
-          "include": "#variable-name"
-        },
-        {
-          "include": "#array"
-        },
-        {
-          "include": "#enum"
-        },
-        {
-          "include": "#command"
-        },
-        {
-          "include": "#pipe"
-        },
-        {
-          "include": "#operator"
-        },
-        {
-          "include": "#propertyName"
-        },
-        {
-          "include": "#step"
+        "patterns": [
+           {
+              "begin": "(?<=\\[)",
+              "end": "(?=\\])",
+              "patterns": [
+                 {
+                    "include": "#comment"
+                 },
+                 {
+                    "include": "#expression"
+                 },
+                 {
+                    "include": "#comma"
+                 }
+              ]
+           }
+        ]
+     },
+     "propertyName": {
+        "match": "(\\b[a-zA-Z0-9_]+)\\s*(:)",
+        "captures": {
+           "0": {
+              "name": "support.function.scl"
+           },
+           "1": {
+              "name": "punctuation.colon.scl"
+           }
         }
-      ]
-    },
-    "boolean-literal": {
-      "patterns": [
-        {
-          "name": "constant.language.boolean.true.scl",
-          "match": "\\b[Tt][Rr][Uu][Ee]\\b"
+     },
+     "string-interpolated": {
+        "name": "string.quoted.double.scl",
+        "begin": "\\$\"",
+        "beginCaptures": {
+           "0": {
+              "name": "punctuation.definition.string.begin.scl"
+           }
         },
-        {
-          "name": "constant.language.boolean.false.scl",
-          "match": "\\b[Ff][Aa][Ll][Ss][Ee]\\b"
+        "end": "\"",
+        "endCaptures": {
+           "0": {
+              "name": "punctuation.definition.string.end.scl"
+           }
+        },
+        "patterns": [
+           {
+              "include": "#interpolation-expression"
+           },
+           {
+              "include": "#string-character-escape"
+           }
+        ]
+     },
+     "string-multiline": {
+        "name": "string.quoted.double.scl",
+        "begin": "\"\"\"",
+        "beginCaptures": {
+           "0": {
+              "name": "punctuation.definition.string.begin.scl"
+           }
+        },
+        "end": "\"\"\"",
+        "endCaptures": {
+           "0": {
+              "name": "punctuation.definition.string.end.scl"
+           }
         }
-      ]
-    },
-    "numeric-literal": {
-      "name": "constant.numeric.decimal.scl",
-      "match": "\\b[0-9]+(\\.[0-9]+)?\\b"
-    },
-    "variable-name": {
-      "name": "variable.language.scl",
-      "match": "<[a-zA-Z0-9_]*>"
-    },
-    "enum": {
-      "name": "constant.language.enum.scl",
-      "match": "\\b[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+\\b"
-    },
-    "date": {
-      "name": "constant.other.scl",
-      "match": "\\b\\d{4}-\\d{2}-\\d{2}([Tt]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?)?\\b"
-    },
-    "command": {
-      "name": "keyword.operator.scl",
-      "match": "^\\s*-\\s"
-    },
-    "pipe": {
-      "name": "keyword.operator.scl",
-      "match": "\\|"
-    },
-    "operator": {
-      "name": "keyword.operator.scl",
-      "match": "([\\-+*/%^<>=]|(&&)|(\\|\\|)|(==)|(!=)|(<=)|(>=)|(=>))"
-    },
-    "comma": {
-      "name": "punctuation.comma.scl",
-      "match": ","
-    },
-    "array": {
-      "begin": "(?=(\\[))",
-      "beginCaptures": {
-        "1": {
-          "name": "punctuation.squarebracket.open.scl"
-        }
-      },
-      "end": "(?=(\\]))",
-      "endCaptures": {
-        "1": {
-          "name": "punctuation.squarebracket.close.scl"
-        }
-      },
-      "patterns": [
-        {
-          "begin": "(?<=\\[)",
-          "end": "(?=\\])",
-          "patterns": [
-            {
-              "include": "#comment"
-            },
-            {
+     },
+     "string-literal": {
+        "name": "string.quoted.double.scl",
+        "begin": "\"",
+        "beginCaptures": {
+           "0": {
+              "name": "punctuation.definition.string.begin.scl"
+           }
+        },
+        "end": "\"",
+        "endCaptures": {
+           "0": {
+              "name": "punctuation.definition.string.end.scl"
+           }
+        },
+        "patterns": [
+           {
+              "include": "#string-character-escape"
+           }
+        ]
+     },
+     "char-literal": {
+        "name": "string.quoted.single.scl",
+        "begin": "'",
+        "beginCaptures": {
+           "0": {
+              "name": "punctuation.definition.char.begin.scl"
+           }
+        },
+        "end": "'",
+        "endCaptures": {
+           "0": {
+              "name": "punctuation.definition.char.end.scl"
+           }
+        },
+        "patterns": [
+           {
+              "include": "#char-character-escape"
+           }
+        ]
+     },
+     "string-character-escape": {
+        "name": "constant.character.escape.scl",
+        "match": "\\\\[\"\\\\nrt]"
+     },
+     "char-character-escape": {
+        "name": "constant.character.escape.scl",
+        "match": "''"
+     },
+     "interpolation-expression": {
+        "begin": "\\{",
+        "end": "\\}",
+        "beginCaptures": {
+           "0": {
+              "name": "punctuation.paren.open.scl"
+           }
+        },
+        "endCaptures": {
+           "0": {
+              "name": "punctuation.paren.close.scl"
+           }
+        },
+        "name": "expression.group",
+        "patterns": [
+           {
               "include": "#expression"
-            },
-            {
+           }
+        ]
+     },
+     "paren-expression": {
+        "begin": "\\(",
+        "end": "\\)",
+        "beginCaptures": {
+           "0": {
+              "name": "punctuation.paren.open.scl"
+           }
+        },
+        "endCaptures": {
+           "0": {
+              "name": "punctuation.paren.close.scl"
+           }
+        },
+        "name": "expression.group",
+        "patterns": [
+           {
+              "include": "#entity-propertyName"
+           },
+           {
+              "include": "#expression"
+           },
+           {
               "include": "#comma"
-            }
-          ]
-        }
-      ]
-    },
-    "propertyName": {
-      "match": "(\\b[a-zA-Z0-9_]+)\\s*(:)",
-      "captures": {
-        "0": {
-          "name": "support.function.scl"
-        },
-        "1": {
-          "name": "punctuation.colon.scl"
-        }
-      }
-    },
-    "string-interpolated": {
-      "name": "string.quoted.double.scl",
-      "begin": "\\$\"",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.begin.scl"
-        }
-      },
-      "end": "\"",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.end.scl"
-        }
-      },
-      "patterns": [
-        {
-          "include": "#interpolation-expression"
-        },
-        {
-          "include": "#string-character-escape"
-        }
-      ]
-    },
-    "string-literal": {
-      "name": "string.quoted.double.scl",
-      "begin": "\"",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.begin.scl"
-        }
-      },
-      "end": "\"",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.end.scl"
-        }
-      },
-      "patterns": [
-        {
-          "include": "#string-character-escape"
-        }
-      ]
-    },
-    "char-literal": {
-      "name": "string.quoted.single.scl",
-      "begin": "'",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.definition.char.begin.scl"
-        }
-      },
-      "end": "'",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.definition.char.end.scl"
-        }
-      },
-      "patterns": [
-        {
-          "include": "#char-character-escape"
-        }
-      ]
-    },
-    "string-character-escape": {
-      "name": "constant.character.escape.scl",
-      "match": "\\\\[\"\\\\nrt]"
-    },
-    "char-character-escape": {
-      "name": "constant.character.escape.scl",
-      "match": "''"
-    },
-    "interpolation-expression": {
-      "begin": "\\{",
-      "end": "\\}",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.paren.open.scl"
-        }
-      },
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.paren.close.scl"
-        }
-      },
-      "name": "expression.group",
-      "patterns": [
-        {
-          "include": "#expression"
-        }
-      ]
-    },
-    "paren-expression": {
-      "begin": "\\(",
-      "end": "\\)",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.paren.open.scl"
-        }
-      },
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.paren.close.scl"
-        }
-      },
-      "name": "expression.group",
-      "patterns": [
-        {
-          "include": "#entity-propertyName"
-        },
-        {
-          "include": "#expression"
-        },
-        {
-          "include": "#comma"
-        },
-        {
-          "include": "#comment"
-        }
-      ]
-    },
-    "entity-propertyName": {
-      "patterns": [
-        {
-          "match": "(\\b[a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)*)\\s*(:)",
-          "captures": {
-            "0": {
-              "name": "entity.name.section.scl"
-            },
-            "1": {
-              "name": "punctuation.colon.scl"
-            }
-          }
-        },
-        {
-          "match": "(\\\".+?\\\")\\s*(:)",
-          "captures": {
-            "0": {
-              "name": "entity.name.section.scl"
-            },
-            "1": {
-              "name": "punctuation.colon.scl"
-            }
-          }
-        },
-        {
-          "match": "('.+?')\\s*(:)",
-          "captures": {
-            "0": {
-              "name": "entity.name.section.scl"
-            },
-            "1": {
-              "name": "punctuation.colon.scl"
-            }
-          }
-        }
-      ]
-    },
-    "comment": {
-      "patterns": [
-        {
-          "name": "comment.block.scl",
-          "begin": "/\\*",
-          "beginCaptures": {
-            "0": {
-              "name": "punctuation.definition.comment.scl"
-            }
-          },
-          "end": "\\*/",
-          "endCaptures": {
-            "0": {
-              "name": "punctuation.definition.comment.scl"
-            }
-          }
-        },
-        {
-          "name": "comment.line.scl",
-          "begin": "(^\\s+)?(?=#)",
-          "beginCaptures": {
-            "1": {
-              "name": "punctuation.whitespace.comment.leading.scl"
-            }
-          },
-          "end": "(?=$)",
-          "patterns": [
-            {
-              "name": "comment.line.number-sign.scl",
-              "begin": "(?<!/)#(?:(?!/)|(?=#))",
+           },
+           {
+              "include": "#comment"
+           }
+        ]
+     },
+     "entity-propertyName": {
+        "patterns": [
+           {
+              "match": "(\\b[a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)*)\\s*(:)",
+              "captures": {
+                 "0": {
+                    "name": "entity.name.section.scl"
+                 },
+                 "1": {
+                    "name": "punctuation.colon.scl"
+                 }
+              }
+           },
+           {
+              "match": "(\\\".+?\\\")\\s*(:)",
+              "captures": {
+                 "0": {
+                    "name": "entity.name.section.scl"
+                 },
+                 "1": {
+                    "name": "punctuation.colon.scl"
+                 }
+              }
+           },
+           {
+              "match": "('.+?')\\s*(:)",
+              "captures": {
+                 "0": {
+                    "name": "entity.name.section.scl"
+                 },
+                 "1": {
+                    "name": "punctuation.colon.scl"
+                 }
+              }
+           }
+        ]
+     },
+     "comment": {
+        "patterns": [
+           {
+              "name": "comment.block.scl",
+              "begin": "/\\*",
               "beginCaptures": {
-                "0": {
-                  "name": "punctuation.definition.comment.scl"
-                }
+                 "0": {
+                    "name": "punctuation.definition.comment.scl"
+                 }
               },
-              "end": "(?=$)"
-            }
-          ]
-        }
-      ]
-    },
-    "step": {
-      "match": "(?i)\\b[a-zA-Z0-9_]+\\b",
-      "name": "support.class.scl"
-    }
+              "end": "\\*/",
+              "endCaptures": {
+                 "0": {
+                    "name": "punctuation.definition.comment.scl"
+                 }
+              }
+           },
+           {
+              "name": "comment.line.scl",
+              "begin": "(^\\s+)?(?=#)",
+              "beginCaptures": {
+                 "1": {
+                    "name": "punctuation.whitespace.comment.leading.scl"
+                 }
+              },
+              "end": "(?=$)",
+              "patterns": [
+                 {
+                    "name": "comment.line.number-sign.scl",
+                    "begin": "(?<!/)#(?:(?!/)|(?=#))",
+                    "beginCaptures": {
+                       "0": {
+                          "name": "punctuation.definition.comment.scl"
+                       }
+                    },
+                    "end": "(?=$)"
+                 }
+              ]
+           }
+        ]
+     },
+     "step": {
+        "match": "(?i)\\b[a-zA-Z0-9_]+\\b",
+        "name": "support.class.scl"
+     }
   }
 }
