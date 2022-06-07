@@ -3,7 +3,7 @@
   "publisher": "reductech",
   "displayName": "Sequence Configuration Language",
   "description": "SCL extension for syntax highlighting, auto-completion and error diagnostics.",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "preview": true,
   "license": "Apache-2.0",
   "homepage": "https://gitlab.com/reductech/sequence/scl-vscode",
