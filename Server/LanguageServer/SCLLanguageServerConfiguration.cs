@@ -24,13 +24,7 @@ public record SCLLanguageServerConfiguration
     [DataMember(Name = ConnectorManagerSettings.Key)]
     [JsonPropertyName(ConnectorManagerSettings.Key)]
     public ConnectorManagerSettings? ConnectorManagerSettings { get; init; }
-
-    /// <summary>
-    /// Settings for the Connector Registry
-    /// </summary>
-    [DataMember(Name = ConnectorRegistrySettings.Key)]
-    [JsonPropertyName(ConnectorRegistrySettings.Key)]
-    public ConnectorRegistrySettings? ConnectorRegistrySettings { get; init; }
+    
 
     /// <summary>
     /// Dictionary of Connector Settings

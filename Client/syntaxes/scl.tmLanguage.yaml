@@ -12,7 +12,8 @@ repository:
         - include: '#boolean-literal'
         - include: '#numeric-literal'
         - include: '#paren-expression'
-        - include: '#string-literal'
+        - include: '#string-multiline'
+        - include: '#string-literal'        
         - include: '#string-interpolated'
         - include: '#char-literal'
         - include: '#variable-name'
@@ -96,6 +97,15 @@ repository:
         - include: '#interpolation-expression'
         - include: '#string-character-escape'
 
+    string-multiline:
+        name: string.quoted.double.scl
+        begin: '"""'
+        beginCaptures:
+            '0': { name: punctuation.definition.string.begin.scl }
+        end: '"""'
+        endCaptures:
+            '0': { name: punctuation.definition.string.end.scl }
+
     string-literal:
         name: string.quoted.double.scl
         begin: '"'
@@ -106,6 +116,8 @@ repository:
             '0': { name: punctuation.definition.string.end.scl }
         patterns:
         - include: '#string-character-escape'
+
+
 
     char-literal:
         name: string.quoted.single.scl

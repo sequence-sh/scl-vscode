@@ -3,6 +3,15 @@
 /* Block Comment */
 - <string> = 'ABC'
 - <multiline> = "A BC\r \n \\ \""
+- <multiline2> = """
+no 
+need
+to
+escape
+quotes "double" 'single'
+
+"""
+
 - Print Value:'Something'
 - <Entity> = 
     (key: 123, 
@@ -11,9 +20,12 @@
 
 - <bools> = [true, TRUE, false, falsE]
 - <numbers> = [1, 23, 45.678]
-- <enum> = enum.Value
+- <enum> = TextCase.Upper
 - <date> = 1990-01-06T01:23:45
+
+- <casename> = <entity>.key
 - FromJson
+
 
 
 
@@ -35,5 +47,4 @@
 - NuixAddItem
     Custodian: <Custodian>
     Paths: <Evidence>
-    FolderName: <FolderName>
     ProcessingProfileName: <ProcessingProfileName>
