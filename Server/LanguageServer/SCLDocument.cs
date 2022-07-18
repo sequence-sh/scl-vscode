@@ -7,6 +7,7 @@ using NuGet.Packaging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Reductech.Sequence.Core.Internal;
+using Reductech.Sequence.Core.Internal.Documentation;
 using Reductech.Sequence.Core.Internal.Errors;
 using Reductech.Sequence.Core.Internal.Parser;
 using Reductech.Sequence.Core.Internal.Serialization;
@@ -34,7 +35,7 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public SignatureHelp? GetSignatureHelp(Position position, StepFactoryStore stepFactoryStore)
     {
-        var response = SignatureHelpHelper.GetSignatureHelpResponse(Text, position.ToLinePosition(), stepFactoryStore);
+        var response = SignatureHelpHelper.GetSignatureHelpResponse(Text, position.ToLinePosition(), stepFactoryStore, DocumentationOptions.DefaultDocumentationOptionsMonaco);
 
         return response?.ToSignatureHelp();
     }
@@ -93,7 +94,7 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public CompletionList GetCompletionList(Position position, StepFactoryStore stepFactoryStore)
     {
-        var result = CompletionHelper.GetCompletionResponse(Text, position.ToLinePosition(), stepFactoryStore);
+        var result = CompletionHelper.GetCompletionResponse(Text, position.ToLinePosition(), stepFactoryStore, DocumentationOptions.DefaultDocumentationOptionsMonaco);
 
         return result.ToCompletionList();
     }

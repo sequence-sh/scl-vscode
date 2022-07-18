@@ -59,11 +59,11 @@ public class
         _stepFactoryStoreSource =
             new ReactiveSource<(StepFactoryStore stepFactoryStore, IExternalContext externalContext),
                 SCLLanguageServerConfiguration>(
-                Create, optionsMonitor
+                CreateAsync, optionsMonitor
             );
     }
 
-    async Task<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> Create(
+    private async Task<(StepFactoryStore stepFactoryStore, IExternalContext externalContext)> CreateAsync(
         SCLLanguageServerConfiguration config)
     {
 
