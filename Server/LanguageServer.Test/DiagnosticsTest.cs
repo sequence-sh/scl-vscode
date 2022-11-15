@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
-using Reductech.Sequence.Core.Internal;
+using Sequence.Core.Internal;
 using Xunit;
 
 namespace LanguageServer.Test;

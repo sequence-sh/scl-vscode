@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.Sequence.Core.Internal;
+using Sequence.Core.Internal;
 using Xunit;
 using static LanguageServer.Test.TestHelpers;
 

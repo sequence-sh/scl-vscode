@@ -6,8 +6,8 @@ using LanguageServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Server;
-using Reductech.Sequence.Core.Abstractions;
-using Reductech.Sequence.Core.Internal;
+using Sequence.Core.Abstractions;
+using Sequence.Core.Internal;
 using NLog.Config;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 

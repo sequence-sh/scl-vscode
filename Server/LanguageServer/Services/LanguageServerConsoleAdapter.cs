@@ -2,7 +2,7 @@
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
-using Reductech.Sequence.Core.Abstractions;
+using Sequence.Core.Abstractions;
 
 namespace LanguageServer.Services;
 

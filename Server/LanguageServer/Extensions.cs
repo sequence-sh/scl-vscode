@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.Sequence.Core.LanguageServer.Objects;
+using Sequence.Core.LanguageServer.Objects;
 using CompletionItem = OmniSharp.Extensions.LanguageServer.Protocol.Models.CompletionItem;
 using CompletionItemKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.CompletionItemKind;
 using InsertTextFormat = OmniSharp.Extensions.LanguageServer.Protocol.Models.InsertTextFormat;
@@ -49,7 +49,7 @@ public static class Extensions
     public static CompletionList ToCompletionList(this CompletionResponse response) =>
         new(response.Items.Select(ToCompletionItem));
 
-    public static CompletionItem ToCompletionItem(this Reductech.Sequence.Core.LanguageServer.Objects.CompletionItem ci)
+    public static CompletionItem ToCompletionItem(this Sequence.Core.LanguageServer.Objects.CompletionItem ci)
     {
         return new CompletionItem()
         {

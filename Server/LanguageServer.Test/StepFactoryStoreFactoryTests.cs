@@ -5,7 +5,7 @@
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Extensions.Configuration.Json;
 //using Microsoft.Extensions.Logging.Abstractions;
-//using Reductech.Sequence.Core;
+//using Sequence.Core;
 //using Xunit;
 
 //namespace LanguageServer.Test

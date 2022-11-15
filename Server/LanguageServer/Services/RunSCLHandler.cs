@@ -13,9 +13,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Reductech.Sequence.Core.Abstractions;
-using Reductech.Sequence.Core.Internal;
-using Reductech.Sequence.Core.Internal.Serialization;
+using Sequence.Core.Abstractions;
+using Sequence.Core.Internal;
+using Sequence.Core.Internal.Serialization;
 
 namespace LanguageServer.Services;
 

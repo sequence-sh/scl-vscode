@@ -12,7 +12,7 @@ using NLog.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using Reductech.Sequence.Core.Entities;
+using Sequence.Core.Entities;
 
 namespace LanguageServer.Services;
 
