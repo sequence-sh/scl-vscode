@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RepositoryUrl>https://gitlab.com/reductech/sequence/scl-vscode.git</RepositoryUrl>
+    <RepositoryUrl>https://gitlab.com/sequence/scl-vscode.git</RepositoryUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Authors>Reductech</Authors>
+    <Authors>MarkWainwright;antonyoni</Authors>
     <Company>Reductech</Company>
     <Copyright>Copyright (c) 2021 Reductech Ltd</Copyright>
   </PropertyGroup>

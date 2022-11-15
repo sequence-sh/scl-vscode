@@ -11,17 +11,17 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>Reductech.Sequence.LanguageServer</PackageId>
+    <PackageId>Sequence.LanguageServer</PackageId>
     <Title>SCL Language Server</Title>
     <Product>Sequence®</Product>
     <PackageTags>ediscovery;forensics;automation;orchestration;edrm;scl;sequence</PackageTags>
 
-    <PackageProjectUrl>https://gitlab.com/reductech/sequence/scl-vscode</PackageProjectUrl>
-    <RepositoryUrl>https://gitlab.com/reductech/sequence/scl-vscode.git</RepositoryUrl>
-    <PackageReleaseNotes>https://gitlab.com/reductech/sequence/scl-vscode/-/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <PackageProjectUrl>https://gitlab.com/sequence/scl-vscode</PackageProjectUrl>
+    <RepositoryUrl>https://gitlab.com/sequence/scl-vscode.git</RepositoryUrl>
+    <PackageReleaseNotes>https://gitlab.com/sequence/scl-vscode/-/blob/master/CHANGELOG.md</PackageReleaseNotes>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 
-    <Authors>Reductech</Authors>
+    <Authors>MarkWainwright;antonyoni</Authors>
     <Company>Reductech</Company>
     <Copyright>Copyright (c) 2021 Reductech Ltd</Copyright>
   </PropertyGroup>

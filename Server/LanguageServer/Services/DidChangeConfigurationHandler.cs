@@ -45,13 +45,13 @@ internal class DidChangeConfigurationHandler : IDidChangeConfigurationHandler
     public async Task<Unit> Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken)
     {
         await Task.CompletedTask;
-        var mainSection = request.Settings?["reductech-scl"]?["sequence"];
+        var mainSection = request.Settings?["sequence-scl"]?["sequence"];
 
         var newText = mainSection?.ToString();
 
         if (newText is null)
         {
-            _logger.LogError("Configuration did not contain 'reductech-scl.sequence' ");
+            _logger.LogError("Configuration did not contain 'sequence-scl.sequence' ");
             return Unit.Value;
         }
             
@@ -59,7 +59,7 @@ internal class DidChangeConfigurationHandler : IDidChangeConfigurationHandler
 
         if (newConfig is null)
         {
-            _logger.LogError("Could not deserialize 'reductech-scl.sequence' ");
+            _logger.LogError("Could not deserialize 'sequence-scl.sequence' ");
             return Unit.Value;
         }
 

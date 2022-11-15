@@ -84,7 +84,7 @@ public class
 
         if (connectorConfigurationDict is null || connectorConfigurationDict.Count == 0)
         {
-            const string connectorFilter = "Reductech.Sequence";
+            const string connectorFilter = "Sequence";
 
             //load latest connectors from repository
             var manager1 = new ConnectorManager(connectorManagerLogger, settings, connectorRegistry,

@@ -61,7 +61,7 @@ please see the [documentation](https://sequence.sh/docs/examples/core).
 
 ## Grammar and Interpreter
 
-- [Core](https://gitlab.com/reductech/sequence/core) is the interpreter for SCL
+- [Core](https://gitlab.com/sequence/core) is the interpreter for SCL
 - The grammar is defined using [ANTLR](https://www.antlr.org/)
 
 ## Running SCL
