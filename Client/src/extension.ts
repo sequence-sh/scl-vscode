@@ -42,7 +42,7 @@ export function activate(context: ExtensionContext) {
     ],
     progressOnInitialization: true,
     synchronize: {
-      configurationSection: 'reductech-scl.sequence',
+      configurationSection: 'sequence-scl.sequence',
       fileEvents: workspace.createFileSystemWatcher('**/*.scl'),
     },
   };
@@ -74,13 +74,13 @@ export function activate(context: ExtensionContext) {
     }
   };
 
-  context.subscriptions.push(commands.registerCommand('reductech-scl.run', sclRunCommand));
+  context.subscriptions.push(commands.registerCommand('sequence-scl.run', sclRunCommand));
 
   const sclStartDebuggerCommand = async () => {
     let result  = await client.sendRequest("scl/StartDebugger", {});
   }
 
-  context.subscriptions.push(commands.registerCommand('reductech-scl.startDebugger', sclStartDebuggerCommand));
+  context.subscriptions.push(commands.registerCommand('sequence-scl.startDebugger', sclStartDebuggerCommand));
 
   
 

@@ -14,7 +14,7 @@ To Run SCL, press `F5`
 
 ## How to change settings
 
-File > Preferences > Settings > Reductech-SCL
+File > Preferences > Settings > Sequence-SCL
 
 The are two settings properties
 

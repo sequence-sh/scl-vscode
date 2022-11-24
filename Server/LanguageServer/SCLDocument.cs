@@ -6,13 +6,13 @@ using Antlr4.Runtime;
 using NuGet.Packaging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Reductech.Sequence.Core.Internal;
-using Reductech.Sequence.Core.Internal.Documentation;
-using Reductech.Sequence.Core.Internal.Errors;
-using Reductech.Sequence.Core.Internal.Parser;
-using Reductech.Sequence.Core.Internal.Serialization;
-using Reductech.Sequence.Core.LanguageServer;
-using Reductech.Sequence.Core.Util;
+using Sequence.Core.Internal;
+using Sequence.Core.Internal.Documentation;
+using Sequence.Core.Internal.Errors;
+using Sequence.Core.Internal.Parser;
+using Sequence.Core.Internal.Serialization;
+using Sequence.Core.LanguageServer;
+using Sequence.Core.Util;
 
 namespace LanguageServer;
 
@@ -35,7 +35,8 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public SignatureHelp? GetSignatureHelp(Position position, StepFactoryStore stepFactoryStore)
     {
-        var response = SignatureHelpHelper.GetSignatureHelpResponse(Text, position.ToLinePosition(), stepFactoryStore, DocumentationOptions.DefaultDocumentationOptionsMonaco);
+        var response = SignatureHelpHelper.GetSignatureHelpResponse(Text, position.ToLinePosition(), stepFactoryStore,
+            DocumentationOptions.DefaultDocumentationOptionsMonaco);
 
         return response?.ToSignatureHelp();
     }
@@ -45,9 +46,9 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public List<TextEdit> FormatDocument(StepFactoryStore stepFactoryStore)
     {
-        var result = 
-        FormattingHelper.FormatSCL(Text, stepFactoryStore)
-            .Select(x => x.ToTextEdit()).ToList();
+        var result =
+            FormattingHelper.FormatSCL(Text, stepFactoryStore)
+                .Select(x => x.ToTextEdit()).ToList();
 
         return result;
     }
@@ -94,7 +95,8 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
     /// </summary>
     public CompletionList GetCompletionList(Position position, StepFactoryStore stepFactoryStore)
     {
-        var result = CompletionHelper.GetCompletionResponse(Text, position.ToLinePosition(), stepFactoryStore, DocumentationOptions.DefaultDocumentationOptionsMonaco);
+        var result = CompletionHelper.GetCompletionResponse(Text, position.ToLinePosition(), stepFactoryStore,
+            DocumentationOptions.DefaultDocumentationOptionsMonaco);
 
         return result.ToCompletionList();
     }
@@ -110,7 +112,8 @@ public record SCLDocument(string Text, DocumentUri DocumentUri)
 
         if (initialParseResult.IsSuccess)
         {
-            var freezeResult = initialParseResult.Value.TryFreeze(SCLRunner.RootCallerMetadata, stepFactoryStore);
+            var freezeResult = initialParseResult.Value.TryFreeze(SCLRunner.RootCallerMetadata, stepFactoryStore,
+                new OptimizationSettings(false, false, new Dictionary<VariableName, InjectedVariable>()));
 
             if (freezeResult.IsSuccess)
             {

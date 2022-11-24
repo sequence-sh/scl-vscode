@@ -7,21 +7,21 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
-    <Version>0.17.0$(VersionSuffix)</Version>
+    <Version>0.18.0$(VersionSuffix)</Version>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>Reductech.Sequence.LanguageServer</PackageId>
+    <PackageId>Sequence.LanguageServer</PackageId>
     <Title>SCL Language Server</Title>
     <Product>Sequence®</Product>
     <PackageTags>ediscovery;forensics;automation;orchestration;edrm;scl;sequence</PackageTags>
 
-    <PackageProjectUrl>https://gitlab.com/reductech/sequence/scl-vscode</PackageProjectUrl>
-    <RepositoryUrl>https://gitlab.com/reductech/sequence/scl-vscode.git</RepositoryUrl>
-    <PackageReleaseNotes>https://gitlab.com/reductech/sequence/scl-vscode/-/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <PackageProjectUrl>https://gitlab.com/sequence/scl-vscode</PackageProjectUrl>
+    <RepositoryUrl>https://gitlab.com/sequence/scl-vscode.git</RepositoryUrl>
+    <PackageReleaseNotes>https://gitlab.com/sequence/scl-vscode/-/blob/master/CHANGELOG.md</PackageReleaseNotes>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 
-    <Authors>Reductech</Authors>
+    <Authors>MarkWainwright;antonyoni</Authors>
     <Company>Reductech</Company>
     <Copyright>Copyright (c) 2021 Reductech Ltd</Copyright>
   </PropertyGroup>
@@ -30,10 +30,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.0.4" />
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
-    <PackageReference Include="Reductech.Sequence.ConnectorManager" Version="0.10.0" />
-    <PackageReference Include="Reductech.Sequence.Core" Version="0.17.0" />
-    <PackageReference Include="Reductech.Sequence.Core.LanguageServer" Version="0.17.0" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.6" />
+    <PackageReference Include="Sequence.ConnectorManager" Version="0.11.0" />
+    <PackageReference Include="Sequence.Core" Version="0.18.0" />
+    <PackageReference Include="Sequence.Core.LanguageServer" Version="0.18.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
 

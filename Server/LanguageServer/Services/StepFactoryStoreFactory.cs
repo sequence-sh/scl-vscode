@@ -6,11 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Reductech.Sequence.ConnectorManagement;
-using Reductech.Sequence.ConnectorManagement.Base;
-using Reductech.Sequence.Core.Abstractions;
-using Reductech.Sequence.Core.Connectors;
-using Reductech.Sequence.Core.Internal;
+using Sequence.ConnectorManagement;
+using Sequence.ConnectorManagement.Base;
+using Sequence.Core.Abstractions;
+using Sequence.Core.Connectors;
+using Sequence.Core.Internal;
 
 namespace LanguageServer.Services;
 
@@ -84,7 +84,7 @@ public class
 
         if (connectorConfigurationDict is null || connectorConfigurationDict.Count == 0)
         {
-            const string connectorFilter = "Reductech.Sequence";
+            const string connectorFilter = "Sequence";
 
             //load latest connectors from repository
             var manager1 = new ConnectorManager(connectorManagerLogger, settings, connectorRegistry,
@@ -93,7 +93,7 @@ public class
             var found = await manager1.Find(); //Find all connectors
 
             connectorConfigurationDict = found
-                .Where(x=>x.Id.Contains(connectorFilter, StringComparison.OrdinalIgnoreCase))
+                .Where(x=>x.Id.StartsWith(connectorFilter, StringComparison.OrdinalIgnoreCase))
                 
                 .ToDictionary(x => x.Id,
                 x => new ConnectorSettings() { Enable = true, Id = x.Id, Version = GetBestVersion(x.Version) });
