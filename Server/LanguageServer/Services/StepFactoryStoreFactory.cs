@@ -93,7 +93,7 @@ public class
             var found = await manager1.Find(); //Find all connectors
 
             connectorConfigurationDict = found
-                .Where(x=>x.Id.Contains(connectorFilter, StringComparison.OrdinalIgnoreCase))
+                .Where(x=>x.Id.StartsWith(connectorFilter, StringComparison.OrdinalIgnoreCase))
                 
                 .ToDictionary(x => x.Id,
                 x => new ConnectorSettings() { Enable = true, Id = x.Id, Version = GetBestVersion(x.Version) });
