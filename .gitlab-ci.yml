@@ -25,7 +25,7 @@ variables:
     paths:
       - 'Client/node_modules/'
   before_script: &before_script
-    - dotnet nuget add source --name reductech --username $NUGET_USERNAME
+    - dotnet nuget add source --name sequence --username $NUGET_USERNAME
       --password $NUGET_TOKEN --store-password-in-clear-text
       "https://gitlab.com/api/v4/projects/$NUGET_PROJECT_ID/packages/nuget/index.json"
 
@@ -105,7 +105,7 @@ package extension:
     <<: *client_cache
     policy: pull
   artifacts:
-    name: 'reductech-scl.vsix'
+    name: 'sequence-scl.vsix'
     paths:
       - 'Client/*.vsix'
     expire_in: 3 months
