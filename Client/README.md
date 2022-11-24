@@ -19,8 +19,8 @@ application [Sequence](https://sequence.sh/download).
 You can use [connectors](https://sequence.sh/docs/connectors/core) to automate
 workflows for popular data formats and forensic/ediscovery applications.
 It's also possible to automatically generate steps from any OpenAPI endpoint
-using the [REST connector](https://sequence.sh/docs/connectors/rest).
-It's also possible to build your own connectors for any application using the
+using the [REST connector](https://sequence.sh/docs/connectors/rest),
+or to build your own connectors for any application using the
 [Core SDK](https://gitlab.com/sequence/core).
 
 ## Supported Features
