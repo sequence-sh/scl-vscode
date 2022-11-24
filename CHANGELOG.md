@@ -1,7 +1,59 @@
+# v0.18.0 (2022-11-24)
+
+## Issues Closed in this Release
+
+### Maintenance
+
+- Release v0.18.0 #46
+
+# v0.17.0 (2022-09-07)
+
+## Issues Closed in this Release
+
+### Maintenance
+
+- Release v0.17.0 #45
+
+# v0.16.0 (2022-07-18)
+
+## Issues Closed in this Release
+
+### Maintenance
+
+- Bump SCL version to 0.16 #44
+
+# v0.15.0 (2022-06-07)
+
+## Issues Closed in this Release
+
+### Maintenance
+
+- Release v0.15.0 #43
+
+# v0.14.0 (2022-03-25)
+
+## Issues Closed in this Release
+
+### Maintenance
+
+- Updated Core to v0.14.0 #42
+- Use Language Server features from Core #41
+
+# v0.13.0 (2022-01-31)
+
+## Issues Closed in this Release
+
+### New Features
+
+- Improve Code Completion #40
+
+### Bug Fixes
+
+- Steps inside Interpolated strings are not highlighted properly #31
+
 # v0.12.0 (2021-12-01)
 
 ## Summary of Changes
-
 
 - VS Code language server now runs SCL directly rather than calling EDR
 - There is a new command to debug the Language Server
