@@ -27,7 +27,7 @@
   ],
   "icon": "images/sequence-icon-light.png",
   "galleryBanner": {
-    "color": "#CDCDCD",
+    "color": "#383838",
     "theme": "dark"
   },
   "activationEvents": [
