@@ -1,4 +1,4 @@
-# Sequence® Configuration Language
+# Sequence Configuration Language
 
 A [Visual Studio Code](https://code.visualstudio.com/) extension for
 the [Sequence Configuration Language](https://sequence.sh) (SCL).
@@ -14,7 +14,14 @@ A quick introduction to the language and its features can be found in the
 [documentation](https://sequence.sh/docs/sequence-configuration-language).
 
 SCL can be validated and executed using the open-source command line
-application [Sequence](https://sequence.sh).
+application [Sequence](https://sequence.sh/download).
+
+You can use [connectors](https://sequence.sh/docs/connectors/core) to automate
+workflows for popular data formats and forensic/ediscovery applications.
+It's also possible to automatically generate steps from any OpenAPI endpoint
+using the [REST connector](https://sequence.sh/docs/connectors/rest).
+It's also possible to build your own connectors for any application using the
+[Core SDK](https://gitlab.com/sequence/core).
 
 ## Supported Features
 
@@ -24,13 +31,14 @@ application [Sequence](https://sequence.sh).
 - Error diagnostics
 - Run and validate sequences
 
-This extension is still in preview.
+This extension is still in preview. Please submit any bugs or feature requests
+in our [GitLab repository](https://gitlab.com/sequence/scl-vscode/-/issues/new).
 
 ## SCL Examples
 
 ### Remove duplicate rows from a CSV file
 
-```jsx
+```perl
 - FileRead 'C:\temp\data.csv'
 | FromCSV
 | RemoveDuplicates
@@ -40,7 +48,7 @@ This extension is still in preview.
 
 ### Get data from a SQL database and write to CSV
 
-```jsx
+```perl
 - <ConnectionString> = CreateMySQLConnectionString
                          Server: 'localhost'
                          Database: 'database'
@@ -55,9 +63,8 @@ This extension is still in preview.
 | FileWrite 'C:\temp\mytable-export.csv'
 ```
 
-For more examples and all the supported applications (through our
-[connectors](https://sequence.sh/docs/connectors/core)
-please see the [documentation](https://sequence.sh/docs/examples/core).
+For more examples and all the supported applications please see the
+[documentation](https://sequence.sh/docs/examples/core).
 
 ## Grammar and Interpreter
 
