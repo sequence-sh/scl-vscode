@@ -1,12 +1,12 @@
 {
   "name": "sequence-scl",
-  "publisher": "reductech",
+  "publisher": "sequence",
   "displayName": "Sequence Configuration Language",
   "description": "SCL extension for syntax highlighting, auto-completion and error diagnostics.",
   "version": "0.18.0",
   "preview": true,
   "license": "Apache-2.0",
-  "homepage": "https://gitlab.com/sequence/scl-vscode",
+  "homepage": "https://sequence.sh",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/sequence/scl-vscode.git"
@@ -25,7 +25,7 @@
     "edrm",
     "sequence"
   ],
-  "icon": "images/sequence_light_square_512px.png",
+  "icon": "images/sequence-icon-light.png",
   "galleryBanner": {
     "color": "#CDCDCD",
     "theme": "dark"
